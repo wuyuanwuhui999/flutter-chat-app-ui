@@ -28,6 +28,7 @@ Future<ResponseModel<dynamic>> loginService(
   try {
     Response response = await dio.post(servicePath['login']!, data: {'userAccount':userAccount,'password':generateMd5(password)});
     HttpUtil.getInstance().setToken(response.data['token']);
+    print(servicePath['login']!);
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
@@ -158,3 +159,16 @@ Future<ResponseModel<void>> deleteMyDocumentService(String docId) async {
   }
 }
 
+///@author: wuwenqiang
+///@description: 获取文档列表
+/// @date: 2025-06-09 19:39
+Future<ResponseModel<List<dynamic>>> getDirectoryListService(String tenantId) async {
+  try {
+    Response response =
+    await dio.delete(servicePath['getDirectoryList']!,queryParameters:{"tenantId":tenantId});
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}

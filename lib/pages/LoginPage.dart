@@ -47,7 +47,7 @@ class LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     Center(
                         child: Image.asset(
-                          "lib/assets/images/icon_logo.png",
+                          "lib/assets/images/icon_ai.png",
                           width: ThemeSize.movieWidth / 2,
                           height: ThemeSize.movieWidth / 2,
                         )),
@@ -187,8 +187,6 @@ class LoginPageState extends State<LoginPage> {
                                   hintStyle: TextStyle(
                                       fontSize: ThemeSize.smallFontSize,
                                       color: ThemeColors.grey),
-                                  contentPadding: EdgeInsets.only(
-                                      left: ThemeSize.containerPadding),
                                   border: InputBorder.none,
                                 )))
                       ],
@@ -334,7 +332,7 @@ class LoginPageState extends State<LoginPage> {
                                   .setUserInfo(
                                       UserInfoModel.fromJson(res.data));
                               Routes.router.navigateTo(
-                                  context, '/MusicIndexPage',
+                                  context, '/ChatPage',
                                   replace: true);
 
                             } else {
@@ -389,7 +387,7 @@ class LoginPageState extends State<LoginPage> {
                                   .setUserInfo(
                                   UserInfoModel.fromJson(res.data));
                               Routes.router.navigateTo(
-                                  context, '/MusicIndexPage',
+                                  context, '/ChatPage',
                                   replace: true);
                             } else {
                               Fluttertoast.showToast(
@@ -405,19 +403,19 @@ class LoginPageState extends State<LoginPage> {
                       },
                       child: Container(
                         height: ThemeSize.buttonHeight,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.all(
                               Radius.circular(ThemeSize.superRadius)),
                         ),
                         width: double.infinity,
-                        child: Center(
+                        child: const Center(
                             child: Text("登录",
                                 style:
                                     TextStyle(color: ThemeColors.colorWhite))),
                       ),
                     ),
-                    SizedBox(height: ThemeSize.containerPadding),
+                    const SizedBox(height: ThemeSize.containerPadding),
                     InkWell(
                         onTap: () {
                           Routes.router.navigateTo(context, '/RegisterPage',

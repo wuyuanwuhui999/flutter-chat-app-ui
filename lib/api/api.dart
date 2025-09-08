@@ -10,9 +10,10 @@ const servicePath = {
   'updatePassword': '/service/user-getway/updatePassword',//更新密码
   'loginByEmail': '/service/user/loginByEmail',//邮箱登录
   'chat':"/service/ai/chat",// ai聊天
-  'getChatHistory': "/service/music/getChatHistory",// ai聊天
-  'chatWs': "/service/music/ws/chat",// ai聊天
-  'getModelList': "/service/music/getModelList",// ai聊天
-  'getDocList': "/service/music/getDocList",// 查询我的文档
-  'deleteDoc': "/service/music/deleteDoc/",// 查询我的文档
+  'getChatHistory': "/service/ai/getChatHistory",// ai聊天
+  'chatWs': "/service/ai/ws/chat",// ai聊天
+  'getModelList': "/service/ai/getModelList",// ai聊天
+  'getDocList': "/service/ai/getDocList",// 查询我的文档
+  'deleteDoc': "/service/ai/deleteDoc/",// 查询我的文档
+  'getDirectoryList':"/service/ai/getDirectoryList",// 按照租户查询文档目录列表
 };

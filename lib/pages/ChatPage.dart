@@ -3,19 +3,22 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:flutter_music_app/model/DirectoryModel.dart';
 import 'package:flutter_music_app/model/DocModel.dart';
+import 'package:flutter_music_app/provider/ChatProvider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../api/api.dart';
+import '../component/DialogComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../component/TriangleComponent.dart';
 import '../enum/ConnectionStatus.dart';
 import '../enum/PositionEnum.dart';
 import '../model/AiModel.dart';
-import '../model/AvaterComponent.dart';
+import '../component/AvaterComponent.dart';
 import '../model/ChatHistoryGroupModel.dart';
 import '../model/ChatHistoryModel.dart';
 import '../model/ChatModel.dart';
@@ -52,7 +55,6 @@ class ChatPageState extends State<ChatPage> {
   String responseContent = "";
   String type = "";
   bool showThink = false;
-  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   List<ChatModel> chatList = [
     ChatModel(
         position: PositionEnum.left,
@@ -60,17 +62,22 @@ class ChatPageState extends State<ChatPage> {
         responseContent: "你好，我是智能音乐助手小吴同学，请问有什么可以帮助您？"),
   ];
   Map<String, List<List<ChatHistoryModel>>> timeAgoGroupMap = {};
+  late ChatProvider chatProvider;
   bool showHistory = false;
   bool showMyDoc = false;
   List<DocModel> myDocList = [];
-  EasyRefreshController easyRefreshController = EasyRefreshController();
+  EasyRefreshController historyEasyRefreshController = EasyRefreshController();
   TextEditingController controller = TextEditingController(); // 姓名
+  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   // 使用正则表达式进行匹配
   final RegExp startThinkPattern = RegExp(r'^<think>');
   final RegExp endThinkPattern = RegExp(r'</think>');
   bool showClearIcon = false;
   ScrollController scrollController = ScrollController();
   String language = "zh";
+  List<DirectoryModel> directoryList = [
+    DirectoryModel(id: "default", userId: "", directory: "默认文件夹")
+  ]; 
 
   @override
   void initState() {
@@ -290,6 +297,95 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
+  ///@author: wuwenqiang
+  ///@description: 文档设置弹窗
+  /// @date: 2025-09-08 16:23
+  Future<void> showDocSettingDialog(BuildContext context) async {
+    if(directoryList.length == 1){
+      await getDirectoryListService(chatProvider.tenantModel.id).then((res){
+        setState(() {
+          res.data.map((item){
+            directoryList.add(DirectoryModel.fromJson(item));
+          });
+        });
+      });
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogComponent(
+            title: "选择文档目录",
+            content:ListView.separated(
+              itemCount: directoryList.length,
+              separatorBuilder: (context, index) => const Divider(
+                height: 1,
+                thickness: 1,
+                color: Colors.grey,
+              ),
+              itemBuilder: (context, index) {
+                final directory = directoryList[index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: ThemeSize.containerPadding), // 上下间隔15
+                  padding: const EdgeInsets.symmetric(horizontal: ThemeSize.containerPadding),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 左边显示directory字段
+                      Expanded(
+                        child: Text(
+                          directory.directory,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: ThemeSize.containerPadding),
+                      // 右边单选按钮
+                      GestureDetector(
+                        onTap: () => selectItem(index),
+                        child: Container(
+                          width: ThemeSize.radioSize,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: directory.isSelected ? Colors.blue : Colors.grey,
+                              width: 2,
+                            ),
+                            color: directory.isSelected ? Colors.blue : Colors.transparent,
+                          ),
+                          child: directory.isSelected
+                              ? const Icon(
+                            Icons.check,
+                            size: ThemeSize.middleFontSize,
+                            color: Colors.white,
+                          )
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            )
+        );
+      },
+    );
+  }
+
+  // 选择项目的方法
+  void selectItem(int index) {
+    setState(() {
+      // 取消所有选择
+      for (var directory in directoryList) {
+        directory.isSelected = false;
+      }
+      // 选择当前项目
+      directoryList[index].isSelected = true;
+    });
+  }
   // 头部
   Widget buildHeaderWidget() {
     return Container(
@@ -297,16 +393,7 @@ class ChatPageState extends State<ChatPage> {
       decoration: const BoxDecoration(color: ThemeColors.colorWhite),
       child: Row(
         children: [
-          Opacity(
-            opacity: ThemeSize.opacity,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: Image.asset('lib/assets/images/icon_back.png',
-                  width: ThemeSize.smallIcon, height: ThemeSize.smallIcon),
-            ),
-          ),
+          const AvaterComponent(size: ThemeSize.smallAvater),
           Expanded(
               child: Text(
             "当前接入模型：${activeModelName}",
@@ -435,14 +522,7 @@ class ChatPageState extends State<ChatPage> {
                                           size: ThemeSize.miniIcon,
                                           color: Colors.white),
                                     ),
-                                    AvaterComponent(
-                                        type: 'music',
-                                        name: '',
-                                        avater: Provider.of<UserInfoProvider>(
-                                                context)
-                                            .userInfo
-                                            .avater,
-                                        size: ThemeSize.middleIcon)
+                                    AvaterComponent(size: ThemeSize.middleIcon)
                                   ],
                                 ),
                               )
@@ -569,7 +649,36 @@ class ChatPageState extends State<ChatPage> {
                             ? Colors.orange
                             : ThemeColors.subTitle),
                   )),
-              SizedBox(width: ThemeSize.containerPadding),
+              type == "document" ?
+                  Row(
+                    children: [
+                      const SizedBox(width: ThemeSize.containerPadding),
+                      OutlinedButton(
+                      onPressed: () {
+                        showDocSettingDialog(context);
+                      },
+                      ///圆角
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: ThemeColors.colorWhite,
+                        // 背景色（可选）
+                        foregroundColor: ThemeColors.colorWhite,
+                        // 文字颜色
+                        side: const BorderSide(
+                            color: Colors.orange),
+                        // 设置边框颜色（这里是黑色）
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(ThemeSize.bigRadius), // 圆角
+                        ),
+                      ),
+                      child: const Text(
+                        '文档设置',
+                        style: TextStyle(
+                            fontSize: ThemeSize.middleFontSize,
+                            color: Colors.orange),
+                      ))],)
+               : const SizedBox(),
+              const SizedBox(width: ThemeSize.containerPadding),
               OutlinedButton(
                   onPressed: () {
                     setState(() {
@@ -774,7 +883,7 @@ class ChatPageState extends State<ChatPage> {
                     height: MediaQuery.of(context).size.height,
                     decoration: const BoxDecoration(color: Colors.white),
                     child: EasyRefresh(
-                        controller: easyRefreshController,
+                        controller: historyEasyRefreshController,
                         footer: ClassicalFooter(
                           loadText: '上拉加载',
                           loadReadyText: '准备加载',
@@ -990,6 +1099,7 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     UserInfoModel userInfoModel =
         Provider.of<UserInfoProvider>(context).userInfo;
+    chatProvider = Provider.of<ChatProvider>(context,listen: true);
     return Scaffold(
       backgroundColor: ThemeColors.colorBg,
       body: SafeArea(
