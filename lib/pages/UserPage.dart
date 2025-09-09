@@ -462,30 +462,6 @@ class UserPageState extends State<UserPage> {
                                 ],
                               ),
                             ),
-                            Container(
-                              margin: EdgeInsets.only(
-                                  top: ThemeSize.containerPadding),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(ThemeSize.superRadius)),
-                              ),
-                              width: double.infinity,
-                              child: MaterialButton(
-                                onPressed: () {
-                                  showCustomDialog(context, SizedBox(), '确认退出？',
-                                      () {
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => LoginPage()),
-                                        (route) => route == null);
-                                  });
-                                },
-                                child: const Text("退出登录",
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            ),
                             tenantList.isNotEmpty ?
                               GestureDetector(
                                 onTap: onTabTenant,
@@ -543,6 +519,30 @@ class UserPageState extends State<UserPage> {
                                     width: double.infinity,
                                     height: ThemeSize.buttonHeight,
                                     child: const Center(child: Text("修改密码")))),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  top: ThemeSize.containerPadding),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(ThemeSize.superRadius)),
+                              ),
+                              width: double.infinity,
+                              child: MaterialButton(
+                                onPressed: () {
+                                  showCustomDialog(context, SizedBox(), '确认退出？',
+                                          () {
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => LoginPage()),
+                                                (route) => route == null);
+                                      });
+                                },
+                                child: const Text("退出登录",
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                            )
                           ],
                         ))
                   ],
