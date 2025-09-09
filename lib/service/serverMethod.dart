@@ -165,7 +165,7 @@ Future<ResponseModel<void>> deleteMyDocumentService(String docId) async {
 Future<ResponseModel<List<dynamic>>> getDirectoryListService(String tenantId) async {
   try {
     Response response =
-    await dio.delete(servicePath['getDirectoryList']!,queryParameters:{"tenantId":tenantId});
+    await dio.get(servicePath['getDirectoryList']!,queryParameters:{"tenantId":tenantId});
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');

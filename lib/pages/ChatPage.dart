@@ -13,6 +13,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../api/api.dart';
 import '../component/DialogComponent.dart';
+import '../component/DirectoryListComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../component/TriangleComponent.dart';
 import '../enum/ConnectionStatus.dart';
@@ -75,8 +76,9 @@ class ChatPageState extends State<ChatPage> {
   bool showClearIcon = false;
   ScrollController scrollController = ScrollController();
   String language = "zh";
+  String directoryId = "";
   List<DirectoryModel> directoryList = [
-    DirectoryModel(id: "default", userId: "", directory: "默认文件夹")
+    DirectoryModel(id: "default", userId: "", directory: "默认文件夹",isSelected: false)
   ]; 
 
   @override
@@ -261,6 +263,7 @@ class ChatPageState extends State<ChatPage> {
       "modelName": activeModelName,
       "token": token, // 替换为实际用户ID
       "chatId": chatId, // 替换为实际聊天ID
+      "directoryId":directoryId,
       "prompt": prompt,
       "type": type,
       "showThink": showThink,
@@ -315,61 +318,11 @@ class ChatPageState extends State<ChatPage> {
       builder: (BuildContext context) {
         return DialogComponent(
             title: "选择文档目录",
-            content:ListView.separated(
-              itemCount: directoryList.length,
-              separatorBuilder: (context, index) => const Divider(
-                height: 1,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              itemBuilder: (context, index) {
-                final directory = directoryList[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: ThemeSize.containerPadding), // 上下间隔15
-                  padding: const EdgeInsets.symmetric(horizontal: ThemeSize.containerPadding),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 左边显示directory字段
-                      Expanded(
-                        child: Text(
-                          directory.directory,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      const SizedBox(width: ThemeSize.containerPadding),
-                      // 右边单选按钮
-                      GestureDetector(
-                        onTap: () => selectItem(index),
-                        child: Container(
-                          width: ThemeSize.radioSize,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: directory.isSelected ? Colors.blue : Colors.grey,
-                              width: 2,
-                            ),
-                            color: directory.isSelected ? Colors.blue : Colors.transparent,
-                          ),
-                          child: directory.isSelected
-                              ? const Icon(
-                            Icons.check,
-                            size: ThemeSize.middleFontSize,
-                            color: Colors.white,
-                          )
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            )
+            content:DirectoryListComponent(
+              directoryList: directoryList,
+              onItemSelected: (int index){
+              directoryId = directoryList[index].id;
+            })
         );
       },
     );
