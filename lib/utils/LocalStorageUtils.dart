@@ -19,4 +19,14 @@ class LocalStorageUtils {
     final SharedPreferences prefs = await _prefs;
     prefs.setString(TOKEN_STORAGE_KEY, token);
   }
+
+  static Future<String>getTenantId() async {
+    final SharedPreferences prefs = await _prefs;
+    return prefs.getString(TENANT_ID_STORAGE_KEY) ?? '';
+  }
+
+  static Future<void>setTenantId(String tenantId) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString(TENANT_ID_STORAGE_KEY,tenantId);
+  }
 }

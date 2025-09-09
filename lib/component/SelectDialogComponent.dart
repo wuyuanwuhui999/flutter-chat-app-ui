@@ -7,7 +7,7 @@ class BottomSelectionDialog {
   static void show({
     required BuildContext context,
     required List<String> options,
-    required Function(String) onTap,
+    required Function(String,int) onTap,
   }) {
     const divider = Divider(height: 1, color: ThemeColors.borderColor);
 
@@ -28,7 +28,7 @@ class BottomSelectionDialog {
             ),
             onTap: () {
               Navigator.pop(context);
-              onTap(option);
+              onTap(option,index);
             },
           ),
           if (index != options.length - 1) divider,

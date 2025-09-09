@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/UserInfoProvider.dart';
+import '../router/index.dart';
 import '../theme/ThemeColors.dart';
 import '../utils/common.dart';
 
@@ -14,23 +15,24 @@ class AvaterComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String avater = Provider.of<UserInfoProvider>(context).userInfo.avater;
-    return
-            ClipOval(
-                child: avater != "" && avater != null ? Image.network(
-                //从全局的provider中获取用户信息
-                getMusicCover(avater),
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
-              ) : Image.asset(
-                //从全局的provider中获取用户信息
-                "lib/assets/images/default_avater.png",
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
-                )
+    return GestureDetector(child: ClipOval(
+        child: avater != "" && avater != null ? Image.network(
+          //从全局的provider中获取用户信息
+          getMusicCover(avater),
+          height: size,
+          width: size,
+          fit: BoxFit.cover,
+        ) : Image.asset(
+          //从全局的provider中获取用户信息
+          "lib/assets/images/default_avater.png",
+          height: size,
+          width: size,
+          fit: BoxFit.cover,
+        )
 
-              );
+    ),onTap: (){
+      Routes.router.navigateTo(context, '/UserPage',replace: true);
+    });
   }
 }
 /*-----------------------头像组件------------------------*/

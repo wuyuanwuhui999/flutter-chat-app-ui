@@ -3,7 +3,7 @@ import '../theme/ThemeSize.dart';
 import '../theme/ThemeColors.dart';
 import '../theme/ThemeStyle.dart';
 
-/*-----------------------头像组件------------------------*/
+/*-----------------------标题组件------------------------*/
 class NavigatorTitleComponent extends StatelessWidget {
   final String title;
   const NavigatorTitleComponent({super.key,required this.title});
@@ -30,4 +30,4 @@ class NavigatorTitleComponent extends StatelessWidget {
         ]));
   }
 }
-/*-----------------------头像组件------------------------*/
+/*-----------------------标题组件------------------------*/

@@ -23,6 +23,8 @@ import '../component/AvaterComponent.dart';
 import '../model/ChatHistoryGroupModel.dart';
 import '../model/ChatHistoryModel.dart';
 import '../model/ChatModel.dart';
+import '../model/TenantModel.dart';
+import '../model/TenantUserModel.dart';
 import '../service/serverMethod.dart';
 import '../provider/UserInfoProvider.dart';
 import '../model/UserInfoModel.dart';
@@ -94,7 +96,21 @@ class ChatPageState extends State<ChatPage> {
         activeModelName = models.first.modelName; // 确保首次赋值
       });
     });
+    getStorageTenant();
     super.initState();
+  }
+
+  ///@author: wuwenqiang
+  ///@description: 获取缓存的租户
+  /// @date: 2024-07-30 22:58
+  getStorageTenant(){
+    LocalStorageUtils.getTenantId().then((tenantId) {
+      if(tenantId != "" && tenantId != "personal"){
+        getTenantUserService(tenantId).then((res){
+          chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ?? {}));
+        });
+      }
+    });
   }
 
   @override
@@ -292,7 +308,7 @@ class ChatPageState extends State<ChatPage> {
       options: modelList.map((item) {
         return item.modelName;
       }).toList(),
-      onTap: (selectedOption) {
+      onTap: (String selectedOption,int index) {
         setState(() {
           activeModelName = selectedOption;
         });
@@ -305,7 +321,7 @@ class ChatPageState extends State<ChatPage> {
   /// @date: 2025-09-08 16:23
   Future<void> showDocSettingDialog(BuildContext context) async {
     if(directoryList.length == 1){
-      await getDirectoryListService(chatProvider.tenantModel.id).then((res){
+      await getDirectoryListService(chatProvider.tenantUser.tenantId).then((res){
         setState(() {
           res.data.map((item){
             directoryList.add(DirectoryModel.fromJson(item));
@@ -1050,8 +1066,6 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    UserInfoModel userInfoModel =
-        Provider.of<UserInfoProvider>(context).userInfo;
     chatProvider = Provider.of<ChatProvider>(context,listen: true);
     return Scaffold(
       backgroundColor: ThemeColors.colorBg,

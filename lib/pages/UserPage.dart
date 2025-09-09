@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_music_app/model/TenantUserModel.dart';
+import 'package:flutter_music_app/provider/ChatProvider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
 import '../common/config.dart';
@@ -7,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../common/constant.dart';
 import '../component/SelectDialogComponent.dart';
+import '../model/TenantModel.dart';
 import '../provider/UserInfoProvider.dart';
 import '../router/index.dart';
 import 'LoginPage.dart';
@@ -31,15 +34,22 @@ class UserPageState extends State<UserPage> {
   TextEditingController emailController = TextEditingController(); // 邮箱
   TextEditingController signController = TextEditingController(); // 签名
   TextEditingController regionController = TextEditingController(); // 地区
-  late UserInfoProvider provider;
+  late UserInfoProvider userProvider;
+  late ChatProvider chatProvider;
   bool hasChange = false;
   bool loading = false;
+  List<TenantModel>tenantList = [];
+
+  @override
+  void initState() {
+    getUserTenantList();
+    super.initState();
+  }
 
   ///@author: wuwenqiang
   ///@description: 修改用户信息弹窗
   /// @date: 2024-07-30 22:58
-  useDialog(TextEditingController controller, String text, String name,
-      String field, bool isRequire) {
+  useDialog(TextEditingController controller, String text, String name,String field, bool isRequire) {
     controller.text = text;
     showCustomDialog(
         context,
@@ -80,8 +90,7 @@ class UserPageState extends State<UserPage> {
     });
   }
 
-  Future<void> useSave(
-      dynamic value, String name, String field, bool isRequire) async {
+  Future<void> useSave(dynamic value, String name, String field, bool isRequire) async {
     if (!hasChange || loading) return;
     loading = true;
     if (isRequire && value == "") {
@@ -93,11 +102,11 @@ class UserPageState extends State<UserPage> {
       loading = false;
     } else {
       await EasyLoading.show();
-      Map myUserInfo = provider.userInfo.toMap();
+      Map myUserInfo = userProvider.userInfo.toMap();
       myUserInfo[field] = value;
       updateUserData(myUserInfo).then((value) async {
         hasChange = false;
-        provider.setUserInfo(UserInfoModel.fromJson(myUserInfo));
+        userProvider.setUserInfo(UserInfoModel.fromJson(myUserInfo));
         await EasyLoading.dismiss(animation: true);
         Navigator.pop(context);
         loading = false;
@@ -113,8 +122,8 @@ class UserPageState extends State<UserPage> {
   useDatePicker() {
     int year = 0, month = 0, day = 0;
     List patter =
-        provider.userInfo.birthday != null && provider.userInfo.birthday != ""
-            ? provider.userInfo.birthday.split("-")
+      userProvider.userInfo.birthday != null && userProvider.userInfo.birthday != ""
+            ? userProvider.userInfo.birthday.split("-")
             : [];
     if (patter.length > 0) {
       year = int.parse(patter[0]);
@@ -165,21 +174,45 @@ class UserPageState extends State<UserPage> {
     // });
   }
 
+  getUserTenantList(){
+    getUserTenantListService().then((res){
+      if(res.data.isNotEmpty){
+        setState(() {
+          tenantList.add(TenantModel(id: '0', name: '私人空间', code: 'personal', status: 1, createdBy: 'system'));
+          res.data.forEach((item){
+            tenantList.add(TenantModel.fromJson(item));
+          });
+        });
+      }
+    });
+  }
+  onTabTenant(){
+    BottomSelectionDialog.show(
+        context:context,
+        options:tenantList.map((item) {
+          return item.name;
+        }).toList(),
+        onTap:(String value,int index) {
+          getTenantUserService(tenantList[index].id).then((res){
+            chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ?? {}));
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    provider = Provider.of<UserInfoProvider>(context, listen: true);
-    print(provider.userInfo.toMap());
+    userProvider = Provider.of<UserInfoProvider>(context, listen: true);
+    chatProvider = Provider.of<ChatProvider>(context,listen: true);
     return Scaffold(
         backgroundColor: ThemeColors.colorBg,
         body: SafeArea(
             top: true,
-            child: Container(
+            child: SizedBox(
                 width: double.infinity,
                 height: double.infinity,
-                // padding: ThemeStyle.paddingBox,
                 child: Column(
                   children: <Widget>[
-                    const NavigatorTitleComponent(title: "修改用户信息"),
+                    NavigatorTitleComponent(title: chatProvider.tenantUser.tenantName),
                     Expanded(
                         flex: 1,
                         child: ListView(
@@ -193,9 +226,9 @@ class UserPageState extends State<UserPage> {
                                 children: <Widget>[
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
-                                      padding: EdgeInsets.only(
+                                      padding: const EdgeInsets.only(
                                           bottom: ThemeSize.containerPadding),
-                                      child: InkWell(
+                                      child: GestureDetector(
                                           onTap: () {
                                             // showSelectionDialog(["相机", "相册"],
                                             //     (String value) {
@@ -216,7 +249,7 @@ class UserPageState extends State<UserPage> {
                                                 child: Image.network(
                                                   //从全局的provider中获取用户信息
                                                   HOST +
-                                                      provider.userInfo.avater,
+                                                      userProvider.userInfo.avater,
                                                   height: ThemeSize.bigAvater,
                                                   width: ThemeSize.bigAvater,
                                                   fit: BoxFit.cover,
@@ -234,11 +267,11 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
                                     padding: ThemeStyle.columnPadding,
-                                    child: InkWell(
+                                    child: GestureDetector(
                                       onTap: () {
                                         useDialog(
                                             usernameController,
-                                            provider.userInfo.username,
+                                            userProvider.userInfo.username,
                                             '昵称',
                                             'username',
                                             true);
@@ -251,7 +284,7 @@ class UserPageState extends State<UserPage> {
                                             child: Text("昵称"),
                                             flex: 1,
                                           ),
-                                          Text(provider.userInfo.username),
+                                          Text(userProvider.userInfo.username),
                                           SizedBox(
                                               width: ThemeSize.smallMargin),
                                           Image.asset(
@@ -266,11 +299,11 @@ class UserPageState extends State<UserPage> {
                                   // Container(
                                   //     decoration: ThemeStyle.bottomDecoration,
                                   //     padding: ThemeStyle.columnPadding,
-                                  //     child: InkWell(
+                                  //     child: GestureDetector(
                                   //         onTap: () {
                                   //           useDialog(
                                   //               usernameController,
-                                  //               provider.userInfo.telephone,
+                                  //               userProvider.userInfo.telephone,
                                   //               '电话',
                                   //               'telephone',
                                   //               false);
@@ -283,7 +316,7 @@ class UserPageState extends State<UserPage> {
                                   //               child: Text("电话"),
                                   //               flex: 1,
                                   //             ),
-                                  //             Text(provider.userInfo.telephone),
+                                  //             Text(userProvider.userInfo.telephone),
                                   //             SizedBox(
                                   //                 width: ThemeSize.smallMargin),
                                   //             Image.asset(
@@ -296,11 +329,11 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
                                     padding: ThemeStyle.columnPadding,
-                                    child: InkWell(
+                                    child: GestureDetector(
                                       onTap: () {
                                         useDialog(
                                             emailController,
-                                            provider.userInfo.email ?? '',
+                                            userProvider.userInfo.email ?? '',
                                             '邮箱',
                                             'email',
                                             false);
@@ -309,12 +342,12 @@ class UserPageState extends State<UserPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: <Widget>[
-                                          Expanded(
-                                            child: Text("邮箱"),
+                                          const Expanded(
                                             flex: 1,
+                                            child: Text("邮箱"),
                                           ),
-                                          Text(provider.userInfo.email),
-                                          SizedBox(
+                                          Text(userProvider.userInfo.email),
+                                          const SizedBox(
                                               width: ThemeSize.smallMargin),
                                           Image.asset(
                                               "lib/assets/images/icon_arrow.png",
@@ -328,12 +361,12 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
                                       padding: ThemeStyle.columnPadding,
-                                      child: InkWell(
+                                      child: GestureDetector(
                                         onTap: () {
                                           BottomSelectionDialog.show(
                                               context:context,
                                               options:["男", "女"],
-                                              onTap:(String value) {
+                                              onTap:(String value,int index) {
                                             hasChange = true;
                                             useSave(SexNameMap[value], 'sex',
                                                 '性别', false);
@@ -347,11 +380,11 @@ class UserPageState extends State<UserPage> {
                                               flex: 1,
                                               child: Text("性别"),
                                             ),
-                                            Text(provider.userInfo.sex != null
+                                            Text(userProvider.userInfo.sex != null
                                                 ? SexValueMap[
-                                                    provider.userInfo.sex]!
+                                                    userProvider.userInfo.sex]!
                                                 : ''),
-                                            SizedBox(
+                                            const SizedBox(
                                                 width: ThemeSize.smallMargin),
                                             Image.asset(
                                                 "lib/assets/images/icon_arrow.png",
@@ -364,11 +397,11 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
                                       padding: ThemeStyle.columnPadding,
-                                      child: InkWell(
+                                      child: GestureDetector(
                                         onTap: () {
                                           useDialog(
                                               signController,
-                                              provider.userInfo.sign ?? '',
+                                              userProvider.userInfo.sign ?? '',
                                               '签名',
                                               'sign',
                                               false);
@@ -381,7 +414,7 @@ class UserPageState extends State<UserPage> {
                                               child: Text("个性签名"),
                                               flex: 1,
                                             ),
-                                            Text(provider.userInfo.sign ?? ""),
+                                            Text(userProvider.userInfo.sign ?? ""),
                                             SizedBox(
                                                 width: ThemeSize.smallMargin),
                                             Image.asset(
@@ -397,11 +430,11 @@ class UserPageState extends State<UserPage> {
                                           top: ThemeSize.columnPadding,
                                           bottom: ThemeSize.columnPadding -
                                               ThemeSize.containerPadding),
-                                      child: InkWell(
+                                      child: GestureDetector(
                                         onTap: () {
                                           useDialog(
                                               regionController,
-                                              provider.userInfo.region ?? '',
+                                              userProvider.userInfo.region ?? '',
                                               '地区',
                                               'region',
                                               false);
@@ -410,13 +443,13 @@ class UserPageState extends State<UserPage> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: <Widget>[
-                                            Expanded(
-                                              child: Text("地区"),
+                                            const Expanded(
                                               flex: 1,
+                                              child: Text("地区"),
                                             ),
                                             Text(
-                                                provider.userInfo.region ?? ""),
-                                            SizedBox(
+                                                userProvider.userInfo.region ?? ""),
+                                            const SizedBox(
                                                 width: ThemeSize.smallMargin),
                                             Image.asset(
                                                 "lib/assets/images/icon_arrow.png",
@@ -453,17 +486,56 @@ class UserPageState extends State<UserPage> {
                                     style: TextStyle(color: Colors.white)),
                               ),
                             ),
-                            InkWell(
+                            tenantList.isNotEmpty ?
+                              GestureDetector(
+                                onTap: onTabTenant,
+                                child: Container(
+                                    margin: const EdgeInsets.only(
+                                        top: ThemeSize.containerPadding),
+                                    decoration: BoxDecoration(
+                                        color: ThemeColors.colorWhite,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(
+                                                ThemeSize.superRadius)),
+                                        border: Border.all(
+                                            color: ThemeColors.borderColor)),
+                                    width: double.infinity,
+                                    height: ThemeSize.buttonHeight,
+                                    child: const Center(child: Text("切换租户"))))
+                            :const SizedBox(),
+                            chatProvider.tenantUser.roleType > 0 ?
+                            GestureDetector(
                                 onTap: () {
                                   Routes.router.navigateTo(
                                       context, '/UpdatePasswordPage',
                                       replace: false);
                                 },
                                 child: Container(
-                                    margin: EdgeInsets.only(
+                                    margin: const EdgeInsets.only(
                                         top: ThemeSize.containerPadding),
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
+                                        color: ThemeColors.colorWhite,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(
+                                                ThemeSize.superRadius)),
+                                        border: Border.all(
+                                            color: ThemeColors.borderColor)),
+                                    width: double.infinity,
+                                    height: ThemeSize.buttonHeight,
+                                    child: const Center(child: Text("租户管理"))))
+                            : const SizedBox(),
+                            GestureDetector(
+                                onTap: () {
+                                  Routes.router.navigateTo(
+                                      context, '/UpdatePasswordPage',
+                                      replace: false);
+                                },
+                                child: Container(
+                                    margin: const EdgeInsets.only(
+                                        top: ThemeSize.containerPadding),
+                                    decoration: BoxDecoration(
+                                        color: ThemeColors.colorWhite,
+                                        borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
                                         border: Border.all(
@@ -483,8 +555,8 @@ class UserPageState extends State<UserPage> {
     // String base64Str = "data:image/png;base64," + base64Encode(imageBytes);
     // Map avaterMap = {"img": base64Str};
     // updateAvaterService(avaterMap).then((res) {
-    //   provider.userInfo.avater = res.data;
-    //   provider.setUserInfo(provider.userInfo);
+    //   userProvider.userInfo.avater = res.data;
+    //   userProvider.setUserInfo(userProvider.userInfo);
     // });
   }
 }
