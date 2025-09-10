@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:flutter_music_app/component/DocListComponent.dart';
 import 'package:flutter_music_app/model/DirectoryModel.dart';
 import 'package:flutter_music_app/model/DocModel.dart';
 import 'package:flutter_music_app/provider/ChatProvider.dart';
@@ -67,7 +68,6 @@ class ChatPageState extends State<ChatPage> {
   Map<String, List<List<ChatHistoryModel>>> timeAgoGroupMap = {};
   late ChatProvider chatProvider;
   bool showHistory = false;
-  bool showMyDoc = false;
   List<DocModel> myDocList = [];
   EasyRefreshController historyEasyRefreshController = EasyRefreshController();
   TextEditingController controller = TextEditingController(); // 姓名
@@ -295,11 +295,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   useMyDocList() {
-    getMyDocListService().then((res) {
-      setState(() {
-        myDocList = res.data.map((item) => DocModel.fromJson(item)).toList();
-      });
-    });
+
   }
 
   useTabModel() {
@@ -375,10 +371,7 @@ class ChatPageState extends State<ChatPage> {
             onSelected: (String item) {
               if (item == "上传文档") {
               } else if (item == "我的文档") {
-                setState(() {
-                  showMyDoc = true;
-                });
-                useMyDocList();
+                onShowDocList();
               } else if (item == "会话记录") {
                 setState(() {
                   showHistory = true;
@@ -953,115 +946,16 @@ class ChatPageState extends State<ChatPage> {
         : const SizedBox();
   }
 
-  Widget buildDocListWidget() {
-    return showMyDoc
-        ? Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            right: 0,
-            child: SizedBox(
-                width: MediaQuery.of(context).size.width, // 使用实际屏幕宽度
-                height: MediaQuery.of(context).size.height,
-                child: Row(children: [
-                  Container(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      height: MediaQuery.of(context).size.height,
-                      decoration: const BoxDecoration(color: Colors.white),
-                      child: EasyRefresh(
-                          child: Container(
-                        padding: ThemeStyle.padding,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: myDocList.asMap().entries.map((entry) {
-                            return Container(
-                                padding: EdgeInsets.only(
-                                    bottom: entry.key != myDocList.length - 1
-                                        ? ThemeSize.containerPadding
-                                        : 0),
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                  width: entry.key != myDocList.length - 1
-                                      ? 1
-                                      : 0, //宽度
-                                  color: entry.key != myDocList.length - 1
-                                      ? ThemeColors.disableColor
-                                      : ThemeColors.colorWhite, //边框颜色
-                                ))),
-                                child: Slidable(
-                                    endActionPane: ActionPane(
-                                      motion: ScrollMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          onPressed: (context) {
-                                            showCustomDialog(
-                                                context,
-                                                SizedBox(),
-                                                '确定删除文档:${entry.value.name}',
-                                                () {
-                                              deleteMyDocumentService(
-                                                      entry.value.id)
-                                                  .then((res) {
-                                                Fluttertoast.showToast(
-                                                    msg: "删除成功",
-                                                    toastLength:
-                                                        Toast.LENGTH_SHORT,
-                                                    gravity:
-                                                        ToastGravity.CENTER,
-                                                    timeInSecForIosWeb: 1,
-                                                    backgroundColor: ThemeColors
-                                                        .disableColor,
-                                                    fontSize: ThemeSize
-                                                        .middleFontSize);
-                                                setState(() {
-                                                  myDocList.removeAt(entry.key);
-                                                });
-                                              });
-                                            });
-                                          },
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.delete,
-                                          label: '删除',
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            formatTimeAgo(
-                                                entry.value.createTime),
-                                            style: TextStyle(
-                                                color:
-                                                    ThemeColors.disableColor),
-                                          ),
-                                          Text(entry.value.name)
-                                        ])));
-                          }).toList(),
-                        ),
-                      ))),
-                  Expanded(
-                    flex: 1,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          showMyDoc = false;
-                        });
-                      },
-                      child: Container(
-                        decoration:
-                            BoxDecoration(color: ThemeColors.popupMenuColor),
-                        height: MediaQuery.of(context).size.height,
-                      ),
-                    ),
-                  )
-                ])),
-          )
-        : const SizedBox();
+  onShowDocList(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const DialogComponent(
+            title: "我的文档",
+            content:DocListComponent()
+        );
+      },
+    );
   }
 
   @override
@@ -1074,7 +968,6 @@ class ChatPageState extends State<ChatPage> {
           child: Stack(
             children: [
               buildChatWidget(),
-              buildDocListWidget(),
               buildHistoryWidget()
             ],
           )),

@@ -134,10 +134,10 @@ Future<ResponseModel<List<dynamic>>> getChatHistoryService(int pageNum,int pageS
 ///@author: wuwenqiang
 ///@description: 获取文档列表
 /// @date: 2025-06-09 19:39
-Future<ResponseModel<List<dynamic>>> getMyDocListService() async {
+Future<ResponseModel<List<dynamic>>> getMyDocListService(String tenantId) async {
   try {
     Response response =
-    await dio.get(servicePath['getDocList']!);
+    await dio.get(servicePath['getDocList']!,queryParameters: {"tenantId":tenantId});
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');

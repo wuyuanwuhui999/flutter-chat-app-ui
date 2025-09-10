@@ -31,7 +31,7 @@ class AvaterComponent extends StatelessWidget {
         )
 
     ),onTap: (){
-      Routes.router.navigateTo(context, '/UserPage',replace: true);
+      Routes.router.navigateTo(context, '/UserPage',replace: false);
     });
   }
 }
