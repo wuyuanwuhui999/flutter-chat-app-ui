@@ -17,5 +17,6 @@ const servicePath = {
   'deleteDoc': "/service/ai/deleteDoc/",// 查询我的文档
   'getDirectoryList':"/service/ai/getDirectoryList",// 按照租户查询文档目录列表
   'getTenantUser':"/service/tenant/getTenantUser",// 获取当前租户信息
-  'getUserTenantList': "/service/tenant/getUserTenantList"// 获取用户的所有租户
+  'getUserTenantList': "/service/tenant/getUserTenantList",// 获取用户的所有租户
+  'getTenantUserList': "/service/tenant/getTenantUserList"// 获取当前租户下的所有租户
 };

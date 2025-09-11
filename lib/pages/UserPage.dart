@@ -483,7 +483,7 @@ class UserPageState extends State<UserPage> {
                             GestureDetector(
                                 onTap: () {
                                   Routes.router.navigateTo(
-                                      context, '/UpdatePasswordPage',
+                                      context, '/TenantManagePage',
                                       replace: false);
                                 },
                                 child: Container(

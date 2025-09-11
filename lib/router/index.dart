@@ -6,6 +6,7 @@ import '../pages/LoginPage.dart';
 import '../pages/ForgetPasswordPage.dart';
 import '../pages/NotFoundPage.dart';
 import '../pages/ResetPasswordPage.dart';
+import '../pages/TenantManagePage.dart';
 import '../pages/UpdatePasswordPage.dart';
 import '../pages/UserPage.dart';
 import '../pages/RegisterPage.dart';
@@ -38,6 +39,9 @@ class Routes {
     }));
     router.define('/ChatPage', handler: Handler(handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
       return const ChatPage();
+    }));
+    router.define('/TenantManagePage', handler: Handler(handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+      return const TenantManagePage();
     }));
   }
 }

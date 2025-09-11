@@ -8,7 +8,6 @@ import 'package:flutter_music_app/model/DirectoryModel.dart';
 import 'package:flutter_music_app/model/DocModel.dart';
 import 'package:flutter_music_app/provider/ChatProvider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -24,11 +23,9 @@ import '../component/AvaterComponent.dart';
 import '../model/ChatHistoryGroupModel.dart';
 import '../model/ChatHistoryModel.dart';
 import '../model/ChatModel.dart';
-import '../model/TenantModel.dart';
 import '../model/TenantUserModel.dart';
 import '../service/serverMethod.dart';
 import '../provider/UserInfoProvider.dart';
-import '../model/UserInfoModel.dart';
 import '../theme/ThemeStyle.dart';
 import '../theme/ThemeSize.dart';
 import '../theme/ThemeColors.dart';
@@ -67,6 +64,7 @@ class ChatPageState extends State<ChatPage> {
   ];
   Map<String, List<List<ChatHistoryModel>>> timeAgoGroupMap = {};
   late ChatProvider chatProvider;
+  late UserInfoProvider userInfoProvider;
   bool showHistory = false;
   List<DocModel> myDocList = [];
   EasyRefreshController historyEasyRefreshController = EasyRefreshController();
@@ -96,6 +94,7 @@ class ChatPageState extends State<ChatPage> {
         activeModelName = models.first.modelName; // 确保首次赋值
       });
     });
+    userInfoProvider = Provider.of<UserInfoProvider>(context,listen: false);
     getStorageTenant();
     super.initState();
   }
@@ -105,11 +104,9 @@ class ChatPageState extends State<ChatPage> {
   /// @date: 2024-07-30 22:58
   getStorageTenant(){
     LocalStorageUtils.getTenantId().then((tenantId) {
-      if(tenantId != "" && tenantId != "personal"){
         getTenantUserService(tenantId).then((res){
-          chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ?? {}));
+          chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ?? {"tenantId":userInfoProvider.userInfo.userId,"tenantName":"私人空间"}));
         });
-      }
     });
   }
 
@@ -294,10 +291,6 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  useMyDocList() {
-
-  }
-
   useTabModel() {
     BottomSelectionDialog.show(
       context: context,
@@ -358,7 +351,7 @@ class ChatPageState extends State<ChatPage> {
       decoration: const BoxDecoration(color: ThemeColors.colorWhite),
       child: Row(
         children: [
-          const AvaterComponent(size: ThemeSize.smallAvater),
+          AvaterComponent(size: ThemeSize.smallAvater,avater: userInfoProvider.userInfo.avater??""),
           Expanded(
               child: Text(
             "当前接入模型：${activeModelName}",
@@ -484,7 +477,7 @@ class ChatPageState extends State<ChatPage> {
                                           size: ThemeSize.miniIcon,
                                           color: Colors.white),
                                     ),
-                                    AvaterComponent(size: ThemeSize.middleIcon)
+                                    AvaterComponent(size: ThemeSize.middleIcon,avater: userInfoProvider.userInfo.avater??"",)
                                   ],
                                 ),
                               )

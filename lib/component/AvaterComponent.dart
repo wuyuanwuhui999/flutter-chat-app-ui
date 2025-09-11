@@ -7,16 +7,16 @@ import '../utils/common.dart';
 
 /*-----------------------头像组件------------------------*/
 class AvaterComponent extends StatelessWidget {
-  final String? avater;
+  final String avater;
   final double size;
+  final String? userId;
 
-  const AvaterComponent({super.key,  required this.size, this.avater});
+  const AvaterComponent({super.key,  required this.size,required this.avater,this.userId});
 
   @override
   Widget build(BuildContext context) {
-    String avater = Provider.of<UserInfoProvider>(context).userInfo.avater;
     return GestureDetector(child: ClipOval(
-        child: avater != "" && avater != null ? Image.network(
+        child: avater != "" ? Image.network(
           //从全局的provider中获取用户信息
           getMusicCover(avater),
           height: size,
@@ -31,7 +31,11 @@ class AvaterComponent extends StatelessWidget {
         )
 
     ),onTap: (){
-      Routes.router.navigateTo(context, '/UserPage',replace: false);
+      if(userId == null){
+        Routes.router.navigateTo(context, '/UserPage');
+      }else{
+        Routes.router.navigateTo(context, '/UserInfoPage');
+      }
     });
   }
 }
