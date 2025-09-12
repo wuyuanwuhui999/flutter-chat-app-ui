@@ -3,7 +3,7 @@ class TenantUserModel {
   final String tenantId;
   final String tenantName;
   final String userId;
-  final int roleType;
+  late final int roleType;
   DateTime? joinDate;
   String? createBy;
   final int disabled;
@@ -39,5 +39,20 @@ class TenantUserModel {
       avatar: json['avater'] ?? "", // 注意JSON字段名是avater
       email: json['email'] ?? "",
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'tenantId': tenantId,
+      'tenantName': tenantName,
+      'userId': userId,
+      'roleType': roleType,
+      'joinDate': joinDate?.toIso8601String(),
+      'createBy': createBy,
+      'disabled': disabled,
+      'username': username,
+      'avater': avatar, // 保持与fromJson一致的字段名
+      'email': email,
+    };
   }
 }

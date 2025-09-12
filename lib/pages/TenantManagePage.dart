@@ -59,19 +59,43 @@ class TenantManagePageState extends State<TenantManagePage> {
   ///@author: wuwenqiang
   ///@description: 取消管理员
   /// @date: 2025-09-11 22:08
-  onCancelAdmin(TenantUserModel tenantUser){
-
+  onCancelAdmin(int index){
+    cancelAdminService(chatProvider.tenantUser.tenantId, tenantUserList[index].userId).then((res){
+      Fluttertoast.showToast(
+          msg: "取消管理员成功",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          fontSize: ThemeSize.middleFontSize);
+      setState(() {
+        // 创建新对象替换
+        tenantUserList[index] = TenantUserModel.fromJson({
+          ...tenantUserList[index].toJson(),
+          'roleType': 0,
+        });
+      });
+    });
   }
 
   ///@author: wuwenqiang
   ///@description: 添加管理员
   /// @date: 2025-09-11 22:08
-  onAddAdmin(TenantUserModel tenantUser){
-
+  onAddAdmin(int index){
+    addAdminService(chatProvider.tenantUser.tenantId, tenantUserList[index].userId).then((res){
+      Fluttertoast.showToast(
+          msg: "设置管理员成功",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          fontSize: ThemeSize.middleFontSize);
+      setState(() {
+        tenantUserList[index] = TenantUserModel.fromJson({
+          ...tenantUserList[index].toJson(),
+          'roleType': 1,
+        });
+      });
+    });
   }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         backgroundColor: ThemeColors.colorBg,
         body: SafeArea(
@@ -136,16 +160,15 @@ class TenantManagePageState extends State<TenantManagePage> {
                                               padding: EdgeInsets.only(
                                                   top: ThemeSize.containerPadding),
                                               onPressed: (context) {
-                                                if(entry.value.roleType > 1){
-                                                  onCancelAdmin(entry.value);
-                                                }else{
-                                                  onAddAdmin(entry.value);
+                                                if(entry.value.roleType == 1){
+                                                  onCancelAdmin(entry.key);
+                                                }else if(entry.value.roleType == 0){
+                                                  onAddAdmin(entry.key);
                                                 }
                                               },
-                                              backgroundColor: Colors.red,
+                                              backgroundColor: entry.value.roleType == 2 ? ThemeColors.disableColor :Colors.red,
                                               foregroundColor: Colors.white,
-                                              icon: Icons.delete,
-                                              label: entry.value.roleType > 1 ? "取消管理员" : "设为管理员",
+                                              label: entry.value.roleType > 0 ? "取消管理员" : "设为管理员",
                                             ),
                                           ],
                                         ),

@@ -214,3 +214,31 @@ Future<ResponseModel<List<dynamic>>> getTenantUserListService(String tenantId,in
     throw Error();
   }
 }
+
+///@author: wuwenqiang
+///@description: 设置租户为管理员
+/// @date: 2025-09-12 09:36
+Future<ResponseModel<int>> addAdminService(String tenantId,String userId) async {
+  try {
+    Response response =
+    await dio.put("${servicePath['addAdmin']}/${tenantId}/${userId}");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}
+
+///@author: wuwenqiang
+///@description: 取消租户为管理员
+/// @date: 2025-09-12 09:36
+Future<ResponseModel<int>> cancelAdminService(String tenantId,String userId) async {
+  try {
+    Response response =
+    await dio.put("${servicePath['cancelAdmin']}/${tenantId}/${userId}");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}

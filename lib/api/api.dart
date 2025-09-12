@@ -18,5 +18,7 @@ const servicePath = {
   'getDirectoryList':"/service/ai/getDirectoryList",// 按照租户查询文档目录列表
   'getTenantUser':"/service/tenant/getTenantUser",// 获取当前租户信息
   'getUserTenantList': "/service/tenant/getUserTenantList",// 获取用户的所有租户
-  'getTenantUserList': "/service/tenant/getTenantUserList"// 获取当前租户下的所有租户
+  'getTenantUserList': "/service/tenant/getTenantUserList",// 获取当前租户下的所有租户
+  'addAdmin': "/service/tenant/addAdmin",// 给用户添加管理员
+  'cancelAdmin': "/service/tenant/cancelAdmin"// 删除管理员
 };
