@@ -77,9 +77,6 @@ class ChatPageState extends State<ChatPage> {
   ScrollController scrollController = ScrollController();
   String language = "zh";
   String directoryId = "";
-  List<DirectoryModel> directoryList = [
-    DirectoryModel(id: "default", userId: "", directory: "默认文件夹",isSelected: false)
-  ]; 
 
   @override
   void initState() {
@@ -309,41 +306,21 @@ class ChatPageState extends State<ChatPage> {
   ///@description: 文档设置弹窗
   /// @date: 2025-09-08 16:23
   Future<void> showDocSettingDialog(BuildContext context) async {
-    if(directoryList.length == 1){
-      await getDirectoryListService(chatProvider.tenantUser.tenantId).then((res){
-        setState(() {
-          res.data.map((item){
-            directoryList.add(DirectoryModel.fromJson(item));
-          });
-        });
-      });
-    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return DialogComponent(
+            showDivider: false,
             title: "选择文档目录",
             content:DirectoryListComponent(
-              directoryList: directoryList,
-              onItemSelected: (int index){
-              directoryId = directoryList[index].id;
+              onItemSelected: (String mDirectoryId){
+              directoryId = mDirectoryId;
             })
         );
       },
     );
   }
 
-  // 选择项目的方法
-  void selectItem(int index) {
-    setState(() {
-      // 取消所有选择
-      for (var directory in directoryList) {
-        directory.isSelected = false;
-      }
-      // 选择当前项目
-      directoryList[index].isSelected = true;
-    });
-  }
   // 头部
   Widget buildHeaderWidget() {
     return Container(

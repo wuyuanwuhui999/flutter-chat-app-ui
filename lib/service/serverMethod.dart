@@ -242,3 +242,45 @@ Future<ResponseModel<int>> cancelAdminService(String tenantId,String userId) asy
     throw Error();
   }
 }
+
+///@author: wuwenqiang
+///@description: 取消租户为管理员
+/// @date: 2025-09-12 09:36
+Future<ResponseModel<List<dynamic>>> searchUsersService(String tenantId,String keyword) async {
+  try {
+    Response response =
+    await dio.get(servicePath['searchUsers']!,queryParameters: {"tenantId":tenantId,"keyword":keyword});
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}
+
+///@author: wuwenqiang
+///@description: 添加租户为用户
+/// @date: 2025-09-12 17:22
+Future<ResponseModel<dynamic>> addTenantUserService(String tenantId,String userId) async {
+  try {
+    Response response =
+    await dio.post("${servicePath['addTenantUser']}/${tenantId}/${userId}");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}
+
+///@author: wuwenqiang
+///@description: 添加租户为用户
+/// @date: 2025-09-12 17:22
+Future<ResponseModel<int>> deleteTenantUserService(String tenantId,String userId) async {
+  try {
+    Response response =
+    await dio.delete("${servicePath['deleteTenantUser']}/${tenantId}/${userId}");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}

@@ -20,5 +20,8 @@ const servicePath = {
   'getUserTenantList': "/service/tenant/getUserTenantList",// 获取用户的所有租户
   'getTenantUserList': "/service/tenant/getTenantUserList",// 获取当前租户下的所有租户
   'addAdmin': "/service/tenant/addAdmin",// 给用户添加管理员
-  'cancelAdmin': "/service/tenant/cancelAdmin"// 删除管理员
+  'cancelAdmin': "/service/tenant/cancelAdmin",// 删除管理员
+  'searchUsers': "/service/user-getway/searchUsers",// 搜索用户
+  'addTenantUser': "/service/tenant/addTenantUser",// 添加租户用户
+  'deleteTenantUser': "/service/tenant/deleteTenantUser",// 删除租户用户
 };

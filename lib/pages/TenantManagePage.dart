@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_music_app/component/AvaterComponent.dart';
@@ -11,6 +13,8 @@ import '../common/config.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../common/constant.dart';
+import '../component/AddTenantUserComponent.dart';
+import '../component/DialogComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../model/TenantModel.dart';
 import '../provider/UserInfoProvider.dart';
@@ -36,20 +40,23 @@ class TenantManagePageState extends State<TenantManagePage> {
   late ChatProvider chatProvider;
   int pageNum = 1;
   int total = 0;
-  List<TenantUserModel>tenantUserList = [];
-
+  List<TenantUserModel> tenantUserList = [];
+  TextEditingController searchController = TextEditingController(text: "");
+  List<UserInfoModel> searchList = [];
   @override
   void initState() {
     getTenantUserList();
     super.initState();
   }
 
-  getTenantUserList(){
-    chatProvider = Provider.of<ChatProvider>(context,listen: false);
-    getTenantUserListService(chatProvider.tenantUser.tenantId,pageNum,PAGE_SIZE).then((res){
+  getTenantUserList() {
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    getTenantUserListService(
+            chatProvider.tenantUser.tenantId, pageNum, PAGE_SIZE)
+        .then((res) {
       setState(() {
         total = res.total!;
-        res.data.forEach((item){
+        res.data.forEach((item) {
           tenantUserList.add(TenantUserModel.fromJson(item));
         });
       });
@@ -59,8 +66,10 @@ class TenantManagePageState extends State<TenantManagePage> {
   ///@author: wuwenqiang
   ///@description: 取消管理员
   /// @date: 2025-09-11 22:08
-  onCancelAdmin(int index){
-    cancelAdminService(chatProvider.tenantUser.tenantId, tenantUserList[index].userId).then((res){
+  onCancelAdmin(int index) {
+    cancelAdminService(
+            chatProvider.tenantUser.tenantId, tenantUserList[index].userId)
+        .then((res) {
       Fluttertoast.showToast(
           msg: "取消管理员成功",
           toastLength: Toast.LENGTH_SHORT,
@@ -79,8 +88,10 @@ class TenantManagePageState extends State<TenantManagePage> {
   ///@author: wuwenqiang
   ///@description: 添加管理员
   /// @date: 2025-09-11 22:08
-  onAddAdmin(int index){
-    addAdminService(chatProvider.tenantUser.tenantId, tenantUserList[index].userId).then((res){
+  onAddAdmin(int index) {
+    addAdminService(
+            chatProvider.tenantUser.tenantId, tenantUserList[index].userId)
+        .then((res) {
       Fluttertoast.showToast(
           msg: "设置管理员成功",
           toastLength: Toast.LENGTH_SHORT,
@@ -94,6 +105,41 @@ class TenantManagePageState extends State<TenantManagePage> {
       });
     });
   }
+
+  void onAddTenantUser() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddTenantUserDialog(
+          tenantId: chatProvider.tenantUser.tenantId,
+          onUserSelected: (TenantUserModel selectedUser) {
+            // 或者执行其他操作，比如添加用户到租户
+            tenantUserList.add(selectedUser);
+          },
+        );
+      },
+    );
+  }
+
+  // 添加用户到租户的方法
+  void addUserToTenant(TenantUserModel user) {
+    // 这里实现添加用户的逻辑
+    // addUserToTenantService(chatProvider.tenantUser.tenantId, user.id)
+    //   .then((res) {
+    //     // 处理结果
+    //   });
+  }
+
+  onSearchUser(){
+    searchUsersService(chatProvider.tenantUser.tenantId,searchController.text).then((res){
+      setState(() {
+        res.data.forEach((item){
+          searchList.add(UserInfoModel.fromJson(item));
+        });
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,7 +151,14 @@ class TenantManagePageState extends State<TenantManagePage> {
                 height: double.infinity,
                 child: Column(
                   children: <Widget>[
-                    NavigatorTitleComponent(title: chatProvider.tenantUser.tenantName),
+                    NavigatorTitleComponent(
+                      title: chatProvider.tenantUser.tenantName,
+                      icon: GestureDetector(
+                          onTap: onAddTenantUser,
+                          child: Image.asset("lib/assets/images/icon_add.png",
+                              width: ThemeSize.smallIcon,
+                              height: ThemeSize.smallIcon)),
+                    ),
                     Expanded(
                         flex: 1,
                         child: EasyRefresh(
@@ -135,59 +188,84 @@ class TenantManagePageState extends State<TenantManagePage> {
                                 getTenantUserList();
                               }
                             },
-                            child:Container(
+                            child: Container(
                                 decoration: ThemeStyle.boxDecoration,
                                 padding: ThemeStyle.padding,
                                 margin: ThemeStyle.padding,
                                 child: Column(
-                              children: tenantUserList.asMap().entries.map((entry) {
-                                return Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          width: 1, //宽度
-                                          color: entry.key == tenantUserList.length - 1
-                                              ? Colors.white
-                                              : ThemeColors.disableColor, //边框颜色
+                                    children: tenantUserList
+                                        .asMap()
+                                        .entries
+                                        .map((entry) {
+                                  return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            width: 1, //宽度
+                                            color: entry.key ==
+                                                    tenantUserList.length - 1
+                                                ? Colors.white
+                                                : ThemeColors
+                                                    .disableColor, //边框颜色
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    child: Slidable(
-                                        endActionPane: ActionPane(
-                                          motion: ScrollMotion(),
-                                          children: [
-                                            SlidableAction(
+                                      child: Slidable(
+                                          enabled: entry.value.roleType != 2,
+                                          endActionPane: ActionPane(
+                                            motion: const ScrollMotion(),
+                                            children: [
+                                              SlidableAction(
+                                                onPressed: (context) {
+                                                  if (entry.value.roleType ==
+                                                      1) {
+                                                    onCancelAdmin(entry.key);
+                                                  } else if (entry
+                                                          .value.roleType ==
+                                                      0) {
+                                                    onAddAdmin(entry.key);
+                                                  }
+                                                },
+                                                backgroundColor:
+                                                    entry.value.roleType == 2
+                                                        ? ThemeColors
+                                                            .disableColor
+                                                        : Colors.red,
+                                                foregroundColor: Colors.white,
+                                                label: entry.value.roleType > 0
+                                                    ? "取消管理员"
+                                                    : "设为管理员",
+                                              ),
+                                            ],
+                                          ),
+                                          child: Container(
                                               padding: EdgeInsets.only(
-                                                  top: ThemeSize.containerPadding),
-                                              onPressed: (context) {
-                                                if(entry.value.roleType == 1){
-                                                  onCancelAdmin(entry.key);
-                                                }else if(entry.value.roleType == 0){
-                                                  onAddAdmin(entry.key);
-                                                }
-                                              },
-                                              backgroundColor: entry.value.roleType == 2 ? ThemeColors.disableColor :Colors.red,
-                                              foregroundColor: Colors.white,
-                                              label: entry.value.roleType > 0 ? "取消管理员" : "设为管理员",
-                                            ),
-                                          ],
-                                        ),
-                                        child: Container(
-                                            padding: EdgeInsets.only(
-                                                top: entry.key == 0 ? 0 :ThemeSize.containerPadding,
-                                                bottom: entry.key == tenantUserList.length - 1
-                                                    ? 0
-                                                    : ThemeSize.containerPadding),
-                                            child: Row(
-                                              children: [
-                                                AvaterComponent(size: ThemeSize.smallAvater,avater: entry.value.avatar??""),
-                                                SizedBox(width: ThemeSize.containerPadding),
-                                                Text(entry.value.username),
-                                              ],
-                                            )
-                                        )));
-                              }).toList())
-                            )))
+                                                  top: entry.key == 0
+                                                      ? 0
+                                                      : ThemeSize
+                                                          .containerPadding,
+                                                  bottom: entry.key ==
+                                                          tenantUserList
+                                                                  .length -
+                                                              1
+                                                      ? 0
+                                                      : ThemeSize
+                                                          .containerPadding),
+                                              child: Row(
+                                                children: [
+                                                  AvaterComponent(
+                                                      size:
+                                                          ThemeSize.smallAvater,
+                                                      avater:
+                                                          entry.value.avatar ??
+                                                              ""),
+                                                  SizedBox(
+                                                      width: ThemeSize
+                                                          .containerPadding),
+                                                  Text(entry.value.username),
+                                                ],
+                                              ))));
+                                }).toList()))))
                   ],
                 ))));
   }

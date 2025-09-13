@@ -14,6 +14,7 @@ class UserInfoModel{
   String? region;
   int? disabled;
   int? permission;
+  int? checked;
   UserInfoModel({
     this.id,
     this.avater,
@@ -29,11 +30,13 @@ class UserInfoModel{
     this.sign,
     this.region,
     this.disabled,
-    this.permission
+    this.permission,
+    this.checked
   });
   //工厂模式-用这种模式可以省略New关键字
   factory UserInfoModel.fromJson(dynamic json){
     return UserInfoModel(
+      id: json["id"],
       avater: json["avater"],
       birthday: json["birthday"],
       createDate: json["createDate"],
@@ -47,7 +50,8 @@ class UserInfoModel{
       sign: json["sign"],
       region: json["region"],
       disabled:json["disabled"],
-      permission:json["permission"]
+      permission:json["permission"],
+      checked: json["checked"]
     );
   }
 

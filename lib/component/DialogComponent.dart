@@ -6,6 +6,7 @@ class DialogComponent extends StatelessWidget {
   final Widget content;
   final Function? onClose;
   final double topMarginRatio;
+  final bool showDivider;
 
   const DialogComponent({
     super.key,
@@ -13,6 +14,7 @@ class DialogComponent extends StatelessWidget {
     required this.content,
     this.onClose,
     this.topMarginRatio = 0.2,
+    this.showDivider = true
   });
 
   @override
@@ -92,7 +94,7 @@ class DialogComponent extends StatelessWidget {
                   ),
 
                   // 分隔线
-                  const Divider(height: 1, thickness: 1),
+                  showDivider ? const Divider(height: 1, thickness: 1) : const SizedBox(),
 
                   // 自定义内容区域
                   Expanded(
