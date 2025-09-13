@@ -16,6 +16,7 @@ import '../component/DialogComponent.dart';
 import '../component/DirectoryListComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../component/TriangleComponent.dart';
+import '../component/UploadDirectoryComponent.dart';
 import '../enum/ConnectionStatus.dart';
 import '../enum/PositionEnum.dart';
 import '../model/AiModel.dart';
@@ -70,6 +71,7 @@ class ChatPageState extends State<ChatPage> {
   EasyRefreshController historyEasyRefreshController = EasyRefreshController();
   TextEditingController controller = TextEditingController(); // 姓名
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
+
   // 使用正则表达式进行匹配
   final RegExp startThinkPattern = RegExp(r'^<think>');
   final RegExp endThinkPattern = RegExp(r'</think>');
@@ -77,6 +79,7 @@ class ChatPageState extends State<ChatPage> {
   ScrollController scrollController = ScrollController();
   String language = "zh";
   String directoryId = "";
+  String uploadDirId = "";
 
   @override
   void initState() {
@@ -91,7 +94,7 @@ class ChatPageState extends State<ChatPage> {
         activeModelName = models.first.modelName; // 确保首次赋值
       });
     });
-    userInfoProvider = Provider.of<UserInfoProvider>(context,listen: false);
+    userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     getStorageTenant();
     super.initState();
   }
@@ -99,11 +102,15 @@ class ChatPageState extends State<ChatPage> {
   ///@author: wuwenqiang
   ///@description: 获取缓存的租户
   /// @date: 2024-07-30 22:58
-  getStorageTenant(){
+  getStorageTenant() {
     LocalStorageUtils.getTenantId().then((tenantId) {
-        getTenantUserService(tenantId).then((res){
-          chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ?? {"tenantId":userInfoProvider.userInfo.userId,"tenantName":"私人空间"}));
-        });
+      getTenantUserService(tenantId).then((res) {
+        chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ??
+            {
+              "tenantId": userInfoProvider.userInfo.userId,
+              "tenantName": "私人空间"
+            }));
+      });
     });
   }
 
@@ -273,11 +280,11 @@ class ChatPageState extends State<ChatPage> {
       "modelName": activeModelName,
       "token": token, // 替换为实际用户ID
       "chatId": chatId, // 替换为实际聊天ID
-      "directoryId":directoryId,
+      "directoryId": directoryId,
       "prompt": prompt,
       "type": type,
       "showThink": showThink,
-      "language":language
+      "language": language
     };
     controller.text = "";
 
@@ -294,7 +301,7 @@ class ChatPageState extends State<ChatPage> {
       options: modelList.map((item) {
         return item.modelName;
       }).toList(),
-      onTap: (String selectedOption,int index) {
+      onTap: (String selectedOption, int index) {
         setState(() {
           activeModelName = selectedOption;
         });
@@ -312,13 +319,26 @@ class ChatPageState extends State<ChatPage> {
         return DialogComponent(
             showDivider: false,
             title: "选择文档目录",
-            content:DirectoryListComponent(
-              onItemSelected: (String mDirectoryId){
+            content:
+                DirectoryListComponent(onItemSelected: (String mDirectoryId) {
               directoryId = mDirectoryId;
-            })
-        );
+            }));
       },
     );
+  }
+
+  ///@author: wuwenqiang
+  ///@description: 文档设置弹窗
+  /// @date: 2025-09-13 10:59
+  onUploadDoc() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const DialogComponent(
+              showDivider: false,
+              title: "选择文档目录",
+              content: UploadDirectoryComponent());
+        });
   }
 
   // 头部
@@ -328,7 +348,9 @@ class ChatPageState extends State<ChatPage> {
       decoration: const BoxDecoration(color: ThemeColors.colorWhite),
       child: Row(
         children: [
-          AvaterComponent(size: ThemeSize.smallAvater,avater: userInfoProvider.userInfo.avater??""),
+          AvaterComponent(
+              size: ThemeSize.smallAvater,
+              avater: userInfoProvider.userInfo.avater ?? ""),
           Expanded(
               child: Text(
             "当前接入模型：${activeModelName}",
@@ -340,6 +362,7 @@ class ChatPageState extends State<ChatPage> {
                 width: ThemeSize.smallIcon, height: ThemeSize.smallIcon),
             onSelected: (String item) {
               if (item == "上传文档") {
+                onUploadDoc();
               } else if (item == "我的文档") {
                 onShowDocList();
               } else if (item == "会话记录") {
@@ -454,7 +477,12 @@ class ChatPageState extends State<ChatPage> {
                                           size: ThemeSize.miniIcon,
                                           color: Colors.white),
                                     ),
-                                    AvaterComponent(size: ThemeSize.middleIcon,avater: userInfoProvider.userInfo.avater??"",)
+                                    AvaterComponent(
+                                      size: ThemeSize.middleIcon,
+                                      avater:
+                                          userInfoProvider.userInfo.avater ??
+                                              "",
+                                    )
                                   ],
                                 ),
                               )
@@ -581,35 +609,37 @@ class ChatPageState extends State<ChatPage> {
                             ? Colors.orange
                             : ThemeColors.subTitle),
                   )),
-              type == "document" ?
-                  Row(
-                    children: [
-                      const SizedBox(width: ThemeSize.containerPadding),
-                      OutlinedButton(
-                      onPressed: () {
-                        showDocSettingDialog(context);
-                      },
-                      ///圆角
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: ThemeColors.colorWhite,
-                        // 背景色（可选）
-                        foregroundColor: ThemeColors.colorWhite,
-                        // 文字颜色
-                        side: const BorderSide(
-                            color: Colors.orange),
-                        // 设置边框颜色（这里是黑色）
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(ThemeSize.bigRadius), // 圆角
-                        ),
-                      ),
-                      child: const Text(
-                        '文档设置',
-                        style: TextStyle(
-                            fontSize: ThemeSize.middleFontSize,
-                            color: Colors.orange),
-                      ))],)
-               : const SizedBox(),
+              type == "document"
+                  ? Row(
+                      children: [
+                        const SizedBox(width: ThemeSize.containerPadding),
+                        OutlinedButton(
+                            onPressed: () {
+                              showDocSettingDialog(context);
+                            },
+
+                            ///圆角
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: ThemeColors.colorWhite,
+                              // 背景色（可选）
+                              foregroundColor: ThemeColors.colorWhite,
+                              // 文字颜色
+                              side: const BorderSide(color: Colors.orange),
+                              // 设置边框颜色（这里是黑色）
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    ThemeSize.bigRadius), // 圆角
+                              ),
+                            ),
+                            child: const Text(
+                              '文档设置',
+                              style: TextStyle(
+                                  fontSize: ThemeSize.middleFontSize,
+                                  color: Colors.orange),
+                            ))
+                      ],
+                    )
+                  : const SizedBox(),
               const SizedBox(width: ThemeSize.containerPadding),
               OutlinedButton(
                   onPressed: () {
@@ -757,7 +787,7 @@ class ChatPageState extends State<ChatPage> {
                   ))),
           const SizedBox(width: ThemeSize.containerPadding),
           GestureDetector(
-              onTap:useWebsocket,
+              onTap: useWebsocket,
               child: Container(
                 height: ThemeSize.buttonHeight,
                 width: ThemeSize.buttonHeight,
@@ -916,30 +946,25 @@ class ChatPageState extends State<ChatPage> {
         : const SizedBox();
   }
 
-  onShowDocList(){
+  onShowDocList() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return const DialogComponent(
-            title: "我的文档",
-            content:DocListComponent()
-        );
+            title: "我的文档", content: DocListComponent());
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    chatProvider = Provider.of<ChatProvider>(context,listen: true);
+    chatProvider = Provider.of<ChatProvider>(context, listen: true);
     return Scaffold(
       backgroundColor: ThemeColors.colorBg,
       body: SafeArea(
           top: true,
           child: Stack(
-            children: [
-              buildChatWidget(),
-              buildHistoryWidget()
-            ],
+            children: [buildChatWidget(), buildHistoryWidget()],
           )),
     );
   }

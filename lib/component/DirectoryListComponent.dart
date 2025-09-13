@@ -38,12 +38,9 @@ class _DirectoryListComponentState extends State<DirectoryListComponent> {
             .tenantId)
         .then((res) {
       setState(() {
-        print(res.data.length);
         res.data.forEach((item) {
-          print(item);
           directoryList.add(DirectoryModel.fromJson(item));
         });
-        print(directoryList.length);
       });
     });
   }
@@ -102,63 +99,6 @@ class _DirectoryListComponentState extends State<DirectoryListComponent> {
                     ]));
               }).toList()))),
     );
-    // return ListView.separated(
-    //   shrinkWrap: true,
-    //   physics: const AlwaysScrollableScrollPhysics(),
-    //   itemCount: widget.directoryList.length,
-    //   separatorBuilder: (context, index) => const Divider(
-    //     height: 1,
-    //     thickness: 1,
-    //     color: Colors.grey,
-    //   ),
-    //   itemBuilder: (context, index) {
-    //     final directory = widget.directoryList[index];
-    //     return Container(
-    //       margin: const EdgeInsets.symmetric(vertical: ThemeSize.containerPadding), // 上下间隔15
-    //       padding: const EdgeInsets.symmetric(horizontal: ThemeSize.containerPadding),
-    //       child: Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         children: [
-    //           // 左边显示directory字段
-    //           Expanded(
-    //             child: Text(
-    //               directory.directory,
-    //               style: const TextStyle(
-    //                 fontWeight: FontWeight.w500,
-    //               ),
-    //               overflow: TextOverflow.ellipsis,
-    //               maxLines: 1,
-    //             ),
-    //           ),
-    //           const SizedBox(width: ThemeSize.containerPadding),
-    //           // 右边单选按钮
-    //           GestureDetector(
-    //             onTap: () => selectItem(index),
-    //             child: Container(
-    //               width: ThemeSize.radioSize,
-    //               height: ThemeSize.radioSize,
-    //               decoration: BoxDecoration(
-    //                 shape: BoxShape.circle,
-    //                 border: Border.all(
-    //                   color: directory.isSelected ? Colors.blue : Colors.grey,
-    //                   width: 2,
-    //                 ),
-    //                 color: directory.isSelected ? Colors.blue : Colors.transparent,
-    //               ),
-    //               child: directory.isSelected
-    //                   ? const Icon(
-    //                 Icons.check,
-    //                 size: ThemeSize.middleFontSize,
-    //                 color: Colors.white,
-    //               )
-    //                   : null,
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     );
-    //   },
-    // );
   }
 
   // 选择项目的方法

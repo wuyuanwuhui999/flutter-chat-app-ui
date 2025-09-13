@@ -1,5 +1,7 @@
 import '../common/constant.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class ResponseModel<T> {
   final String status;
@@ -79,6 +81,67 @@ class HttpUtil {
           return handler.next(err); // 继续
         }
     ));
+  }
+
+  /// 文件上传方法
+  /// [filePath] 文件路径
+  /// [fileName] 文件名
+  /// [uploadUrl] 上传地址（相对路径，会自动拼接baseUrl）
+  /// [formData] 额外的表单数据
+  Future<ResponseModel> uploadFile({
+    required String filePath,
+    required String fileName,
+    required String uploadUrl,
+    Map<String, dynamic>? formData,
+  }) async {
+    try {
+      // 获取MIME类型
+      final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+      final contentType = MediaType.parse(mimeType);
+
+      // 创建FormData
+      final formDataToSend = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          filePath,
+          filename: fileName,
+          contentType: contentType,
+        ),
+        ...?formData, // 添加额外的表单数据
+      });
+
+      // 发送请求
+      final response = await dio.post(
+        uploadUrl,
+        data: formDataToSend,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      return ResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception('文件上传失败: ${e.message}');
+    } catch (e) {
+      throw Exception('文件上传失败: $e');
+    }
+  }
+
+  /// 专门用于上传文档的方法
+  /// [filePath] 文件路径
+  /// [fileName] 文件名
+  /// [tenantId] 租户ID
+  /// [directoryId] 目录ID
+  Future<ResponseModel> uploadDoc({
+    required String filePath,
+    required String fileName,
+    required String tenantId,
+    required String directoryId,
+  }) async {
+    return await uploadFile(
+      filePath: filePath,
+      fileName: fileName,
+      uploadUrl: '/service/ai/uploadDoc/$tenantId/$directoryId',
+    );
   }
 }
 
