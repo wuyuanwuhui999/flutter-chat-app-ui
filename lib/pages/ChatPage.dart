@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../api/api.dart';
+import '../component/CustomDialogComponent.dart';
 import '../component/DialogComponent.dart';
 import '../component/DirectoryListComponent.dart';
 import '../component/SelectDialogComponent.dart';
@@ -334,11 +335,90 @@ class ChatPageState extends State<ChatPage> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const DialogComponent(
+          return DialogComponent(
               showDivider: false,
+              leftIcon: IconButton(
+                  onPressed: onCreateDirectory, icon: const Icon(Icons.add)),
               title: "选择文档目录",
-              content: UploadDirectoryComponent());
+              content: const UploadDirectoryComponent());
         });
+  }
+
+  ///@author: wuwenqiang
+  ///@description: 创建文件夹
+  /// @date: 2025-09-14 09:37
+  ///@author: wuwenqiang
+  ///@description: 创建文件夹
+  /// @date: 2025-09-14 09:37
+  onCreateDirectory() {
+    TextEditingController directoryNameController = TextEditingController();
+    CustomDialogComponent(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.only(top: ThemeSize.containerPadding),
+            child: Row(
+              children: [
+                const Text("文件夹名称"),
+                const SizedBox(width: ThemeSize.smallMargin),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: ThemeColors.disableColor, // 灰色背景
+                      borderRadius:
+                          BorderRadius.circular(ThemeSize.middleRadius), // 圆角
+                    ),
+                    child: TextField(
+                      textAlignVertical: TextAlignVertical.top,
+                      controller: directoryNameController,
+                      cursorColor: ThemeColors.subTitle,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.only(
+                          left: ThemeSize.miniMargin,
+                          right: ThemeSize.miniMargin,
+                          top: ThemeSize.miniMargin,
+                          bottom: ThemeSize.miniMargin,
+                        ),
+                        hintText: '请输入文件夹名称',
+                        hintStyle: TextStyle(
+                          fontSize: ThemeSize.smallFontSize,
+                          color: ThemeColors.subTitle,
+                        ),
+                        border: InputBorder.none,
+                        // 移除边框
+                        enabledBorder: InputBorder.none,
+                        // 移除启用状态边框
+                        focusedBorder: InputBorder.none,
+                        // 移除聚焦状态边框
+                        disabledBorder: InputBorder.none,
+                        // 移除禁用状态边框
+                        errorBorder: InputBorder.none,
+                        // 移除错误状态边框
+                        focusedErrorBorder: InputBorder.none, // 移除聚焦错误状态边框
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+        name: "创建文件夹",
+        okCallback: () {
+          createDirService(DirectoryModel(
+              id: "",
+              userId: "",
+              directory: directoryNameController.text,
+              tenantId: chatProvider.tenantUser.tenantId)).then((res){
+              if(res.data != null){
+                Fluttertoast.showToast(msg: "创建成功");
+                chatProvider.addDirectory(DirectoryModel.fromJson(res.data));
+              }else{
+                Fluttertoast.showToast(msg: res.msg ?? "创建失败");
+              }
+          });
+        }).show();
   }
 
   // 头部

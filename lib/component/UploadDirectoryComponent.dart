@@ -14,7 +14,6 @@ import '../utils/HttpUtil.dart';
 
 // 有状态的目录列表组件（内部管理选中状态）
 class UploadDirectoryComponent extends StatefulWidget {
-
   const UploadDirectoryComponent({
     super.key,
   });
@@ -30,6 +29,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
         id: "default", userId: "", directory: "默认文件夹", isSelected: false)
   ];
   String directoryId = "";
+  late ChatProvider chatProvider;
 
   @override
   void initState() {
@@ -42,11 +42,10 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
             .tenantUser
             .tenantId)
         .then((res) {
-      setState(() {
-        res.data.forEach((item) {
-          directoryList.add(DirectoryModel.fromJson(item));
-        });
+      res.data.forEach((item) {
+        directoryList.add(DirectoryModel.fromJson(item));
       });
+      chatProvider.setDirectoryList(directoryList);
     });
   }
 
@@ -141,8 +140,64 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
     }
   }
 
+  List<Widget> getDirectoryListWidget(){
+    List<Widget>directoryListWidget = [];
+    chatProvider.directoryList.asMap().forEach((index,item){
+      directoryListWidget.add(Container(
+          padding: EdgeInsets.only(
+              top: index == 0 ? 0 : ThemeSize.containerPadding,
+              bottom: index ==
+                  chatProvider.directoryList.length - 1
+                  ? 0
+                  : ThemeSize.containerPadding),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      width: 1,
+                      color: index ==
+                          chatProvider.directoryList.length -
+                              1
+                          ? Colors.transparent
+                          : ThemeColors.disableColor,
+                      style: BorderStyle.solid))),
+          child: Row(children: [
+            Expanded(child: Text(item.directory)),
+            // 右边单选按钮
+            GestureDetector(
+              onTap: () => selectItem(index),
+              child: Container(
+                width: ThemeSize.radioSize,
+                height: ThemeSize.radioSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: item.isSelected
+                        ? Colors.blue
+                        : Colors.grey,
+                    width: 2,
+                  ),
+                  color: item.isSelected
+                      ? Colors.blue
+                      : Colors.transparent,
+                ),
+                child: item.isSelected
+                    ? const Icon(
+                  Icons.check,
+                  size: ThemeSize.middleFontSize,
+                  color: Colors.white,
+                )
+                    : null,
+              ),
+            )
+          ])));
+    });
+    return directoryListWidget;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    chatProvider = Provider.of<ChatProvider>(context, listen: true);
     return Column(
       children: [
         Expanded(
@@ -154,52 +209,8 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                   padding: ThemeStyle.padding,
                   margin: ThemeStyle.padding,
                   child: Column(
-                      children: directoryList.asMap().entries.map((item) {
-                    return Container(
-                        padding: EdgeInsets.only(
-                            top: item.key == 0 ? 0 : ThemeSize.containerPadding,
-                            bottom: item.key == directoryList.length - 1
-                                ? 0
-                                : ThemeSize.containerPadding),
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                                    width: 1,
-                                    color: item.key == directoryList.length - 1
-                                        ? Colors.transparent
-                                        : ThemeColors.disableColor,
-                                    style: BorderStyle.solid))),
-                        child: Row(children: [
-                          Expanded(child: Text(item.value.directory)),
-                          // 右边单选按钮
-                          GestureDetector(
-                            onTap: () => selectItem(item.key),
-                            child: Container(
-                              width: ThemeSize.radioSize,
-                              height: ThemeSize.radioSize,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: item.value.isSelected
-                                      ? Colors.blue
-                                      : Colors.grey,
-                                  width: 2,
-                                ),
-                                color: item.value.isSelected
-                                    ? Colors.blue
-                                    : Colors.transparent,
-                              ),
-                              child: item.value.isSelected
-                                  ? const Icon(
-                                      Icons.check,
-                                      size: ThemeSize.middleFontSize,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          )
-                        ]));
-                  }).toList()))),
+                      children:getDirectoryListWidget()
+                  ))),
         )),
         Container(
             decoration: const BoxDecoration(color: Colors.transparent),
@@ -209,6 +220,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                   flex: 1,
                   child: OutlinedButton(
                       onPressed: onUploadDoc,
+
                       ///圆角
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.transparent),
@@ -232,6 +244,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
+
                       ///圆角
                       style: OutlinedButton.styleFrom(
                         backgroundColor: ThemeColors.colorWhite,

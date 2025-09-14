@@ -8,6 +8,7 @@ import '../common/config.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../common/constant.dart';
+import '../component/CustomDialogComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../model/TenantModel.dart';
 import '../provider/UserInfoProvider.dart';
@@ -18,7 +19,6 @@ import '../theme/ThemeColors.dart';
 import '../theme/ThemeSize.dart';
 import '../theme/ThemeStyle.dart';
 import '../service/serverMethod.dart';
-import '../utils/common.dart';
 import '../component/NavigatorTitleComponent.dart';
 
 class UserPage extends StatefulWidget {
@@ -51,43 +51,46 @@ class UserPageState extends State<UserPage> {
   /// @date: 2024-07-30 22:58
   useDialog(TextEditingController controller, String text, String name,String field, bool isRequire) {
     controller.text = text;
-    showCustomDialog(
-        context,
-        Row(
-          children: [
-            Text(name),
-            SizedBox(width: ThemeSize.smallMargin),
-            Expanded(
-                flex: 1,
-                child: Card(
-                    color: ThemeColors.disableColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(ThemeSize.middleRadius),
-                    ),
-                    elevation: 0,
-                    child: TextField(
-                        onChanged: (value) {
-                          hasChange = value != text;
-                        },
-                        textAlignVertical: TextAlignVertical.top,
-                        controller: controller,
-                        cursorColor: ThemeColors.grey,
-                        //设置光标
-                        decoration: InputDecoration(
-                          contentPadding:
-                              EdgeInsets.only(left: ThemeSize.miniMargin),
-                          hintText: '请输入$name',
-                          hintStyle: TextStyle(
-                              fontSize: ThemeSize.smallFontSize,
-                              color: ThemeColors.grey),
-                          border: InputBorder.none,
-                        ))))
-          ],
-        ),
-        name, () {
+    CustomDialogComponent(
+        context:context,
+        builder: (BuildContext context){
+          return Row(
+            children: [
+              Text(name),
+              SizedBox(width: ThemeSize.smallMargin),
+              Expanded(
+                  flex: 1,
+                  child: Card(
+                      color: ThemeColors.disableColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(ThemeSize.middleRadius),
+                      ),
+                      elevation: 0,
+                      child: TextField(
+                          onChanged: (value) {
+                            hasChange = value != text;
+                          },
+                          textAlignVertical: TextAlignVertical.top,
+                          controller: controller,
+                          cursorColor: ThemeColors.grey,
+                          //设置光标
+                          decoration: InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(left: ThemeSize.miniMargin),
+                            hintText: '请输入$name',
+                            hintStyle: TextStyle(
+                                fontSize: ThemeSize.smallFontSize,
+                                color: ThemeColors.grey),
+                            border: InputBorder.none,
+                          ))))
+            ],
+          );
+        },
+        name:"修改$name",
+        okCallback: () {
       useSave(controller.text, name, field, isRequire);
-    });
+    }).show();
   }
 
   Future<void> useSave(dynamic value, String name, String field, bool isRequire) async {
@@ -530,8 +533,11 @@ class UserPageState extends State<UserPage> {
                               width: double.infinity,
                               child: MaterialButton(
                                 onPressed: () {
-                                  showCustomDialog(context, SizedBox(), '确认退出？',
-                                          () {
+                                  CustomDialogComponent(
+                                      context: context,
+                                      builder:(BuildContext context){return SizedBox();},
+                                      name:'确认退出？',
+                                          okCallback: () {
                                         Navigator.pushAndRemoveUntil(
                                             context,
                                             MaterialPageRoute(

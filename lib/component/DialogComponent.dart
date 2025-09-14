@@ -4,6 +4,7 @@ import 'package:flutter_music_app/theme/ThemeSize.dart';
 class DialogComponent extends StatelessWidget {
   final String title;
   final Widget content;
+  final Widget? leftIcon;
   final Function? onClose;
   final double topMarginRatio;
   final bool showDivider;
@@ -12,6 +13,7 @@ class DialogComponent extends StatelessWidget {
     super.key,
     required this.title,
     required this.content,
+    this.leftIcon,
     this.onClose,
     this.topMarginRatio = 0.2,
     this.showDivider = true
@@ -64,6 +66,12 @@ class DialogComponent extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
+                        leftIcon != null ?
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: leftIcon,
+                        )
+                            : const SizedBox(),
                         // 标题
                         Center(
                           child: Text(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter_music_app/model/DirectoryModel.dart';
 import '../common/config.dart';
 import '../model/FavoriteDirectoryModel.dart';
 import '../api/api.dart';
@@ -278,6 +279,20 @@ Future<ResponseModel<int>> deleteTenantUserService(String tenantId,String userId
   try {
     Response response =
     await dio.delete("${servicePath['deleteTenantUser']}/${tenantId}/${userId}");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR:======>${e}');
+    throw Error();
+  }
+}
+
+///@author: wuwenqiang
+///@description: 添加租户为用户
+/// @date: 2025-09-12 17:22
+Future<ResponseModel<dynamic>> createDirService(DirectoryModel directoryMode) async {
+  try {
+    Response response =
+    await dio.post(servicePath['createDir']!,data:directoryMode.toJson());
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
