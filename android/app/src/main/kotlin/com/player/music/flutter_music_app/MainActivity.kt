@@ -1,4 +1,4 @@
-package com.player.music.flutter_music_app
+package com.player.chat.flutter_chat_app
 
 import io.flutter.embedding.android.FlutterActivity
 

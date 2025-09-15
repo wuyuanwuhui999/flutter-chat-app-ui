@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../provider/UserInfoProvider.dart';
 import '../router/index.dart';
-import '../theme/ThemeColors.dart';
 import '../utils/common.dart';
 
 /*-----------------------头像组件------------------------*/

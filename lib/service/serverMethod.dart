@@ -181,8 +181,6 @@ Future<ResponseModel<List<dynamic>>> getDirectoryListService(String tenantId) as
   try {
     Response response =
     await dio.get("${servicePath['getDirectoryList']}?tenantId=${tenantId}");
-    print("${servicePath['getDirectoryList']}?tenantId=${tenantId}");
-    print(response.data);
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
