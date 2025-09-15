@@ -38,9 +38,8 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
   }
 
   getDirectoryList() {
-    getDirectoryListService(Provider.of<ChatProvider>(context, listen: false)
-            .tenantUser
-            .tenantId)
+    chatProvider = Provider.of<ChatProvider>(context,listen: false);
+    getDirectoryListService(chatProvider.tenantUser.tenantId)
         .then((res) {
       res.data.forEach((item) {
         directoryList.add(DirectoryModel.fromJson(item));
@@ -106,7 +105,6 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
       final fileName = result.files.single.name;
 
       // 获取token和tenantId
-      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       final tenantId = chatProvider.tenantUser.tenantId;
 
       // 使用HttpUtil上传文件
@@ -205,6 +203,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
           decoration: const BoxDecoration(color: ThemeColors.colorBg),
           child: SingleChildScrollView(
               child: Container(
+                  width: double.infinity,
                   decoration: ThemeStyle.boxDecoration,
                   padding: ThemeStyle.padding,
                   margin: ThemeStyle.padding,
