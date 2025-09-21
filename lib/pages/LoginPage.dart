@@ -21,11 +21,12 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   int tabIndex = 0;
+  late UserInfoProvider userInfoProvider;
 
   @override
   Widget build(BuildContext context) {
-    UserInfoModel? userInfo = Provider.of<UserInfoProvider>(context).userInfo;
-    String userAccount = userInfo?.userAccount ?? "";
+    userInfoProvider = Provider.of<UserInfoProvider>(context,listen: true);
+    String userAccount = userInfoProvider.userInfo?.userAccount ?? "";
     String email = "";
     String code = "";
     TextEditingController userController = TextEditingController(text: userAccount);
@@ -51,7 +52,7 @@ class LoginPageState extends State<LoginPage> {
                           width: ThemeSize.movieWidth / 2,
                           height: ThemeSize.movieWidth / 2,
                         )),
-                    SizedBox(
+                    const SizedBox(
                       height: ThemeSize.containerPadding * 2,
                     ),
                     Row(
@@ -327,10 +328,11 @@ class LoginPageState extends State<LoginPage> {
                                   backgroundColor: Colors.green,
                                   textColor: Colors.white,
                                   fontSize: ThemeSize.middleFontSize);
-                              Provider.of<UserInfoProvider>(context,
-                                      listen: false)
-                                  .setUserInfo(
-                                      UserInfoModel.fromJson(res.data));
+                              print(res.data);
+                              UserInfoModel userModel = UserInfoModel.fromJson(res.data);
+                              print(userModel);
+                              print("111");
+                              userInfoProvider.setUserInfo(userModel);
                               Routes.router.navigateTo(
                                   context, '/ChatPage',
                                   replace: true);
@@ -382,9 +384,7 @@ class LoginPageState extends State<LoginPage> {
                                   textColor: Colors.white,
                                   fontSize: ThemeSize.middleFontSize);
                               EasyLoading.dismiss();
-                              Provider.of<UserInfoProvider>(context,
-                                  listen: false)
-                                  .setUserInfo(
+                              userInfoProvider.setUserInfo(
                                   UserInfoModel.fromJson(res.data));
                               Routes.router.navigateTo(
                                   context, '/ChatPage',

@@ -9,14 +9,14 @@ const servicePath = {
   'updateAvater':'/service/user-getway/updateAvater',//更新头像
   'updatePassword': '/service/user-getway/updatePassword',//更新密码
   'loginByEmail': '/service/user/loginByEmail',//邮箱登录
-  'chat':"/service/ai/chat",// ai聊天
-  'getChatHistory': "/service/ai/getChatHistory",// ai聊天
-  'chatWs': "/service/ai/ws/chat",// ai聊天
-  'getModelList': "/service/ai/getModelList",// ai聊天
-  'getDocList': "/service/ai/getDocList",// 查询我的文档
-  'deleteDoc': "/service/ai/deleteDoc/",// 查询我的文档
-  'getDirectoryList':"/service/ai/getDirectoryList",// 按照租户查询文档目录列表
-  'createDir': "/service/ai/createDir",// 创建目录
+  'chat':"/service/chat/chat",// ai聊天
+  'getChatHistory': "/service/chat/getChatHistory",// ai聊天
+  'chatWs': "/service/chat/ws/chat",// ai聊天
+  'getModelList': "/service/chat/getModelList",// ai聊天
+  'getDocList': "/service/chat/getDocList",// 查询我的文档
+  'deleteDoc': "/service/chat/deleteDoc/",// 查询我的文档
+  'getDirectoryList':"/service/chat/getDirectoryList",// 按照租户查询文档目录列表
+  'createDir': "/service/chat/createDir",// 创建目录
   'getTenantUser':"/service/tenant/getTenantUser",// 获取当前租户信息
   'getUserTenantList': "/service/tenant/getUserTenantList",// 获取用户的所有租户
   'getTenantUserList': "/service/tenant/getTenantUserList",// 获取当前租户下的所有租户

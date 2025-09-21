@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_music_app/component/AvaterComponent.dart';
 import 'package:flutter_music_app/model/TenantUserModel.dart';
@@ -9,23 +8,13 @@ import 'package:flutter_music_app/provider/ChatProvider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
-import '../common/config.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
 import '../common/constant.dart';
 import '../component/AddTenantUserComponent.dart';
-import '../component/DialogComponent.dart';
-import '../component/SelectDialogComponent.dart';
-import '../model/TenantModel.dart';
-import '../provider/UserInfoProvider.dart';
-import '../router/index.dart';
-import 'LoginPage.dart';
-import '../model/UserInfoModel.dart';
 import '../theme/ThemeColors.dart';
 import '../theme/ThemeSize.dart';
 import '../theme/ThemeStyle.dart';
 import '../service/serverMethod.dart';
-import '../utils/common.dart';
 import '../component/NavigatorTitleComponent.dart';
 
 class TenantManagePage extends StatefulWidget {
@@ -42,7 +31,6 @@ class TenantManagePageState extends State<TenantManagePage> {
   int total = 0;
   List<TenantUserModel> tenantUserList = [];
   TextEditingController searchController = TextEditingController(text: "");
-  List<UserInfoModel> searchList = [];
   @override
   void initState() {
     getTenantUserList();
@@ -119,25 +107,6 @@ class TenantManagePageState extends State<TenantManagePage> {
         );
       },
     );
-  }
-
-  // 添加用户到租户的方法
-  void addUserToTenant(TenantUserModel user) {
-    // 这里实现添加用户的逻辑
-    // addUserToTenantService(chatProvider.tenantUser.tenantId, user.id)
-    //   .then((res) {
-    //     // 处理结果
-    //   });
-  }
-
-  onSearchUser(){
-    searchUsersService(chatProvider.tenantUser.tenantId,searchController.text).then((res){
-      setState(() {
-        res.data.forEach((item){
-          searchList.add(UserInfoModel.fromJson(item));
-        });
-      });
-    });
   }
 
   @override

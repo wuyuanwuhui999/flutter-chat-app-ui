@@ -29,12 +29,9 @@ Future<ResponseModel<dynamic>> loginService(
   try {
     Response response = await dio.post(servicePath['login']!, data: {'userAccount':userAccount,'password':generateMd5(password)});
     HttpUtil.getInstance().setToken(response.data['token']);
-    print(servicePath['login']!);
     return ResponseModel.fromJson(response.data);
   } catch (e) {
-    print('ERROR:======>${e}');
     throw Error();
-    return ResponseModel.fromJson(null);
   }
 }
 
@@ -247,10 +244,10 @@ Future<ResponseModel<int>> cancelAdminService(String tenantId,String userId) asy
 ///@author: wuwenqiang
 ///@description: 取消租户为管理员
 /// @date: 2025-09-12 09:36
-Future<ResponseModel<List<dynamic>>> searchUsersService(String tenantId,String keyword) async {
+Future<ResponseModel<List<dynamic>>> searchUsersService(String tenantId,String keyword,int pageNum,int pageSize) async {
   try {
     Response response =
-    await dio.get(servicePath['searchUsers']!,queryParameters: {"tenantId":tenantId,"keyword":keyword});
+    await dio.get(servicePath['searchUsers']!,queryParameters: {"tenantId":tenantId,"keyword":keyword,"pageNum":pageNum,"pageSize":pageSize});
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');

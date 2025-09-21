@@ -108,7 +108,7 @@ class ChatPageState extends State<ChatPage> {
       getTenantUserService(tenantId).then((res) {
         chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ??
             {
-              "tenantId": userInfoProvider.userInfo.userId,
+              "tenantId": userInfoProvider.userInfo.id,
               "tenantName": "私人空间"
             }));
       });

@@ -85,7 +85,7 @@ class _EditPageState extends State<EditPage> {
                             return;
                           }
                           await EasyLoading.show();
-                          Map myUserInfo = userInfoModel.toMap();
+                          Map<String,dynamic> myUserInfo = userInfoModel.toMap();
                           myUserInfo[widget.field] = checkValue;
                           updateUserData(myUserInfo).then((value) async {
                             setState(() {

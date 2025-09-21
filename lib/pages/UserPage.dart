@@ -105,7 +105,7 @@ class UserPageState extends State<UserPage> {
       loading = false;
     } else {
       await EasyLoading.show();
-      Map myUserInfo = userProvider.userInfo.toMap();
+      Map<String,dynamic> myUserInfo = userProvider.userInfo.toMap();
       myUserInfo[field] = value;
       updateUserData(myUserInfo).then((value) async {
         hasChange = false;
