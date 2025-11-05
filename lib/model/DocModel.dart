@@ -8,6 +8,7 @@ class DocModel{
   String userId;// 用户id
   String createTime;//创建时间
   String updateTime;// 更新时间
+  bool checked;
   DocModel({
     required this.id,
     required this.tenantId,
@@ -18,6 +19,7 @@ class DocModel{
     required this.userId,
     required this.createTime,
     required this.updateTime,
+    required this.checked
   });
   //工厂模式-用这种模式可以省略New关键字
   factory DocModel.fromJson(dynamic json){
@@ -30,7 +32,8 @@ class DocModel{
         ext:json['ext'],
         userId:json['userId'],
         createTime:json['createTime'],
-        updateTime:json['updateTime']
+        updateTime:json['updateTime'],
+        checked: json['checked']??false
     );
   }
 }

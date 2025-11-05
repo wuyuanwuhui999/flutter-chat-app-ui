@@ -107,10 +107,7 @@ class ChatPageState extends State<ChatPage> {
     LocalStorageUtils.getTenantId().then((tenantId) {
       getTenantUserService(tenantId).then((res) {
         chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ??
-            {
-              "tenantId": userInfoProvider.userInfo.id,
-              "tenantName": "私人空间"
-            }));
+            {"tenantId": userInfoProvider.userInfo.id, "tenantName": "私人空间"}));
       });
     });
   }
@@ -319,7 +316,7 @@ class ChatPageState extends State<ChatPage> {
       builder: (BuildContext context) {
         return DialogComponent(
             showDivider: false,
-            title: "选择文档目录",
+            title: "选择文档",
             content:
                 DirectoryListComponent(onItemSelected: (String mDirectoryId) {
               directoryId = mDirectoryId;
@@ -407,16 +404,17 @@ class ChatPageState extends State<ChatPage> {
         name: "创建文件夹",
         okCallback: () {
           createDirService(DirectoryModel(
-              id: "",
-              userId: "",
-              directory: directoryNameController.text,
-              tenantId: chatProvider.tenantUser.tenantId)).then((res){
-              if(res.data != null){
-                Fluttertoast.showToast(msg: "创建成功");
-                chatProvider.addDirectory(DirectoryModel.fromJson(res.data));
-              }else{
-                Fluttertoast.showToast(msg: res.msg ?? "创建失败");
-              }
+                  id: "",
+                  userId: "",
+                  directory: directoryNameController.text,
+                  tenantId: chatProvider.tenantUser.tenantId))
+              .then((res) {
+            if (res.data != null) {
+              Fluttertoast.showToast(msg: "创建成功");
+              chatProvider.addDirectory(DirectoryModel.fromJson(res.data));
+            } else {
+              Fluttertoast.showToast(msg: res.msg ?? "创建失败");
+            }
           });
         }).show();
   }
@@ -681,45 +679,33 @@ class ChatPageState extends State<ChatPage> {
                           BorderRadius.circular(ThemeSize.bigRadius), // 圆角
                     ),
                   ),
-                  child: Text(
-                    '查询文档',
-                    style: TextStyle(
-                        fontSize: ThemeSize.middleFontSize,
-                        color: type == "document"
-                            ? Colors.orange
-                            : ThemeColors.subTitle),
+                  child: Row(
+                    children: [
+                      Text(
+                        '查询文档',
+                        style: TextStyle(
+                            fontSize: ThemeSize.middleFontSize,
+                            color: type == "document"
+                                ? Colors.orange
+                                : ThemeColors.subTitle),
+                      ),
+                      SizedBox(width: ThemeSize.smallMargin),
+                      GestureDetector(
+                        onTap: (){
+                          if(type == "document"){
+                            showDocSettingDialog(context);
+                          }else{
+                            setState(() {
+                              type = "document";
+                            });
+                          }
+                        },
+                        child: Image.asset(type == "document" ? 'lib/assets/images/icon_setting_active.png' : "lib/assets/images/icon_setting_disabled.png",
+                          width: ThemeSize.smallIcon,
+                          height: ThemeSize.smallIcon),)
+                      ,
+                    ],
                   )),
-              type == "document"
-                  ? Row(
-                      children: [
-                        const SizedBox(width: ThemeSize.containerPadding),
-                        OutlinedButton(
-                            onPressed: () {
-                              showDocSettingDialog(context);
-                            },
-
-                            ///圆角
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: ThemeColors.colorWhite,
-                              // 背景色（可选）
-                              foregroundColor: ThemeColors.colorWhite,
-                              // 文字颜色
-                              side: const BorderSide(color: Colors.orange),
-                              // 设置边框颜色（这里是黑色）
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    ThemeSize.bigRadius), // 圆角
-                              ),
-                            ),
-                            child: const Text(
-                              '文档设置',
-                              style: TextStyle(
-                                  fontSize: ThemeSize.middleFontSize,
-                                  color: Colors.orange),
-                            ))
-                      ],
-                    )
-                  : const SizedBox(),
               const SizedBox(width: ThemeSize.containerPadding),
               OutlinedButton(
                   onPressed: () {

@@ -1,6 +1,6 @@
 
 class AiModel {
-  final int id;
+  final String id;
   final String modelName;
   final String updateTime;
   final String createTime;

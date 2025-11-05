@@ -116,6 +116,8 @@ flutter:
     - lib/assets/images/icon_talk.png
     - lib/assets/images/icon_user.png
     - lib/assets/images/icon_user_active.png
+    - lib/assets/images/icon_setting_active.png
+    - lib/assets/images/icon_setting_disabled.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
