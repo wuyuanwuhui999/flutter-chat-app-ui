@@ -14,7 +14,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../api/api.dart';
 import '../component/CustomDialogComponent.dart';
 import '../component/DialogComponent.dart';
-import '../component/DirectoryListComponent.dart';
+import '../component/DocumentListComponent.dart';
 import '../component/SelectDialogComponent.dart';
 import '../component/TriangleComponent.dart';
 import '../component/UploadDirectoryComponent.dart';
@@ -81,6 +81,7 @@ class ChatPageState extends State<ChatPage> {
   String language = "zh";
   String directoryId = "";
   String uploadDirId = "";
+  List<String>docIds = [];
 
   @override
   void initState() {
@@ -278,7 +279,7 @@ class ChatPageState extends State<ChatPage> {
       "modelName": activeModelName,
       "token": token, // 替换为实际用户ID
       "chatId": chatId, // 替换为实际聊天ID
-      "directoryId": directoryId,
+      "docIds": docIds,
       "prompt": prompt,
       "type": type,
       "showThink": showThink,
@@ -318,8 +319,9 @@ class ChatPageState extends State<ChatPage> {
             showDivider: false,
             title: "选择文档",
             content:
-                DirectoryListComponent(onItemSelected: (String mDirectoryId) {
-              directoryId = mDirectoryId;
+                DocumentListComponent(onItemSelected: (List<String> checkDocIds) {
+                  docIds = checkDocIds;
+                  print(docIds);
             }));
       },
     );

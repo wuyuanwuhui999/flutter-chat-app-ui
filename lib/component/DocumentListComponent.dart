@@ -14,19 +14,19 @@ import '../theme/ThemeSize.dart';
 import 'TriangleComponent.dart';
 
 // 有状态的目录列表组件（内部管理选中状态）
-class DirectoryListComponent extends StatefulWidget {
-  final Function(String directoryId)? onItemSelected;
+class DocumentListComponent extends StatefulWidget {
+  final Function(List<String> docIds) onItemSelected;
 
-  const DirectoryListComponent({
+  const DocumentListComponent({
     super.key,
-    this.onItemSelected,
+    required this.onItemSelected,
   });
 
   @override
-  State<DirectoryListComponent> createState() => _DirectoryListComponentState();
+  State<DocumentListComponent> createState() => _DocumentListComponentState();
 }
 
-class _DirectoryListComponentState extends State<DirectoryListComponent> {
+class _DocumentListComponentState extends State<DocumentListComponent> {
   List<DocumentCheckModel> docList = [];
 
   @override
@@ -64,6 +64,18 @@ class _DirectoryListComponentState extends State<DirectoryListComponent> {
     });
   }
 
+  getChecked(){
+    List<String>checkedIds = [];
+    docList.forEach((aItem){
+      aItem.docList.forEach((bItem){
+        if(bItem.checked){
+          checkedIds.add(bItem.id);
+        }
+      });
+    });
+    widget.onItemSelected(checkedIds);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -92,39 +104,41 @@ class _DirectoryListComponentState extends State<DirectoryListComponent> {
                                 style: BorderStyle.solid))),
                     child: Column(
                       children: [
-                        Row(children: [
+                        GestureDetector(onTap: (){
+                          setState(() {
+                            item.value.expand = !item.value.expand;
+                          });
+                        },child: Row(children: [
                           Text(item.value.directoryName),
                           // 右边单选按钮
                           const SizedBox(width: ThemeSize.smallMargin),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                item.value.expand = !item.value.expand;
-                              });
-                            },
-                            child: Transform.rotate(
-                              angle: item.value.expand ? 0 : -pi / 2,
-                              // 旋转-90度（π/2弧度）
-                              child: Opacity(
-                                  child: Image.asset(
-                                    "lib/assets/images/icon_down.png",
-                                    width: ThemeSize.miniIcon,
-                                    height: ThemeSize.miniIcon,
-                                  ),
-                                  opacity: 0.3),
-                            ),
-                            // child: Image.asset("lib/assets/images/icon_down.png",width: ThemeSize.smallIcon,height: ThemeSize.smallIcon),
-                          )
-                        ]),
+                          Transform.rotate(
+                            angle: item.value.expand ? 0 : -pi / 2,
+                            // 旋转-90度（π/2弧度）
+                            child: Opacity(
+                                child: Image.asset(
+                                  "lib/assets/images/icon_down.png",
+                                  width: ThemeSize.miniIcon,
+                                  height: ThemeSize.miniIcon,
+                                ),
+                                opacity: 0.3),
+                          ),
+                          Expanded(child: SizedBox(),flex: 1,)
+                        ])),
                         item.value.expand
                             ? Column(
                                 children: item.value.docList.map((cItem) {
-                                  return Row(
+                                  return Padding(padding: EdgeInsets.only(top: ThemeSize.smallMargin),
+                                  child: Row(
                                       children: [
-                                        Text(cItem.directoryName),
+                                        Expanded(child: Text(cItem.name),flex: 1),
+                                        SizedBox(width: ThemeSize.smallMargin),
                                         GestureDetector(
                                           onTap: (){
-                                            cItem.checked = !cItem.checked;
+                                            setState(() {
+                                              cItem.checked = !cItem.checked;
+                                              getChecked();
+                                            });
                                           },
                                           child: Container(
                                             width: ThemeSize.radioSize,
@@ -150,9 +164,11 @@ class _DirectoryListComponentState extends State<DirectoryListComponent> {
                                                 : null,
                                           ),
                                         )
-                                      ]);
+                                      ]),)
+                                   ;
                                 }).toList(),
                               )
+
                             : const SizedBox()
                       ],
                     ));
