@@ -8,11 +8,11 @@ class ThemeStyle {
     borderRadius: BorderRadius.all(Radius.circular(ThemeSize.middleRadius)),
   );
 
-  static const EdgeInsets margin = EdgeInsets.only(bottom: ThemeSize.containerPadding);
+  static const EdgeInsets margin = EdgeInsets.only(bottom: ThemeSize.middleMargin);
 
-  static const EdgeInsets padding = EdgeInsets.all(ThemeSize.containerPadding);
+  static const EdgeInsets padding = EdgeInsets.all(ThemeSize.middleMargin);
 
-  static const EdgeInsets paddingBox = EdgeInsets.only(left: ThemeSize.containerPadding,right: ThemeSize.containerPadding);
+  static const EdgeInsets paddingBox = EdgeInsets.only(left: ThemeSize.middleMargin,right: ThemeSize.middleMargin);
 
   static const TextStyle mainTitleStyle = TextStyle(
       color: ThemeColors.mainTitle,
@@ -26,10 +26,10 @@ class ThemeStyle {
       border: Border(
           bottom: BorderSide(
             // 设置单侧边框的样式
-              color: ThemeColors.borderColor,
+              color: ThemeColors.gray,
               width: 1,
               style: BorderStyle.solid)));
 
   //列边距
-  static const EdgeInsets columnPadding = EdgeInsets.only(top: ThemeSize.columnPadding,bottom: ThemeSize.columnPadding);
+  static const EdgeInsets middleMargin = EdgeInsets.only(top: ThemeSize.middleMargin,bottom: ThemeSize.middleMargin);
 }

@@ -18,7 +18,7 @@ class UpdatePasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: ThemeColors.colorBg,
+        backgroundColor: ThemeColors.background,
         body: SafeArea(
           child: Container(
             height: double.infinity,
@@ -26,7 +26,7 @@ class UpdatePasswordPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 const NavigatorTitleComponent(title: "修改密码"),
-                SizedBox(height: ThemeSize.containerPadding),
+                SizedBox(height: ThemeSize.middleMargin),
                 Column(
                   children: [
                     Container(
@@ -54,13 +54,13 @@ class UpdatePasswordPage extends StatelessWidget {
                                               fontSize: ThemeSize.smallFontSize,
                                               color: ThemeColors.grey),
                                           contentPadding: EdgeInsets.only(
-                                              left: ThemeSize.containerPadding),
+                                              left: ThemeSize.middleMargin),
                                           border: InputBorder.none,
                                         )))
                               ],
                             ),
-                            Divider(height: 1, color: ThemeColors.borderColor),
-                            SizedBox(height: ThemeSize.containerPadding),
+                            Divider(height: 1, color: ThemeColors.gray),
+                            SizedBox(height: ThemeSize.middleMargin),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -80,13 +80,13 @@ class UpdatePasswordPage extends StatelessWidget {
                                               fontSize: ThemeSize.smallFontSize,
                                               color: ThemeColors.grey),
                                           contentPadding: EdgeInsets.only(
-                                              left: ThemeSize.containerPadding),
+                                              left: ThemeSize.middleMargin),
                                           border: InputBorder.none,
                                         )))
                               ],
                             ),
-                            Divider(height: 1, color: ThemeColors.borderColor),
-                            SizedBox(height: ThemeSize.containerPadding),
+                            Divider(height: 1, color: ThemeColors.gray),
+                            SizedBox(height: ThemeSize.middleMargin),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -106,14 +106,14 @@ class UpdatePasswordPage extends StatelessWidget {
                                               fontSize: ThemeSize.smallFontSize,
                                               color: ThemeColors.grey),
                                           contentPadding: EdgeInsets.only(
-                                              left: ThemeSize.containerPadding),
+                                              left: ThemeSize.middleMargin),
                                           border: InputBorder.none,
                                         )))
                               ],
                             ),
                           ],
                         )),
-                    SizedBox(height: ThemeSize.containerPadding),
+                    SizedBox(height: ThemeSize.middleMargin),
                     Container(
                         margin: ThemeStyle.paddingBox,
                         child: InkWell(
@@ -180,7 +180,7 @@ class UpdatePasswordPage extends StatelessWidget {
                             }
                           },
                           child: Container(
-                            height: ThemeSize.buttonHeight,
+                            height: ThemeSize.btnHeight,
                             decoration: BoxDecoration(
                               color: Colors.red,
                               borderRadius: BorderRadius.all(

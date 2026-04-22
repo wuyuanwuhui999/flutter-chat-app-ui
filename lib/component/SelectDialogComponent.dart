@@ -9,7 +9,7 @@ class BottomSelectionDialog {
     required List<String> options,
     required Function(String,int) onTap,
   }) {
-    const divider = Divider(height: 1, color: ThemeColors.borderColor);
+    const divider = Divider(height: 1, color: ThemeColors.gray);
 
     // 构建选项列表
     final optionWidgets = options.asMap().entries.map((entry) {
@@ -48,8 +48,8 @@ class BottomSelectionDialog {
             children: [
               Container(
                   margin: const EdgeInsets.only(
-                      left: ThemeSize.containerPadding,
-                      right: ThemeSize.containerPadding),
+                      left: ThemeSize.middleMargin,
+                      right: ThemeSize.middleMargin),
                   decoration: const BoxDecoration(
                     color: ThemeColors.colorWhite,
                     borderRadius: BorderRadius.all(
@@ -59,13 +59,13 @@ class BottomSelectionDialog {
               InkWell(
                 child: Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.all(ThemeSize.containerPadding),
+                  margin: const EdgeInsets.all(ThemeSize.middleMargin),
                   decoration: const BoxDecoration(
                     color: ThemeColors.colorWhite,
                     borderRadius: BorderRadius.all(
                         Radius.circular(ThemeSize.middleRadius)),
                   ),
-                  padding: const EdgeInsets.all(ThemeSize.containerPadding),
+                  padding: const EdgeInsets.all(ThemeSize.middleMargin),
                   child: const Center(child: Text('取消')),
                 ),
                 onTap: () {

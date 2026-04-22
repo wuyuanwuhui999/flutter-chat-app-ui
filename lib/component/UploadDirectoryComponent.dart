@@ -143,11 +143,11 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
     chatProvider.directoryList.asMap().forEach((index,item){
       directoryListWidget.add(Container(
           padding: EdgeInsets.only(
-              top: index == 0 ? 0 : ThemeSize.containerPadding,
+              top: index == 0 ? 0 : ThemeSize.middleMargin,
               bottom: index ==
                   chatProvider.directoryList.length - 1
                   ? 0
-                  : ThemeSize.containerPadding),
+                  : ThemeSize.middleMargin),
           decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
@@ -156,7 +156,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                           chatProvider.directoryList.length -
                               1
                           ? Colors.transparent
-                          : ThemeColors.disableColor,
+                          : ThemeColors.gray,
                       style: BorderStyle.solid))),
           child: Row(children: [
             Expanded(child: Text(item.directory)),
@@ -200,7 +200,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
       children: [
         Expanded(
             child: Container(
-          decoration: const BoxDecoration(color: ThemeColors.colorBg),
+          decoration: const BoxDecoration(color: ThemeColors.background),
           child: SingleChildScrollView(
               child: Container(
                   width: double.infinity,
@@ -223,8 +223,8 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                       ///圆角
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.transparent),
-                        backgroundColor: ThemeColors.activeColor,
-                        foregroundColor: ThemeColors.activeColor,
+                        backgroundColor: ThemeColors.primary,
+                        foregroundColor: ThemeColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(ThemeSize.bigRadius), // 圆角
@@ -236,7 +236,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                             fontSize: ThemeSize.middleFontSize,
                             color: ThemeColors.colorWhite),
                       ))),
-              const SizedBox(width: ThemeSize.containerPadding),
+              const SizedBox(width: ThemeSize.middleMargin),
               Expanded(
                   flex: 1,
                   child: OutlinedButton(

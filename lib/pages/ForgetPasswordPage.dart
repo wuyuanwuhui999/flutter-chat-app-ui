@@ -17,7 +17,7 @@ class ForgetPasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController(text: "405873717@qq.com");
     return Scaffold(
-        backgroundColor: ThemeColors.colorBg,
+        backgroundColor: ThemeColors.background,
         body: SafeArea(
           child: Container(
             height: double.infinity,
@@ -25,7 +25,7 @@ class ForgetPasswordPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 const NavigatorTitleComponent(title: "忘记密码"),
-                SizedBox(height: ThemeSize.containerPadding),
+                SizedBox(height: ThemeSize.middleMargin),
                 Column(
                   children: [
                     Container(
@@ -49,12 +49,12 @@ class ForgetPasswordPage extends StatelessWidget {
                                           fontSize: ThemeSize.smallFontSize,
                                           color: ThemeColors.grey),
                                       contentPadding: EdgeInsets.only(
-                                          left: ThemeSize.containerPadding),
+                                          left: ThemeSize.middleMargin),
                                       border: InputBorder.none,
                                     )))
                           ],
                         )),
-                    SizedBox(height: ThemeSize.containerPadding),
+                    SizedBox(height: ThemeSize.middleMargin),
                     Container(
                         margin: ThemeStyle.paddingBox,
                         child: InkWell(
@@ -96,7 +96,7 @@ class ForgetPasswordPage extends StatelessWidget {
                             }
                           },
                           child: Container(
-                            height: ThemeSize.buttonHeight,
+                            height: ThemeSize.btnHeight,
                             decoration: BoxDecoration(
                               color: Colors.red,
                               borderRadius: BorderRadius.all(

@@ -79,7 +79,7 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(color: ThemeColors.colorBg),
+      decoration: const BoxDecoration(color: ThemeColors.background),
       child: SingleChildScrollView(
           child: Container(
               decoration: ThemeStyle.boxDecoration,
@@ -90,17 +90,17 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
                 return Container(
                     width: double.infinity,
                     padding: EdgeInsets.only(
-                        top: item.key == 0 ? 0 : ThemeSize.containerPadding,
+                        top: item.key == 0 ? 0 : ThemeSize.middleMargin,
                         bottom: item.key == docList.length - 1
                             ? 0
-                            : ThemeSize.containerPadding),
+                            : ThemeSize.middleMargin),
                     decoration: BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
                                 width: 1,
                                 color: item.key == docList.length - 1
                                     ? Colors.transparent
-                                    : ThemeColors.disableColor,
+                                    : ThemeColors.gray,
                                 style: BorderStyle.solid))),
                     child: Column(
                       children: [

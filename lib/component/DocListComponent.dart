@@ -98,7 +98,7 @@ class _DocListComponentState extends State<DocListComponent> {
 
     if (docList.isEmpty) {
       return const Center(
-        child: Text('暂无文档', style: TextStyle(color: ThemeColors.disableColor)),
+        child: Text('暂无文档', style: TextStyle(color: ThemeColors.gray)),
       );
     }
 
@@ -136,7 +136,7 @@ class _DocListComponentState extends State<DocListComponent> {
                             TextSpan(
                               text: "  ${formatTimeAgo(item.createTime)}",
                               style: const TextStyle(
-                                color: ThemeColors.disableColor,
+                                color: ThemeColors.gray,
                               ),
                             ),
                           ],

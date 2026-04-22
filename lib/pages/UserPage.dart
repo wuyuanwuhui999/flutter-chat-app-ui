@@ -61,7 +61,7 @@ class UserPageState extends State<UserPage> {
               Expanded(
                   flex: 1,
                   child: Card(
-                      color: ThemeColors.disableColor,
+                      color: ThemeColors.gray,
                       shape: RoundedRectangleBorder(
                         borderRadius:
                         BorderRadius.circular(ThemeSize.middleRadius),
@@ -207,7 +207,7 @@ class UserPageState extends State<UserPage> {
     userProvider = Provider.of<UserInfoProvider>(context, listen: true);
     chatProvider = Provider.of<ChatProvider>(context,listen: true);
     return Scaffold(
-        backgroundColor: ThemeColors.colorBg,
+        backgroundColor: ThemeColors.background,
         body: SafeArea(
             top: true,
             child: SizedBox(
@@ -230,7 +230,7 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
                                       padding: const EdgeInsets.only(
-                                          bottom: ThemeSize.containerPadding),
+                                          bottom: ThemeSize.middleMargin),
                                       child: GestureDetector(
                                           onTap: () {
                                             // showSelectionDialog(["相机", "相册"],
@@ -269,7 +269,7 @@ class UserPageState extends State<UserPage> {
                                           ))),
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
-                                    padding: ThemeStyle.columnPadding,
+                                    padding: ThemeStyle.middleMargin,
                                     child: GestureDetector(
                                       onTap: () {
                                         useDialog(
@@ -301,7 +301,7 @@ class UserPageState extends State<UserPage> {
                                   ),
                                   // Container(
                                   //     decoration: ThemeStyle.bottomDecoration,
-                                  //     padding: ThemeStyle.columnPadding,
+                                  //     padding: ThemeStyle.middleMargin,
                                   //     child: GestureDetector(
                                   //         onTap: () {
                                   //           useDialog(
@@ -331,7 +331,7 @@ class UserPageState extends State<UserPage> {
                                   //         ))),
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
-                                    padding: ThemeStyle.columnPadding,
+                                    padding: ThemeStyle.middleMargin,
                                     child: GestureDetector(
                                       onTap: () {
                                         useDialog(
@@ -363,7 +363,7 @@ class UserPageState extends State<UserPage> {
                                   ),
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
-                                      padding: ThemeStyle.columnPadding,
+                                      padding: ThemeStyle.middleMargin,
                                       child: GestureDetector(
                                         onTap: () {
                                           BottomSelectionDialog.show(
@@ -399,7 +399,7 @@ class UserPageState extends State<UserPage> {
                                       )),
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
-                                      padding: ThemeStyle.columnPadding,
+                                      padding: ThemeStyle.middleMargin,
                                       child: GestureDetector(
                                         onTap: () {
                                           useDialog(
@@ -430,9 +430,9 @@ class UserPageState extends State<UserPage> {
                                       )),
                                   Container(
                                       padding: EdgeInsets.only(
-                                          top: ThemeSize.columnPadding,
-                                          bottom: ThemeSize.columnPadding -
-                                              ThemeSize.containerPadding),
+                                          top: ThemeSize.middleMargin,
+                                          bottom: ThemeSize.middleMargin -
+                                              ThemeSize.middleMargin),
                                       child: GestureDetector(
                                         onTap: () {
                                           useDialog(
@@ -470,16 +470,16 @@ class UserPageState extends State<UserPage> {
                                 onTap: onTabTenant,
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.containerPadding),
+                                        top: ThemeSize.middleMargin),
                                     decoration: BoxDecoration(
                                         color: ThemeColors.colorWhite,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
                                         border: Border.all(
-                                            color: ThemeColors.borderColor)),
+                                            color: ThemeColors.gray)),
                                     width: double.infinity,
-                                    height: ThemeSize.buttonHeight,
+                                    height: ThemeSize.btnHeight,
                                     child: const Center(child: Text("切换租户"))))
                             :const SizedBox(),
                             chatProvider.tenantUser.roleType > 0 ?
@@ -491,16 +491,16 @@ class UserPageState extends State<UserPage> {
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.containerPadding),
+                                        top: ThemeSize.middleMargin),
                                     decoration: BoxDecoration(
                                         color: ThemeColors.colorWhite,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
                                         border: Border.all(
-                                            color: ThemeColors.borderColor)),
+                                            color: ThemeColors.gray)),
                                     width: double.infinity,
-                                    height: ThemeSize.buttonHeight,
+                                    height: ThemeSize.btnHeight,
                                     child: const Center(child: Text("租户管理"))))
                             : const SizedBox(),
                             GestureDetector(
@@ -511,20 +511,20 @@ class UserPageState extends State<UserPage> {
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.containerPadding),
+                                        top: ThemeSize.middleMargin),
                                     decoration: BoxDecoration(
                                         color: ThemeColors.colorWhite,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
                                         border: Border.all(
-                                            color: ThemeColors.borderColor)),
+                                            color: ThemeColors.gray)),
                                     width: double.infinity,
-                                    height: ThemeSize.buttonHeight,
+                                    height: ThemeSize.btnHeight,
                                     child: const Center(child: Text("修改密码")))),
                             Container(
                               margin: EdgeInsets.only(
-                                  top: ThemeSize.containerPadding),
+                                  top: ThemeSize.middleMargin),
                               decoration: BoxDecoration(
                                 color: Colors.red,
                                 borderRadius: BorderRadius.all(

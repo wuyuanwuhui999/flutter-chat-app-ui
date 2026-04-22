@@ -112,7 +112,7 @@ class TenantManagePageState extends State<TenantManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: ThemeColors.colorBg,
+        backgroundColor: ThemeColors.background,
         body: SafeArea(
             top: true,
             child: SizedBox(
@@ -139,7 +139,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                               loadedText: '加载完成',
                               noMoreText: '没有更多',
                               bgColor: Colors.transparent,
-                              textColor: ThemeColors.disableColor,
+                              textColor: ThemeColors.gray,
                             ),
                             onLoad: () async {
                               pageNum++;
@@ -175,7 +175,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                     tenantUserList.length - 1
                                                 ? Colors.white
                                                 : ThemeColors
-                                                    .disableColor, //边框颜色
+                                                    .gray, //边框颜色
                                           ),
                                         ),
                                       ),
@@ -198,7 +198,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                 backgroundColor:
                                                     entry.value.roleType == 2
                                                         ? ThemeColors
-                                                            .disableColor
+                                                            .gray
                                                         : Colors.red,
                                                 foregroundColor: Colors.white,
                                                 label: entry.value.roleType > 0
@@ -212,14 +212,14 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                   top: entry.key == 0
                                                       ? 0
                                                       : ThemeSize
-                                                          .containerPadding,
+                                                          .middleMargin,
                                                   bottom: entry.key ==
                                                           tenantUserList
                                                                   .length -
                                                               1
                                                       ? 0
                                                       : ThemeSize
-                                                          .containerPadding),
+                                                          .middleMargin),
                                               child: Row(
                                                 children: [
                                                   AvaterComponent(
@@ -230,7 +230,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                               ""),
                                                   SizedBox(
                                                       width: ThemeSize
-                                                          .containerPadding),
+                                                          .middleMargin),
                                                   Text(entry.value.username),
                                                 ],
                                               ))));

@@ -52,7 +52,7 @@ class _EditPageState extends State<EditPage> {
         Provider.of<UserInfoProvider>(context).userInfo;
     return FlutterEasyLoading(
         child: Scaffold(
-      backgroundColor: ThemeColors.colorBg,
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
           top: true,
           child: Container(
@@ -104,8 +104,8 @@ class _EditPageState extends State<EditPage> {
                               borderRadius: BorderRadius.all(
                                   Radius.circular(ThemeSize.minBtnRadius)),
                               color: hasChange
-                                  ? ThemeColors.activeColor
-                                  : ThemeColors.disableColor,
+                                  ? ThemeColors.primary
+                                  : ThemeColors.gray,
                             ),
                             child: Center(
                                 child: Text(
@@ -113,10 +113,10 @@ class _EditPageState extends State<EditPage> {
                               style: TextStyle(
                                   color: hasChange
                                       ? Colors.white
-                                      : ThemeColors.disableColor),
+                                      : ThemeColors.gray),
                             ))))
                   ]),
-                  SizedBox(height: ThemeSize.containerPadding),
+                  SizedBox(height: ThemeSize.middleMargin),
                   Options()
                 ],
               ))),
@@ -144,14 +144,14 @@ class _EditPageState extends State<EditPage> {
                   Icon(
                     Icons.check,
                     color: checkValue == "男"
-                        ? ThemeColors.activeColor
+                        ? ThemeColors.primary
                         : ThemeColors.colorWhite,
                   )
                 ])),
           ),
           Container(
             height: 1,
-            decoration: BoxDecoration(color: ThemeColors.disableColor),
+            decoration: BoxDecoration(color: ThemeColors.gray),
           ),
           InkWell(
             onTap: () {
@@ -170,7 +170,7 @@ class _EditPageState extends State<EditPage> {
                     Icon(
                       Icons.check,
                       color: checkValue == "女"
-                          ? ThemeColors.activeColor
+                          ? ThemeColors.primary
                           : ThemeColors.colorWhite,
                     )
                   ],

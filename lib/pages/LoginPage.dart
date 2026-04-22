@@ -36,7 +36,7 @@ class LoginPageState extends State<LoginPage> {
 
     String password = "123456";
     return Scaffold(
-        backgroundColor: ThemeColors.colorBg,
+        backgroundColor: ThemeColors.background,
         body: SafeArea(
           child: Container(
             padding: ThemeStyle.padding,
@@ -49,11 +49,11 @@ class LoginPageState extends State<LoginPage> {
                     Center(
                         child: Image.asset(
                           "lib/assets/images/icon_ai.png",
-                          width: ThemeSize.movieWidth / 2,
-                          height: ThemeSize.movieWidth / 2,
+                          width: ThemeSize.bigIcon,
+                          height: ThemeSize.bigIcon,
                         )),
                     const SizedBox(
-                      height: ThemeSize.containerPadding * 2,
+                      height: ThemeSize.middleMargin * 2,
                     ),
                     Row(
                       children: [
@@ -73,7 +73,7 @@ class LoginPageState extends State<LoginPage> {
                                               width: ThemeSize.borderSize,
                                               //宽度
                                               color: tabIndex == 0
-                                                  ? ThemeColors.orange
+                                                  ? ThemeColors.primary
                                                   : Colors.transparent, //边框颜色
                                             ),
                                           )),
@@ -94,7 +94,7 @@ class LoginPageState extends State<LoginPage> {
                                           bottom: BorderSide(
                                             width: ThemeSize.borderSize, //宽度
                                             color: tabIndex == 1
-                                                ? ThemeColors.orange
+                                                ? ThemeColors.primary
                                                 : Colors.transparent, //边框颜色
                                           ),
                                         )),
@@ -104,7 +104,7 @@ class LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     SizedBox(
-                      height: ThemeSize.containerPadding,
+                      height: ThemeSize.middleMargin,
                     ),
                     tabIndex == 0
                         ? Column(
@@ -112,13 +112,13 @@ class LoginPageState extends State<LoginPage> {
                         Container(
                             margin: ThemeStyle.margin,
                             padding: EdgeInsets.only(
-                                left: ThemeSize.containerPadding),
+                                left: ThemeSize.middleMargin),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(
                                         ThemeSize.superRadius)),
                                 border: Border.all(
-                                    color: ThemeColors.borderColor)),
+                                    color: ThemeColors.gray)),
                             child: TextField(
                                 onChanged: (value) {
                                   if (value != "") {
@@ -130,7 +130,7 @@ class LoginPageState extends State<LoginPage> {
                                         gravity: ToastGravity.CENTER,
                                         timeInSecForIosWeb: 1,
                                         backgroundColor:
-                                        ThemeColors.disableColor,
+                                        ThemeColors.gray,
                                         fontSize:
                                         ThemeSize.middleFontSize);
                                   }
@@ -152,13 +152,13 @@ class LoginPageState extends State<LoginPage> {
                                 ))),
                         Container(
                             padding: EdgeInsets.only(
-                                left: ThemeSize.containerPadding),
+                                left: ThemeSize.middleMargin),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(
                                         ThemeSize.superRadius)),
                                 border: Border.all(
-                                    color: ThemeColors.borderColor)),
+                                    color: ThemeColors.gray)),
                             child: TextField(
                                 onChanged: (value) {
                                   if (value != "") {
@@ -170,7 +170,7 @@ class LoginPageState extends State<LoginPage> {
                                         gravity: ToastGravity.CENTER,
                                         timeInSecForIosWeb: 1,
                                         backgroundColor:
-                                        ThemeColors.disableColor,
+                                        ThemeColors.gray,
                                         fontSize:
                                         ThemeSize.middleFontSize);
                                   }
@@ -196,13 +196,13 @@ class LoginPageState extends State<LoginPage> {
                       Container(
                           margin: ThemeStyle.margin,
                           padding: EdgeInsets.only(
-                              left: ThemeSize.containerPadding),
+                              left: ThemeSize.middleMargin),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                   Radius.circular(
                                       ThemeSize.superRadius)),
                               border: Border.all(
-                                  color: ThemeColors.borderColor)),
+                                  color: ThemeColors.gray)),
                           child: Row(
                             children: [
                               Expanded(
@@ -221,7 +221,7 @@ class LoginPageState extends State<LoginPage> {
                                               timeInSecForIosWeb: 1,
                                               backgroundColor:
                                               ThemeColors
-                                                  .disableColor,
+                                                  .gray,
                                               fontSize: ThemeSize
                                                   .middleFontSize);
                                         }
@@ -256,7 +256,7 @@ class LoginPageState extends State<LoginPage> {
                                         timeInSecForIosWeb: 1,
                                         backgroundColor:
                                         ThemeColors
-                                            .disableColor,
+                                            .gray,
                                         fontSize: ThemeSize
                                             .middleFontSize);
                                     EasyLoading.dismiss(animation: true);
@@ -267,19 +267,19 @@ class LoginPageState extends State<LoginPage> {
                                     width: ThemeSize.smallIcon,
                                     height: ThemeSize.smallIcon),
                               ),
-                              SizedBox(width: ThemeSize.containerPadding)
+                              SizedBox(width: ThemeSize.middleMargin)
                             ],
                           )),
                       Container(
                           margin: ThemeStyle.margin,
                           padding: EdgeInsets.only(
-                              left: ThemeSize.containerPadding),
+                              left: ThemeSize.middleMargin),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                   Radius.circular(
                                       ThemeSize.superRadius)),
                               border: Border.all(
-                                  color: ThemeColors.borderColor)),
+                                  color: ThemeColors.gray)),
                           child: TextField(
                               onChanged: (value) {
                                 if (value != "") {
@@ -291,7 +291,7 @@ class LoginPageState extends State<LoginPage> {
                                       gravity: ToastGravity.CENTER,
                                       timeInSecForIosWeb: 1,
                                       backgroundColor:
-                                      ThemeColors.disableColor,
+                                      ThemeColors.gray,
                                       fontSize:
                                       ThemeSize.middleFontSize);
                                 }
@@ -310,7 +310,7 @@ class LoginPageState extends State<LoginPage> {
                                 border: InputBorder.none,
                               ))),
                     ]),
-                    SizedBox(height: ThemeSize.containerPadding),
+                    SizedBox(height: ThemeSize.middleMargin),
                   ],
                 ),
                 Column(
@@ -361,7 +361,7 @@ class LoginPageState extends State<LoginPage> {
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,
-                              backgroundColor: ThemeColors.disableColor,
+                              backgroundColor: ThemeColors.gray,
                               fontSize: ThemeSize.middleFontSize);
                         } else if (code.trim() == "") {
                           Fluttertoast.showToast(
@@ -369,7 +369,7 @@ class LoginPageState extends State<LoginPage> {
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,
-                              backgroundColor: ThemeColors.disableColor,
+                              backgroundColor: ThemeColors.gray,
                               fontSize: ThemeSize.middleFontSize);
                         }else{
                           await EasyLoading.show();
@@ -402,7 +402,7 @@ class LoginPageState extends State<LoginPage> {
                         }
                       },
                       child: Container(
-                        height: ThemeSize.buttonHeight,
+                        height: ThemeSize.btnHeight,
                         decoration: const BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.all(
@@ -415,7 +415,7 @@ class LoginPageState extends State<LoginPage> {
                                     TextStyle(color: ThemeColors.colorWhite))),
                       ),
                     ),
-                    const SizedBox(height: ThemeSize.containerPadding),
+                    const SizedBox(height: ThemeSize.middleMargin),
                     InkWell(
                         onTap: () {
                           Routes.router.navigateTo(context, '/RegisterPage',
@@ -426,11 +426,11 @@ class LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(ThemeSize.superRadius)),
                                 border:
-                                    Border.all(color: ThemeColors.borderColor)),
+                                    Border.all(color: ThemeColors.gray)),
                             width: double.infinity,
-                            height: ThemeSize.buttonHeight,
+                            height: ThemeSize.btnHeight,
                             child: const Center(child: Text("注册")))),
-                    SizedBox(height: ThemeSize.containerPadding),
+                    SizedBox(height: ThemeSize.middleMargin),
                     InkWell(
                         onTap: () {
                           Routes.router.navigateTo(
@@ -442,9 +442,9 @@ class LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(ThemeSize.superRadius)),
                                 border:
-                                    Border.all(color: ThemeColors.borderColor)),
+                                    Border.all(color: ThemeColors.gray)),
                             width: double.infinity,
-                            height: ThemeSize.buttonHeight,
+                            height: ThemeSize.btnHeight,
                             child: const Center(child: Text("忘记密码"))))
                   ],
                 ),

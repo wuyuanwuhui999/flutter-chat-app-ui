@@ -355,7 +355,7 @@ class ChatPageState extends State<ChatPage> {
         context: context,
         builder: (BuildContext context) {
           return Container(
-            padding: const EdgeInsets.only(top: ThemeSize.containerPadding),
+            padding: const EdgeInsets.only(top: ThemeSize.middleMargin),
             child: Row(
               children: [
                 const Text("文件夹名称"),
@@ -364,7 +364,7 @@ class ChatPageState extends State<ChatPage> {
                   flex: 1,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: ThemeColors.disableColor, // 灰色背景
+                      color: ThemeColors.gray, // 灰色背景
                       borderRadius:
                           BorderRadius.circular(ThemeSize.middleRadius), // 圆角
                     ),
@@ -424,7 +424,7 @@ class ChatPageState extends State<ChatPage> {
   // 头部
   Widget buildHeaderWidget() {
     return Container(
-      padding: const EdgeInsets.all(ThemeSize.containerPadding),
+      padding: const EdgeInsets.all(ThemeSize.middleMargin),
       decoration: const BoxDecoration(color: ThemeColors.colorWhite),
       child: Row(
         children: [
@@ -466,17 +466,17 @@ class ChatPageState extends State<ChatPage> {
                 const PopupMenuItem<String>(
                     value: "我的文档",
                     child: Text("我的文档",
-                        style: TextStyle(color: ThemeColors.disableColor))),
+                        style: TextStyle(color: ThemeColors.gray))),
                 const PopupMenuDivider(height: 1),
                 const PopupMenuItem<String>(
                     value: "会话记录",
                     child: Text("会话记录",
-                        style: TextStyle(color: ThemeColors.disableColor))),
+                        style: TextStyle(color: ThemeColors.gray))),
                 const PopupMenuDivider(height: 1),
                 const PopupMenuItem<String>(
                     value: "切换模型",
                     child: Text("切换模型",
-                        style: TextStyle(color: ThemeColors.disableColor))),
+                        style: TextStyle(color: ThemeColors.gray))),
               ];
             },
           )
@@ -492,14 +492,14 @@ class ChatPageState extends State<ChatPage> {
             controller: scrollController, // 绑定控制器
             scrollDirection: Axis.vertical,
             padding: const EdgeInsets.only(
-                bottom: ThemeSize.containerPadding,
-                left: ThemeSize.containerPadding,
-                right: ThemeSize.containerPadding),
+                bottom: ThemeSize.middleMargin,
+                left: ThemeSize.middleMargin,
+                right: ThemeSize.middleMargin),
             children: [
               ...chatList.map((item) {
                 return Padding(
                     padding:
-                        const EdgeInsets.only(top: ThemeSize.containerPadding),
+                        const EdgeInsets.only(top: ThemeSize.middleMargin),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -573,7 +573,7 @@ class ChatPageState extends State<ChatPage> {
               loading
                   ? Padding(
                       padding: const EdgeInsets.only(
-                          top: ThemeSize.containerPadding),
+                          top: ThemeSize.middleMargin),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -607,7 +607,7 @@ class ChatPageState extends State<ChatPage> {
                                               ? "正在思考中"
                                               : thinkContent,
                                           style: const TextStyle(
-                                              color: ThemeColors.disableColor),
+                                              color: ThemeColors.gray),
                                         ),
                                         responseContent.isNotEmpty
                                             ? Text(responseContent)
@@ -628,7 +628,7 @@ class ChatPageState extends State<ChatPage> {
         scrollDirection: Axis.horizontal,
         child: Container(
           padding: const EdgeInsets.all(ThemeSize.smallMargin),
-          decoration: const BoxDecoration(color: ThemeColors.colorBg),
+          decoration: const BoxDecoration(color: ThemeColors.background),
           child: Row(
             children: [
               OutlinedButton(
@@ -644,7 +644,7 @@ class ChatPageState extends State<ChatPage> {
                     foregroundColor: ThemeColors.colorWhite,
                     side: BorderSide(
                         color:
-                            showThink ? Colors.orange : ThemeColors.subTitle),
+                            showThink ? ThemeColors.primary : ThemeColors.subTitle),
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(ThemeSize.bigRadius), // 圆角
@@ -655,9 +655,9 @@ class ChatPageState extends State<ChatPage> {
                     style: TextStyle(
                         fontSize: ThemeSize.middleFontSize,
                         color:
-                            showThink ? Colors.orange : ThemeColors.subTitle),
+                            showThink ? ThemeColors.primary : ThemeColors.subTitle),
                   )),
-              const SizedBox(width: ThemeSize.containerPadding),
+              const SizedBox(width: ThemeSize.middleMargin),
               OutlinedButton(
                   onPressed: () {
                     setState(() {
@@ -673,7 +673,7 @@ class ChatPageState extends State<ChatPage> {
                     // 文字颜色
                     side: BorderSide(
                         color: type == "document"
-                            ? Colors.orange
+                            ? ThemeColors.primary
                             : ThemeColors.subTitle),
                     // 设置边框颜色（这里是黑色）
                     shape: RoundedRectangleBorder(
@@ -688,7 +688,7 @@ class ChatPageState extends State<ChatPage> {
                         style: TextStyle(
                             fontSize: ThemeSize.middleFontSize,
                             color: type == "document"
-                                ? Colors.orange
+                                ? ThemeColors.primary
                                 : ThemeColors.subTitle),
                       ),
                       SizedBox(width: ThemeSize.smallMargin),
@@ -708,7 +708,7 @@ class ChatPageState extends State<ChatPage> {
                       ,
                     ],
                   )),
-              const SizedBox(width: ThemeSize.containerPadding),
+              const SizedBox(width: ThemeSize.middleMargin),
               OutlinedButton(
                   onPressed: () {
                     setState(() {
@@ -724,7 +724,7 @@ class ChatPageState extends State<ChatPage> {
                     // 文字颜色
                     side: BorderSide(
                         color: type == "db"
-                            ? Colors.orange
+                            ? ThemeColors.primary
                             : ThemeColors.subTitle),
                     // 设置边框颜色（这里是黑色）
                     shape: RoundedRectangleBorder(
@@ -737,10 +737,10 @@ class ChatPageState extends State<ChatPage> {
                     style: TextStyle(
                         fontSize: ThemeSize.middleFontSize,
                         color: type == "db"
-                            ? Colors.orange
+                            ? ThemeColors.primary
                             : ThemeColors.subTitle),
                   )),
-              SizedBox(width: ThemeSize.containerPadding),
+              SizedBox(width: ThemeSize.middleMargin),
               OutlinedButton(
                   onPressed: () {
                     setState(() {
@@ -756,7 +756,7 @@ class ChatPageState extends State<ChatPage> {
                     // 文字颜色
                     side: BorderSide(
                         color: type == "db"
-                            ? Colors.orange
+                            ? ThemeColors.primary
                             : ThemeColors.subTitle),
                     // 设置边框颜色（这里是黑色）
                     shape: RoundedRectangleBorder(
@@ -802,14 +802,14 @@ class ChatPageState extends State<ChatPage> {
             child: Image.asset("lib/assets/images/icon_chat.png",
                 width: ThemeSize.middleIcon, height: ThemeSize.middleIcon),
           ),
-          const SizedBox(width: ThemeSize.containerPadding),
+          const SizedBox(width: ThemeSize.middleMargin),
           Expanded(
               flex: 1,
               child: Container(
-                  height: ThemeSize.buttonHeight,
+                  height: ThemeSize.btnHeight,
                   //修饰黑色背景与圆角
                   decoration: const BoxDecoration(
-                    color: ThemeColors.colorBg,
+                    color: ThemeColors.background,
                     borderRadius: BorderRadius.all(
                         Radius.circular(ThemeSize.superRadius)),
                   ),
@@ -853,14 +853,14 @@ class ChatPageState extends State<ChatPage> {
                       const SizedBox(width: ThemeSize.smallMargin)
                     ],
                   ))),
-          const SizedBox(width: ThemeSize.containerPadding),
+          const SizedBox(width: ThemeSize.middleMargin),
           GestureDetector(
               onTap: useWebsocket,
               child: Container(
-                height: ThemeSize.buttonHeight,
-                width: ThemeSize.buttonHeight,
+                height: ThemeSize.btnHeight,
+                width: ThemeSize.btnHeight,
                 decoration: const BoxDecoration(
-                  color: ThemeColors.colorBg,
+                  color: ThemeColors.background,
                   borderRadius:
                       BorderRadius.all(Radius.circular(ThemeSize.superRadius)),
                 ),
@@ -870,7 +870,7 @@ class ChatPageState extends State<ChatPage> {
                           width: ThemeSize.miniIcon,
                           height: ThemeSize.miniIcon,
                           decoration: const BoxDecoration(
-                              color: ThemeColors.disableColor),
+                              color: ThemeColors.gray),
                         )
                       : Image.asset("lib/assets/images/icon_send.png",
                           width: ThemeSize.smallIcon,
@@ -921,7 +921,7 @@ class ChatPageState extends State<ChatPage> {
                           loadedText: '加载完成',
                           noMoreText: '没有更多',
                           bgColor: Colors.transparent,
-                          textColor: ThemeColors.disableColor,
+                          textColor: ThemeColors.gray,
                         ),
                         onLoad: () async {
                           pageNum++;
@@ -957,7 +957,7 @@ class ChatPageState extends State<ChatPage> {
                                     Text(
                                       item.key,
                                       style: const TextStyle(
-                                          color: ThemeColors.disableColor),
+                                          color: ThemeColors.gray),
                                     ),
                                     ...item.value.map((bItem) {
                                       return GestureDetector(
@@ -988,7 +988,7 @@ class ChatPageState extends State<ChatPage> {
                                     SizedBox(
                                         height: isLast
                                             ? 0
-                                            : ThemeSize.containerPadding)
+                                            : ThemeSize.middleMargin)
                                   ],
                                 );
                               }).toList(),
@@ -1028,7 +1028,7 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     chatProvider = Provider.of<ChatProvider>(context, listen: true);
     return Scaffold(
-      backgroundColor: ThemeColors.colorBg,
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
           top: true,
           child: Stack(
