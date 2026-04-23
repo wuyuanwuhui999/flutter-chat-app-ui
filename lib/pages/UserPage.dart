@@ -80,7 +80,7 @@ class UserPageState extends State<UserPage> {
                             EdgeInsets.only(left: ThemeSize.miniMargin),
                             hintText: '请输入$name',
                             hintStyle: TextStyle(
-                                fontSize: ThemeSize.smallFontSize,
+                                fontSize: ThemeSize.smallFont,
                                 color: ThemeColors.grey),
                             border: InputBorder.none,
                           ))))
@@ -101,7 +101,7 @@ class UserPageState extends State<UserPage> {
           msg: "$name不能为空",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          fontSize: ThemeSize.middleFontSize);
+          fontSize: ThemeSize.middleFont);
       loading = false;
     } else {
       await EasyLoading.show();
@@ -230,7 +230,7 @@ class UserPageState extends State<UserPage> {
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
                                       padding: const EdgeInsets.only(
-                                          bottom: ThemeSize.middleMargin),
+                                          bottom: ThemeSize.middleGap),
                                       child: GestureDetector(
                                           onTap: () {
                                             // showSelectionDialog(["相机", "相册"],
@@ -269,7 +269,7 @@ class UserPageState extends State<UserPage> {
                                           ))),
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
-                                    padding: ThemeStyle.middleMargin,
+                                    padding: ThemeStyle.middleGap,
                                     child: GestureDetector(
                                       onTap: () {
                                         useDialog(
@@ -301,7 +301,7 @@ class UserPageState extends State<UserPage> {
                                   ),
                                   // Container(
                                   //     decoration: ThemeStyle.bottomDecoration,
-                                  //     padding: ThemeStyle.middleMargin,
+                                  //     padding: ThemeStyle.middleGap,
                                   //     child: GestureDetector(
                                   //         onTap: () {
                                   //           useDialog(
@@ -331,7 +331,7 @@ class UserPageState extends State<UserPage> {
                                   //         ))),
                                   Container(
                                     decoration: ThemeStyle.bottomDecoration,
-                                    padding: ThemeStyle.middleMargin,
+                                    padding: ThemeStyle.middleGap,
                                     child: GestureDetector(
                                       onTap: () {
                                         useDialog(
@@ -363,7 +363,7 @@ class UserPageState extends State<UserPage> {
                                   ),
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
-                                      padding: ThemeStyle.middleMargin,
+                                      padding: ThemeStyle.middleGap,
                                       child: GestureDetector(
                                         onTap: () {
                                           BottomSelectionDialog.show(
@@ -399,7 +399,7 @@ class UserPageState extends State<UserPage> {
                                       )),
                                   Container(
                                       decoration: ThemeStyle.bottomDecoration,
-                                      padding: ThemeStyle.middleMargin,
+                                      padding: ThemeStyle.middleGap,
                                       child: GestureDetector(
                                         onTap: () {
                                           useDialog(
@@ -430,9 +430,9 @@ class UserPageState extends State<UserPage> {
                                       )),
                                   Container(
                                       padding: EdgeInsets.only(
-                                          top: ThemeSize.middleMargin,
-                                          bottom: ThemeSize.middleMargin -
-                                              ThemeSize.middleMargin),
+                                          top: ThemeSize.middleGap,
+                                          bottom: ThemeSize.middleGap -
+                                              ThemeSize.middleGap),
                                       child: GestureDetector(
                                         onTap: () {
                                           useDialog(
@@ -470,9 +470,9 @@ class UserPageState extends State<UserPage> {
                                 onTap: onTabTenant,
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.middleMargin),
+                                        top: ThemeSize.middleGap),
                                     decoration: BoxDecoration(
-                                        color: ThemeColors.colorWhite,
+                                        color: ThemeColors.white,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
@@ -491,9 +491,9 @@ class UserPageState extends State<UserPage> {
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.middleMargin),
+                                        top: ThemeSize.middleGap),
                                     decoration: BoxDecoration(
-                                        color: ThemeColors.colorWhite,
+                                        color: ThemeColors.white,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
@@ -511,9 +511,9 @@ class UserPageState extends State<UserPage> {
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.only(
-                                        top: ThemeSize.middleMargin),
+                                        top: ThemeSize.middleGap),
                                     decoration: BoxDecoration(
-                                        color: ThemeColors.colorWhite,
+                                        color: ThemeColors.white,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 ThemeSize.superRadius)),
@@ -524,7 +524,7 @@ class UserPageState extends State<UserPage> {
                                     child: const Center(child: Text("修改密码")))),
                             Container(
                               margin: EdgeInsets.only(
-                                  top: ThemeSize.middleMargin),
+                                  top: ThemeSize.middleGap),
                               decoration: BoxDecoration(
                                 color: Colors.red,
                                 borderRadius: BorderRadius.all(

@@ -62,7 +62,7 @@ class TenantManagePageState extends State<TenantManagePage> {
           msg: "取消管理员成功",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          fontSize: ThemeSize.middleFontSize);
+          fontSize: ThemeSize.middleFont);
       setState(() {
         // 创建新对象替换
         tenantUserList[index] = TenantUserModel.fromJson({
@@ -84,7 +84,7 @@ class TenantManagePageState extends State<TenantManagePage> {
           msg: "设置管理员成功",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          fontSize: ThemeSize.middleFontSize);
+          fontSize: ThemeSize.middleFont);
       setState(() {
         tenantUserList[index] = TenantUserModel.fromJson({
           ...tenantUserList[index].toJson(),
@@ -151,7 +151,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                                     timeInSecForIosWeb: 1,
                                     backgroundColor: Colors.blue,
                                     textColor: Colors.white,
-                                    fontSize: ThemeSize.middleFontSize);
+                                    fontSize: ThemeSize.middleFont);
                               } else {
                                 pageNum++;
                                 getTenantUserList();
@@ -212,14 +212,14 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                   top: entry.key == 0
                                                       ? 0
                                                       : ThemeSize
-                                                          .middleMargin,
+                                                          .middleGap,
                                                   bottom: entry.key ==
                                                           tenantUserList
                                                                   .length -
                                                               1
                                                       ? 0
                                                       : ThemeSize
-                                                          .middleMargin),
+                                                          .middleGap),
                                               child: Row(
                                                 children: [
                                                   AvaterComponent(
@@ -230,7 +230,7 @@ class TenantManagePageState extends State<TenantManagePage> {
                                                               ""),
                                                   SizedBox(
                                                       width: ThemeSize
-                                                          .middleMargin),
+                                                          .middleGap),
                                                   Text(entry.value.username),
                                                 ],
                                               ))));

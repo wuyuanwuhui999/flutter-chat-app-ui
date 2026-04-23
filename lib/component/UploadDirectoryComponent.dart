@@ -143,11 +143,11 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
     chatProvider.directoryList.asMap().forEach((index,item){
       directoryListWidget.add(Container(
           padding: EdgeInsets.only(
-              top: index == 0 ? 0 : ThemeSize.middleMargin,
+              top: index == 0 ? 0 : ThemeSize.middleGap,
               bottom: index ==
                   chatProvider.directoryList.length - 1
                   ? 0
-                  : ThemeSize.middleMargin),
+                  : ThemeSize.middleGap),
           decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
@@ -181,7 +181,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                 child: item.isSelected
                     ? const Icon(
                   Icons.check,
-                  size: ThemeSize.middleFontSize,
+                  size: ThemeSize.middleFont,
                   color: Colors.white,
                 )
                     : null,
@@ -233,10 +233,10 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                       child: const Text(
                         '确定',
                         style: TextStyle(
-                            fontSize: ThemeSize.middleFontSize,
-                            color: ThemeColors.colorWhite),
+                            fontSize: ThemeSize.middleFont,
+                            color: ThemeColors.white),
                       ))),
-              const SizedBox(width: ThemeSize.middleMargin),
+              const SizedBox(width: ThemeSize.middleGap),
               Expanded(
                   flex: 1,
                   child: OutlinedButton(
@@ -246,8 +246,8 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
 
                       ///圆角
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: ThemeColors.colorWhite,
-                        foregroundColor: ThemeColors.colorWhite,
+                        backgroundColor: ThemeColors.white,
+                        foregroundColor: ThemeColors.white,
                         side: const BorderSide(color: ThemeColors.subTitle),
                         shape: RoundedRectangleBorder(
                           borderRadius:
@@ -257,7 +257,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
                       child: Text(
                         '取消',
                         style: TextStyle(
-                            fontSize: ThemeSize.middleFontSize,
+                            fontSize: ThemeSize.middleFont,
                             color: ThemeColors.subTitle),
                       )))
             ]))

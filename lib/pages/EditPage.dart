@@ -81,7 +81,7 @@ class _EditPageState extends State<EditPage> {
                                 msg: "${widget.title}不能为空",
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.CENTER,
-                                fontSize: ThemeSize.middleFontSize);
+                                fontSize: ThemeSize.middleFont);
                             return;
                           }
                           await EasyLoading.show();
@@ -98,8 +98,8 @@ class _EditPageState extends State<EditPage> {
                           }).catchError(() {});
                         },
                         child: Container(
-                            width: ThemeSize.middleBtnWidth,
-                            height: ThemeSize.middleBtnHeight,
+                            width: ThemeSize.btnWidth,
+                            height: ThemeSize.btnHeight,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                   Radius.circular(ThemeSize.minBtnRadius)),
@@ -116,7 +116,7 @@ class _EditPageState extends State<EditPage> {
                                       : ThemeColors.gray),
                             ))))
                   ]),
-                  SizedBox(height: ThemeSize.middleMargin),
+                  SizedBox(height: ThemeSize.middleGap),
                   Options()
                 ],
               ))),
@@ -145,7 +145,7 @@ class _EditPageState extends State<EditPage> {
                     Icons.check,
                     color: checkValue == "男"
                         ? ThemeColors.primary
-                        : ThemeColors.colorWhite,
+                        : ThemeColors.white,
                   )
                 ])),
           ),
@@ -171,7 +171,7 @@ class _EditPageState extends State<EditPage> {
                       Icons.check,
                       color: checkValue == "女"
                           ? ThemeColors.primary
-                          : ThemeColors.colorWhite,
+                          : ThemeColors.white,
                     )
                   ],
                 )),

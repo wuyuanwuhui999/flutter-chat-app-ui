@@ -90,10 +90,10 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
                 return Container(
                     width: double.infinity,
                     padding: EdgeInsets.only(
-                        top: item.key == 0 ? 0 : ThemeSize.middleMargin,
+                        top: item.key == 0 ? 0 : ThemeSize.middleGap,
                         bottom: item.key == docList.length - 1
                             ? 0
-                            : ThemeSize.middleMargin),
+                            : ThemeSize.middleGap),
                     decoration: BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
@@ -158,7 +158,7 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
                                             child: cItem.checked
                                                 ? const Icon(
                                               Icons.check,
-                                              size: ThemeSize.middleFontSize,
+                                              size: ThemeSize.middleFont,
                                               color: Colors.white,
                                             )
                                                 : null,

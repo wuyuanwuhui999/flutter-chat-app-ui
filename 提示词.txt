@@ -17,18 +17,18 @@
 - 所有路由配置放到 `router/index.dart/` 文件中
 
 ## 2. 间距与尺寸规范
-- **所有间距**（padding、margin、图标间距、按钮间距、图文间距、布局间距、边距、条目上下间隔等）统一使用 `theme/Dimens.middleGap`。
-- 按钮高度：`theme/Dimens.btnHeight`，圆角 = `btnHeight / 2`。
-- 输入框/搜索框高度：`theme/Dimens.inputHeight`，圆角 = `inputHeight / 2`。
+- **所有间距**（padding、margin、图标间距、按钮间距、图文间距、布局间距、边距、条目上下间隔等）统一使用 `theme/ThemeSize.middleGap`。
+- 按钮高度：`theme/ThemeSize.btnHeight`，圆角 = `btnHeight / 2`。
+- 输入框/搜索框高度：`theme/ThemeSize.inputHeight`，圆角 = `inputHeight / 2`。
 - 卡片圆角：`theme/Dimens.moduleBorderRadius`。
 - 图标尺寸：
-  - 小图标：`theme/Dimens.smallIconSize`
-  - 中图标：`theme/Dimens.middleIconSize`
-  - 大图标：`theme/Dimens.bigIconSize`
+  - 小图标：`theme/ThemeSize.smallIcon`
+  - 中图标：`theme/ThemeSize.middleIcon`
+  - 大图标：`theme/ThemeSize.bigIcon`
   - 图标透明度：0.5
 - 字体大小：
-  - 正常：`theme/Dimens.normalFontSize`
-  - 主标题：`theme/Dimens.bigFontSize`
+  - 正常：`theme/ThemeSize.normalFont`
+  - 主标题：`theme/ThemeSize.bigFont`
 
 ## 3. 全局状态管理器
 - Chat模块的状态管理器：`provider/ChatProvider.dart`
@@ -36,13 +36,13 @@
 - UserInfoProvider模块的状态管理器：`provider/UserInfoProvider.dart`
 
 ## 3. 颜色与主题规范
-- 页面背景色：`theme/Colors.PageBackground`
-- 应用主色调：`Colors.Primary`
+- 页面背景色：`theme/ThemeColor.background`
+- 应用主色调：`ThemeColor.primary`
 - 按钮颜色：
-  - 确定/激活按钮背景：`Colors.Primary`，文字白色 `Colors.White`
-  - 取消按钮背景：透明，边框和文字颜色：`Colors.Gray`
-  - 禁用按钮背景：`Colors.Gray`
-  - 删除按钮背景：`Colors.Red`
+  - 确定/激活按钮背景：`ThemeColor.primary`，文字白色 `ThemeColor.white`
+  - 取消按钮背景：透明，边框和文字颜色：`ThemeColor.gray`
+  - 禁用按钮背景：`ThemeColor.gray`
+  - 删除按钮背景：`ThemeColor.warn`
 
 ## 4. 数据与接口规范
 - 所有后端接口返回格式统一为utils/HttpUtil里面的 `ResponseModel<T>`，其中：

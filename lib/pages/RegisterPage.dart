@@ -44,14 +44,14 @@ class RegisterPageState extends State<RegisterPage> {
               child: Column(
                 children: <Widget>[
                   const NavigatorTitleComponent(title: "注册"),
-                  SizedBox(height: ThemeSize.middleMargin),
+                  SizedBox(height: ThemeSize.middleGap),
                   Container(
                       decoration: ThemeStyle.boxDecoration,
                       margin: ThemeStyle.paddingBox,
                       padding: ThemeStyle.paddingBox,
                       child: Column(
                         children: [
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               SizedBox(
@@ -60,7 +60,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   children: [
                                     Text("*",
                                         style: TextStyle(
-                                            color: ThemeColors.warnColor)),
+                                            color: ThemeColors.warn)),
                                     const Text("用户名")
                                   ],
                                 ),
@@ -90,7 +90,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               SizedBox(
@@ -99,7 +99,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   children: [
                                     Text("*",
                                         style: TextStyle(
-                                            color: ThemeColors.warnColor)),
+                                            color: ThemeColors.warn)),
                                     const Text("密码")
                                   ],
                                 ),
@@ -124,7 +124,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               SizedBox(
@@ -133,7 +133,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   children: [
                                     Text("*",
                                         style: TextStyle(
-                                            color: ThemeColors.warnColor)),
+                                            color: ThemeColors.warn)),
                                     const Text("确认密码")
                                   ],
                                 ),
@@ -158,7 +158,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               SizedBox(
@@ -167,7 +167,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   children: [
                                     Text("*",
                                         style: TextStyle(
-                                            color: ThemeColors.warnColor)),
+                                            color: ThemeColors.warn)),
                                     const Text("昵称")
                                   ],
                                 ),
@@ -192,7 +192,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               SizedBox(
@@ -201,7 +201,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   children: [
                                     Text("*",
                                         style: TextStyle(
-                                            color: ThemeColors.warnColor)),
+                                            color: ThemeColors.warn)),
                                     const Text("邮箱")
                                   ],
                                 ),
@@ -226,7 +226,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               const SizedBox(
@@ -245,7 +245,7 @@ class RegisterPageState extends State<RegisterPage> {
                                           groupValue: groupValue,
                                           // title: Text("男"),
                                           onChanged: _handleRadioValueChanged),
-                                      SizedBox(width: ThemeSize.middleMargin),
+                                      SizedBox(width: ThemeSize.middleGap),
                                       const Text("女"),
                                       Radio(
                                           value: 1,
@@ -258,7 +258,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               const SizedBox(
@@ -285,7 +285,7 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                           Row(
                             children: <Widget>[
                               const SizedBox(
@@ -312,11 +312,11 @@ class RegisterPageState extends State<RegisterPage> {
                               )
                             ],
                           ),
-                          SizedBox(height: ThemeSize.middleMargin),
+                          SizedBox(height: ThemeSize.middleGap),
                         ],
                       )),
                   Container(
-                    margin: EdgeInsets.all(ThemeSize.middleMargin),
+                    margin: EdgeInsets.all(ThemeSize.middleGap),
                     width: double.infinity,
                     decoration: BoxDecoration(
                         color: Colors.red,

@@ -48,10 +48,10 @@ class BottomSelectionDialog {
             children: [
               Container(
                   margin: const EdgeInsets.only(
-                      left: ThemeSize.middleMargin,
-                      right: ThemeSize.middleMargin),
+                      left: ThemeSize.middleGap,
+                      right: ThemeSize.middleGap),
                   decoration: const BoxDecoration(
-                    color: ThemeColors.colorWhite,
+                    color: ThemeColors.white,
                     borderRadius: BorderRadius.all(
                         Radius.circular(ThemeSize.middleRadius)),
                   ),
@@ -59,13 +59,13 @@ class BottomSelectionDialog {
               InkWell(
                 child: Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.all(ThemeSize.middleMargin),
+                  margin: const EdgeInsets.all(ThemeSize.middleGap),
                   decoration: const BoxDecoration(
-                    color: ThemeColors.colorWhite,
+                    color: ThemeColors.white,
                     borderRadius: BorderRadius.all(
                         Radius.circular(ThemeSize.middleRadius)),
                   ),
-                  padding: const EdgeInsets.all(ThemeSize.middleMargin),
+                  padding: const EdgeInsets.all(ThemeSize.middleGap),
                   child: const Center(child: Text('取消')),
                 ),
                 onTap: () {

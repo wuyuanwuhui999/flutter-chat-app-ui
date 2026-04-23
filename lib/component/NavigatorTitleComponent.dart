@@ -18,7 +18,7 @@ class NavigatorTitleComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         padding: ThemeStyle.padding,
-        decoration: const BoxDecoration(color: ThemeColors.colorWhite),
+        decoration: const BoxDecoration(color: ThemeColors.white),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -78,7 +78,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.all(ThemeSize.middleMargin),
+              margin: const EdgeInsets.all(ThemeSize.middleGap),
               padding: ThemeStyle.padding,
               decoration: ThemeStyle.boxDecoration,
               child: Container(
@@ -103,10 +103,10 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                         decoration: const InputDecoration(
                           hintText: "请输入工号/姓名/邮箱/电话",
                           hintStyle: TextStyle(
-                              fontSize: ThemeSize.smallFontSize,
+                              fontSize: ThemeSize.smallFont,
                               color: ThemeColors.grey),
                           contentPadding:
-                              EdgeInsets.only(left: ThemeSize.middleMargin),
+                              EdgeInsets.only(left: ThemeSize.middleGap),
                           border: InputBorder.none,
                         ),
                       ),
@@ -177,14 +177,14 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                           timeInSecForIosWeb: 1,
                           backgroundColor: Colors.blue,
                           textColor: Colors.white,
-                          fontSize: ThemeSize.middleFontSize);
+                          fontSize: ThemeSize.middleFont);
                         }
                       },
                       child: Container(
                           margin: const EdgeInsets.only(
-                              left: ThemeSize.middleMargin,
-                              right: ThemeSize.middleMargin,
-                              bottom: ThemeSize.middleMargin),
+                              left: ThemeSize.middleGap,
+                              right: ThemeSize.middleGap,
+                              bottom: ThemeSize.middleGap),
                           decoration: ThemeStyle.boxDecoration,
                           padding: ThemeStyle.padding,
                           child: Column(
@@ -193,10 +193,10 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                                 padding: EdgeInsets.only(
                                     top: item.key == 0
                                         ? 0
-                                        : ThemeSize.middleMargin,
+                                        : ThemeSize.middleGap,
                                     bottom: item.key == searchList.length - 1
                                         ? 0
-                                        : ThemeSize.middleMargin),
+                                        : ThemeSize.middleGap),
                                 decoration: BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
@@ -212,7 +212,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                                       size: ThemeSize.smallAvater,
                                       avater: item.value.avater ?? ""),
                                   const SizedBox(
-                                      width: ThemeSize.middleMargin),
+                                      width: ThemeSize.middleGap),
                                   Expanded(
                                     flex: 1,
                                     child: Text(item.value.username),
@@ -232,12 +232,12 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                     )
                     // SingleChildScrollView(child:
                     //     Container(
-                    //       margin: const EdgeInsets.only(left: ThemeSize.middleMargin,right: ThemeSize.middleMargin,bottom: ThemeSize.middleMargin),
+                    //       margin: const EdgeInsets.only(left: ThemeSize.middleGap,right: ThemeSize.middleGap,bottom: ThemeSize.middleGap),
                     //       decoration: ThemeStyle.boxDecoration,
                     //       padding: ThemeStyle.padding,
                     //       child: Column(children: searchList.asMap().entries.map((item){
                     //         return Container(
-                    //           padding: EdgeInsets.only(top: item.key == 0 ? 0 : ThemeSize.middleMargin,bottom: item.key == searchList.length - 1 ? 0 : ThemeSize.middleMargin),
+                    //           padding: EdgeInsets.only(top: item.key == 0 ? 0 : ThemeSize.middleGap,bottom: item.key == searchList.length - 1 ? 0 : ThemeSize.middleGap),
                     //         decoration: BoxDecoration(border: Border(
                     //             bottom: BorderSide(
                     //               // 设置单侧边框的样式
@@ -247,7 +247,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                     //         ),child: Row(
                     //           children: [
                     //             AvaterComponent(size: ThemeSize.smallAvater,avater: item.value.avater??""),
-                    //             const SizedBox(width: ThemeSize.middleMargin),
+                    //             const SizedBox(width: ThemeSize.middleGap),
                     //             Expanded(flex: 1,child: Text(item.value.username),),
                     //             // 右边单选按钮
                     //             GestureDetector(
@@ -266,7 +266,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                     //                 child: item.value.checked == 1
                     //                     ? const Icon(
                     //                   Icons.check,
-                    //                   size: ThemeSize.middleFontSize,
+                    //                   size: ThemeSize.middleFont,
                     //                   color: Colors.white,
                     //                 )
                     //                     : null,
@@ -289,8 +289,8 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                     //   itemBuilder: (context, index) {
                     //     final user = searchList[index];
                     //     return Container(
-                    //       margin: const EdgeInsets.symmetric(vertical: ThemeSize.middleMargin),
-                    //       padding: const EdgeInsets.symmetric(horizontal: ThemeSize.middleMargin),
+                    //       margin: const EdgeInsets.symmetric(vertical: ThemeSize.middleGap),
+                    //       padding: const EdgeInsets.symmetric(horizontal: ThemeSize.middleGap),
                     //       child: Row(
                     //         children: [
                     //           AvaterComponent(
@@ -299,7 +299,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                     //           ),
                     //           const SizedBox(width: ThemeSize.smallMargin),
                     //           Expanded(flex: 1,child:Text(user.username)),
-                    //           const SizedBox(width: ThemeSize.middleMargin),
+                    //           const SizedBox(width: ThemeSize.middleGap),
                     //           GestureDetector(
                     //             onTap: () => selectItem(index),
                     //             child: Container(

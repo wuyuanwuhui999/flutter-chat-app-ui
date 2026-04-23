@@ -53,7 +53,7 @@ class LoginPageState extends State<LoginPage> {
                           height: ThemeSize.bigIcon,
                         )),
                     const SizedBox(
-                      height: ThemeSize.middleMargin * 2,
+                      height: ThemeSize.middleGap * 2,
                     ),
                     Row(
                       children: [
@@ -104,7 +104,7 @@ class LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     SizedBox(
-                      height: ThemeSize.middleMargin,
+                      height: ThemeSize.middleGap,
                     ),
                     tabIndex == 0
                         ? Column(
@@ -112,7 +112,7 @@ class LoginPageState extends State<LoginPage> {
                         Container(
                             margin: ThemeStyle.margin,
                             padding: EdgeInsets.only(
-                                left: ThemeSize.middleMargin),
+                                left: ThemeSize.middleGap),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(
@@ -132,7 +132,7 @@ class LoginPageState extends State<LoginPage> {
                                         backgroundColor:
                                         ThemeColors.gray,
                                         fontSize:
-                                        ThemeSize.middleFontSize);
+                                        ThemeSize.middleFont);
                                   }
                                 },
                                 controller: userController,
@@ -152,7 +152,7 @@ class LoginPageState extends State<LoginPage> {
                                 ))),
                         Container(
                             padding: EdgeInsets.only(
-                                left: ThemeSize.middleMargin),
+                                left: ThemeSize.middleGap),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(
@@ -172,7 +172,7 @@ class LoginPageState extends State<LoginPage> {
                                         backgroundColor:
                                         ThemeColors.gray,
                                         fontSize:
-                                        ThemeSize.middleFontSize);
+                                        ThemeSize.middleFont);
                                   }
                                 },
                                 controller: pwdController,
@@ -186,7 +186,7 @@ class LoginPageState extends State<LoginPage> {
                                       height: ThemeSize.smallIcon),
                                   hintText: "请输入密码",
                                   hintStyle: TextStyle(
-                                      fontSize: ThemeSize.smallFontSize,
+                                      fontSize: ThemeSize.smallFont,
                                       color: ThemeColors.grey),
                                   border: InputBorder.none,
                                 )))
@@ -196,7 +196,7 @@ class LoginPageState extends State<LoginPage> {
                       Container(
                           margin: ThemeStyle.margin,
                           padding: EdgeInsets.only(
-                              left: ThemeSize.middleMargin),
+                              left: ThemeSize.middleGap),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                   Radius.circular(
@@ -223,7 +223,7 @@ class LoginPageState extends State<LoginPage> {
                                               ThemeColors
                                                   .gray,
                                               fontSize: ThemeSize
-                                                  .middleFontSize);
+                                                  .middleFont);
                                         }
                                       },
                                       controller: emailController,
@@ -258,7 +258,7 @@ class LoginPageState extends State<LoginPage> {
                                         ThemeColors
                                             .gray,
                                         fontSize: ThemeSize
-                                            .middleFontSize);
+                                            .middleFont);
                                     EasyLoading.dismiss(animation: true);
                                   });
                                 },
@@ -267,13 +267,13 @@ class LoginPageState extends State<LoginPage> {
                                     width: ThemeSize.smallIcon,
                                     height: ThemeSize.smallIcon),
                               ),
-                              SizedBox(width: ThemeSize.middleMargin)
+                              SizedBox(width: ThemeSize.middleGap)
                             ],
                           )),
                       Container(
                           margin: ThemeStyle.margin,
                           padding: EdgeInsets.only(
-                              left: ThemeSize.middleMargin),
+                              left: ThemeSize.middleGap),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                   Radius.circular(
@@ -293,7 +293,7 @@ class LoginPageState extends State<LoginPage> {
                                       backgroundColor:
                                       ThemeColors.gray,
                                       fontSize:
-                                      ThemeSize.middleFontSize);
+                                      ThemeSize.middleFont);
                                 }
                               },
                               controller: codeController,
@@ -310,7 +310,7 @@ class LoginPageState extends State<LoginPage> {
                                 border: InputBorder.none,
                               ))),
                     ]),
-                    SizedBox(height: ThemeSize.middleMargin),
+                    SizedBox(height: ThemeSize.middleGap),
                   ],
                 ),
                 Column(
@@ -327,7 +327,7 @@ class LoginPageState extends State<LoginPage> {
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.green,
                                   textColor: Colors.white,
-                                  fontSize: ThemeSize.middleFontSize);
+                                  fontSize: ThemeSize.middleFont);
                               print(res.data);
                               UserInfoModel userModel = UserInfoModel.fromJson(res.data);
                               print(userModel);
@@ -344,7 +344,7 @@ class LoginPageState extends State<LoginPage> {
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.red,
                                   textColor: Colors.white,
-                                  fontSize: ThemeSize.middleFontSize);
+                                  fontSize: ThemeSize.middleFont);
                             }
                           }).catchError((){
                             Fluttertoast.showToast(
@@ -353,7 +353,7 @@ class LoginPageState extends State<LoginPage> {
                                 gravity: ToastGravity.BOTTOM,
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
-                                fontSize: ThemeSize.middleFontSize);
+                                fontSize: ThemeSize.middleFont);
                           });
                         } else if (email.trim() == "") {
                           Fluttertoast.showToast(
@@ -362,7 +362,7 @@ class LoginPageState extends State<LoginPage> {
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,
                               backgroundColor: ThemeColors.gray,
-                              fontSize: ThemeSize.middleFontSize);
+                              fontSize: ThemeSize.middleFont);
                         } else if (code.trim() == "") {
                           Fluttertoast.showToast(
                               msg: "请输入验证码",
@@ -370,7 +370,7 @@ class LoginPageState extends State<LoginPage> {
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,
                               backgroundColor: ThemeColors.gray,
-                              fontSize: ThemeSize.middleFontSize);
+                              fontSize: ThemeSize.middleFont);
                         }else{
                           await EasyLoading.show();
                           loginByEmailService(emailController.text,codeController.text).then((res) async {
@@ -382,7 +382,7 @@ class LoginPageState extends State<LoginPage> {
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.green,
                                   textColor: Colors.white,
-                                  fontSize: ThemeSize.middleFontSize);
+                                  fontSize: ThemeSize.middleFont);
                               EasyLoading.dismiss();
                               userInfoProvider.setUserInfo(
                                   UserInfoModel.fromJson(res.data));
@@ -396,7 +396,7 @@ class LoginPageState extends State<LoginPage> {
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.red,
                                   textColor: Colors.white,
-                                  fontSize: ThemeSize.middleFontSize);
+                                  fontSize: ThemeSize.middleFont);
                             }
                           });
                         }
@@ -412,10 +412,10 @@ class LoginPageState extends State<LoginPage> {
                         child: const Center(
                             child: Text("登录",
                                 style:
-                                    TextStyle(color: ThemeColors.colorWhite))),
+                                    TextStyle(color: ThemeColors.white))),
                       ),
                     ),
-                    const SizedBox(height: ThemeSize.middleMargin),
+                    const SizedBox(height: ThemeSize.middleGap),
                     InkWell(
                         onTap: () {
                           Routes.router.navigateTo(context, '/RegisterPage',
@@ -430,7 +430,7 @@ class LoginPageState extends State<LoginPage> {
                             width: double.infinity,
                             height: ThemeSize.btnHeight,
                             child: const Center(child: Text("注册")))),
-                    SizedBox(height: ThemeSize.middleMargin),
+                    SizedBox(height: ThemeSize.middleGap),
                     InkWell(
                         onTap: () {
                           Routes.router.navigateTo(
