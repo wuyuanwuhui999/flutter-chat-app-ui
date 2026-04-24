@@ -49,13 +49,13 @@ class ResetPasswordPage extends StatelessWidget {
                                   flex: 1,
                                   child: TextField(
                                       controller: codeController,
-                                      cursorColor: ThemeColors.grey,
+                                      cursorColor: ThemeColors.gray,
                                       //设置光标
                                       decoration: InputDecoration(
                                         hintText: "请输入邮箱验证码",
                                         hintStyle: TextStyle(
                                             fontSize: ThemeSize.smallFont,
-                                            color: ThemeColors.grey),
+                                            color: ThemeColors.gray),
                                         contentPadding: EdgeInsets.only(
                                             left: ThemeSize.middleGap),
                                         border: InputBorder.none,
@@ -74,13 +74,13 @@ class ResetPasswordPage extends StatelessWidget {
                                   child: TextField(
                                       controller: passwordController,
                                       obscureText: true,
-                                      cursorColor: ThemeColors.grey,
+                                      cursorColor: ThemeColors.gray,
                                       //设置光标
                                       decoration: InputDecoration(
                                         hintText: "请输入新密码",
                                         hintStyle: TextStyle(
                                             fontSize: ThemeSize.smallFont,
-                                            color: ThemeColors.grey),
+                                            color: ThemeColors.gray),
                                         contentPadding: EdgeInsets.only(
                                             left: ThemeSize.middleGap),
                                         border: InputBorder.none,
@@ -99,13 +99,13 @@ class ResetPasswordPage extends StatelessWidget {
                                   child: TextField(
                                       controller: comfirmPasswordController,
                                       obscureText: true,
-                                      cursorColor: ThemeColors.grey,
+                                      cursorColor: ThemeColors.gray,
                                       //设置光标
                                       decoration: InputDecoration(
                                         hintText: "请输入新确认密码",
                                         hintStyle: TextStyle(
                                             fontSize: ThemeSize.smallFont,
-                                            color: ThemeColors.grey),
+                                            color: ThemeColors.gray),
                                         contentPadding: EdgeInsets.only(
                                             left: ThemeSize.middleGap),
                                         border: InputBorder.none,

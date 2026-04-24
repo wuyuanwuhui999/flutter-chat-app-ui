@@ -136,7 +136,7 @@ class LoginPageState extends State<LoginPage> {
                                   }
                                 },
                                 controller: userController,
-                                cursorColor: ThemeColors.grey, //设置光标
+                                cursorColor: ThemeColors.gray, //设置光标
                                 decoration: InputDecoration(
                                   hintText: "请输入用户名",
                                   icon: Image.asset(
@@ -145,7 +145,7 @@ class LoginPageState extends State<LoginPage> {
                                       height: ThemeSize.smallIcon),
                                   hintStyle: TextStyle(
                                       fontSize: 14,
-                                      color: ThemeColors.grey),
+                                      color: ThemeColors.gray),
                                   contentPadding:
                                   EdgeInsets.only(left: 0.0),
                                   border: InputBorder.none,
@@ -177,7 +177,7 @@ class LoginPageState extends State<LoginPage> {
                                 },
                                 controller: pwdController,
                                 obscureText: true,
-                                cursorColor: ThemeColors.grey,
+                                cursorColor: ThemeColors.gray,
                                 //设置光标
                                 decoration: InputDecoration(
                                   icon: Image.asset(
@@ -187,7 +187,7 @@ class LoginPageState extends State<LoginPage> {
                                   hintText: "请输入密码",
                                   hintStyle: TextStyle(
                                       fontSize: ThemeSize.smallFont,
-                                      color: ThemeColors.grey),
+                                      color: ThemeColors.gray),
                                   border: InputBorder.none,
                                 )))
                       ],
@@ -228,7 +228,7 @@ class LoginPageState extends State<LoginPage> {
                                       },
                                       controller: emailController,
                                       cursorColor:
-                                      ThemeColors.grey, //设置光标
+                                      ThemeColors.gray, //设置光标
                                       decoration: InputDecoration(
                                         hintText: "请输入邮箱",
                                         icon: Image.asset(
@@ -238,7 +238,7 @@ class LoginPageState extends State<LoginPage> {
                                             ThemeSize.smallIcon),
                                         hintStyle: TextStyle(
                                             fontSize: 14,
-                                            color: ThemeColors.grey),
+                                            color: ThemeColors.gray),
                                         contentPadding:
                                         EdgeInsets.only(left: 0.0),
                                         border: InputBorder.none,
@@ -297,7 +297,7 @@ class LoginPageState extends State<LoginPage> {
                                 }
                               },
                               controller: codeController,
-                              cursorColor: ThemeColors.grey, //设置光标
+                              cursorColor: ThemeColors.gray, //设置光标
                               decoration: InputDecoration(
                                 hintText: "请输入验证码",
                                 icon: Image.asset(
@@ -306,7 +306,7 @@ class LoginPageState extends State<LoginPage> {
                                     height: ThemeSize.smallIcon),
                                 hintStyle: TextStyle(
                                     fontSize: 14,
-                                    color: ThemeColors.grey),
+                                    color: ThemeColors.gray),
                                 border: InputBorder.none,
                               ))),
                     ]),

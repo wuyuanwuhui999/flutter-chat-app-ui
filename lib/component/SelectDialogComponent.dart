@@ -42,7 +42,7 @@ class BottomSelectionDialog {
       isScrollControlled: false,
       builder: (ctx) {
         return Container(
-          color: ThemeColors.grey,
+          color: ThemeColors.gray,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

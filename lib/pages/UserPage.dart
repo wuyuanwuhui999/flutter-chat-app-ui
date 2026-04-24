@@ -73,7 +73,7 @@ class UserPageState extends State<UserPage> {
                           },
                           textAlignVertical: TextAlignVertical.top,
                           controller: controller,
-                          cursorColor: ThemeColors.grey,
+                          cursorColor: ThemeColors.gray,
                           //设置光标
                           decoration: InputDecoration(
                             contentPadding:
@@ -81,7 +81,7 @@ class UserPageState extends State<UserPage> {
                             hintText: '请输入$name',
                             hintStyle: TextStyle(
                                 fontSize: ThemeSize.smallFont,
-                                color: ThemeColors.grey),
+                                color: ThemeColors.gray),
                             border: InputBorder.none,
                           ))))
             ],

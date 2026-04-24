@@ -20,7 +20,6 @@ class ThemeSize {
   static const double middleAvater = 50;// 中等头像
   static const double bigAvater = 60;// 大头像
   static const double borderWidth = 1;// 边框大小
-  static const double btnHeight = 40;//按钮大小
   static const int pageSize = 20;// 每页显示大小
   static const double borderSize = 3;
   static const double opacity = 0.5;// 图标透明度

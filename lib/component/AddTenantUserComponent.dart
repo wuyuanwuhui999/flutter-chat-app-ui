@@ -94,7 +94,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                       flex: 1,
                       child: TextField(
                         controller: searchController,
-                        cursorColor: ThemeColors.grey,
+                        cursorColor: ThemeColors.gray,
                         onChanged: (String value) {
                           setState(() {
                             inputValue = value;
@@ -104,7 +104,7 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
                           hintText: "请输入工号/姓名/邮箱/电话",
                           hintStyle: TextStyle(
                               fontSize: ThemeSize.smallFont,
-                              color: ThemeColors.grey),
+                              color: ThemeColors.gray),
                           contentPadding:
                               EdgeInsets.only(left: ThemeSize.middleGap),
                           border: InputBorder.none,

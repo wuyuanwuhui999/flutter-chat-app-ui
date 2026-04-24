@@ -827,12 +827,12 @@ class ChatPageState extends State<ChatPage> {
                                 });
                               },
                               controller: controller,
-                              cursorColor: ThemeColors.grey, //设置光标
+                              cursorColor: ThemeColors.gray, //设置光标
                               decoration: const InputDecoration(
                                 hintText: "有问题，尽管问",
                                 hintStyle: TextStyle(
                                     fontSize: ThemeSize.smallFont,
-                                    color: ThemeColors.grey),
+                                    color: ThemeColors.gray),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.only(
                                     bottom: ThemeSize.smallMargin),

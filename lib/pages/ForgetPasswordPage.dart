@@ -41,13 +41,13 @@ class ForgetPasswordPage extends StatelessWidget {
                                 flex: 1,
                                 child: TextField(
                                     controller: emailController,
-                                    cursorColor: ThemeColors.grey,
+                                    cursorColor: ThemeColors.gray,
                                     //设置光标
                                     decoration: InputDecoration(
                                       hintText: "请输入邮箱",
                                       hintStyle: TextStyle(
                                           fontSize: ThemeSize.smallFont,
-                                          color: ThemeColors.grey),
+                                          color: ThemeColors.gray),
                                       contentPadding: EdgeInsets.only(
                                           left: ThemeSize.middleGap),
                                       border: InputBorder.none,
