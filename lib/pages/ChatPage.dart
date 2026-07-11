@@ -489,6 +489,12 @@ class ChatPageState extends State<ChatPage> {
           // 菜单按钮
           PopupMenuButton<String>(
             color: ThemeColors.popupMenu.withOpacity(1),
+            // ✅ 设置菜单内边距，减小顶部和底部间距
+            padding: EdgeInsets.zero,
+            // ✅ 自定义菜单形状，去掉圆角或减小圆角
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(ThemeSize.middleRadius),
+            ),
             child: Image.asset(
               'lib/assets/images/icon_menu.png',
               width: ThemeSize.smallIcon,
@@ -505,7 +511,6 @@ class ChatPageState extends State<ChatPage> {
                 });
                 useHistory();
               }
-              // ❌ 移除了 "切换模型" 选项
             },
             itemBuilder: (context) {
               return <PopupMenuEntry<String>>[
@@ -534,7 +539,7 @@ class ChatPageState extends State<ChatPage> {
                 ),
               ];
             },
-          ),
+          )
         ],
       ),
     );
