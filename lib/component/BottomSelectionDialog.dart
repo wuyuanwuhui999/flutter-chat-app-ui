@@ -76,6 +76,7 @@ class BottomSelectionDialog {
                       separatorBuilder: (context, index) => divider,
                       itemBuilder: (context, index) {
                         final option = options[index];
+                        // ✅ 判断当前选项是否被选中
                         final isSelected = option == selectedOption;
 
                         return InkWell(
@@ -103,6 +104,7 @@ class BottomSelectionDialog {
                                         : FontWeight.normal,
                                   ),
                                 ),
+                                // ✅ 当前选中的选项右侧显示 primary 颜色的勾勾图标
                                 if (isSelected)
                                   Icon(
                                     Icons.check,

@@ -102,57 +102,6 @@ class ChatPageState extends State<ChatPage> {
   }
 
   /// @author: wuwenqiang
-  /// @description: 加载租户列表和模型列表
-  /// @date: 2026-07-11
-  void _loadTenantListAndModel() {
-    final companyId = chatProvider.currentCompanyId;
-    final userId = userInfoProvider.userInfo?.id ?? '';
-
-    // 1. 获取租户列表
-    getTenantListService(companyId).then((res) {
-      if (res.data.isNotEmpty) {
-        // 解析租户列表
-        final tenantList = res.data
-            .map((item) => TenantModel.fromJson(item))
-            .toList();
-
-        // 保存到 ChatProvider
-        chatProvider.setTenantList(tenantList);
-
-        // 2. 从缓存获取租户ID
-        LocalStorageUtils.getTenantId().then((cachedTenantId) {
-          TenantModel? targetTenant;
-
-          // 根据缓存查找租户
-          if (cachedTenantId.isNotEmpty) {
-            targetTenant = chatProvider.getTenantById(cachedTenantId);
-          }
-
-          // 如果缓存中没有或找不到，使用第一条
-          if (targetTenant == null && tenantList.isNotEmpty) {
-            targetTenant = tenantList.first;
-          }
-
-          // 设置当前租户
-          if (targetTenant != null) {
-            chatProvider.setCurrentTenant(targetTenant);
-
-            // 更新UI
-            setState(() {
-              // 刷新标题等
-            });
-          }
-        });
-      }
-    }).catchError((error) {
-      debugPrint('加载租户列表失败: $error');
-    });
-
-    // 3. 获取模型列表（独立进行）
-    _loadModelList();
-  }
-
-  /// @author: wuwenqiang
   /// @description: 加载模型列表
   /// @date: 2026-07-11
   void _loadModelList() {
@@ -480,6 +429,7 @@ class ChatPageState extends State<ChatPage> {
 
   /// @author: wuwenqiang
   /// @description: 头部标题栏，显示"当前租户名称 | 当选模型名称"
+  /// 点击租户名称弹出租户选择框，点击模型名称弹出模型选择框
   /// @date: 2026-07-11
   Widget buildHeaderWidget() {
     // 获取当前租户名称和模型名称
@@ -498,18 +448,41 @@ class ChatPageState extends State<ChatPage> {
           ),
           const SizedBox(width: ThemeSize.smallMargin),
 
-          // ✅ 标题：显示 "当前租户名称 | 当选模型名称"
+          // ✅ 标题：点击租户名称弹出选择框
           Expanded(
             flex: 1,
-            child: Text(
-              "$tenantName | $modelName",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: ThemeSize.normalFont,
-                fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onTap: _showTenantSelectionDialog,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 租户名称（带下划线装饰，表示可点击）
+                  Text(
+                    tenantName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(width: ThemeSize.miniMargin),
+                  // 分隔符
+                  const Text(
+                    "|",
+                    style: TextStyle(
+                      fontSize: ThemeSize.normalFont,
+                      color: ThemeColors.gray,
+                    ),
+                  ),
+                  const SizedBox(width: ThemeSize.miniMargin),
+                  // ✅ 模型名称（可点击）
+                  GestureDetector(
+                    onTap: _showModelSelectionDialog,
+                    child: Text(
+                      modelName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
 
@@ -531,9 +504,8 @@ class ChatPageState extends State<ChatPage> {
                   showHistory = true;
                 });
                 useHistory();
-              } else if (item == "切换模型") {
-                useTabModel();
               }
+              // ❌ 移除了 "切换模型" 选项
             },
             itemBuilder: (context) {
               return <PopupMenuEntry<String>>[
@@ -560,20 +532,192 @@ class ChatPageState extends State<ChatPage> {
                     style: TextStyle(color: ThemeColors.gray),
                   ),
                 ),
-                const PopupMenuDivider(height: 1),
-                const PopupMenuItem<String>(
-                  value: "切换模型",
-                  child: Text(
-                    "切换模型",
-                    style: TextStyle(color: ThemeColors.gray),
-                  ),
-                ),
               ];
             },
           ),
         ],
       ),
     );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 显示租户选择对话框
+  /// @date: 2026-07-11
+  void _showTenantSelectionDialog() {
+    final tenantList = chatProvider.tenantList;
+
+    if (tenantList.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "暂无租户可切换",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+      return;
+    }
+
+    // 获取当前选中的租户ID
+    final currentTenantId = chatProvider.currentTenantId;
+
+    // 构建选项列表：租户名称 + (当前租户显示 ✓)
+    final options = tenantList.map((item) {
+      return item.name;
+    }).toList();
+
+    // 使用 BottomSelectionDialog 组件
+    BottomSelectionDialog.show(
+      context: context,
+      options: options,
+      selectedOption: tenantList.firstWhere(
+        (t) => t.id == currentTenantId,
+        orElse: () => tenantList.first,
+      ).name,
+      onTap: (String selectedName, int index) {
+        final selectedTenant = tenantList[index];
+
+        // 如果选择的是当前租户，不做任何操作
+        if (selectedTenant.id == currentTenantId) {
+          Fluttertoast.showToast(
+            msg: "当前已是该租户",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+          );
+          return;
+        }
+
+        // 切换租户
+        chatProvider.setCurrentTenant(selectedTenant);
+
+        // ✅ 清空聊天对话，只显示欢迎问候语
+        setState(() {
+          chatList = [
+            ChatModel(
+              position: PositionEnum.left,
+              thinkContent: "",
+              responseContent: "你好，我是智能音乐助手小吴同学，请问有什么可以帮助您？",
+            )
+          ];
+          // 重置聊天ID，生成新的会话
+          chatId = generateSecureID();
+          // 清空文档选择
+          docIds = [];
+          // 重置思考内容和响应内容
+          thinkContent = "";
+          responseContent = "";
+          // 关闭WebSocket连接（如果有）
+          closeWebSocket();
+        });
+
+        Fluttertoast.showToast(
+          msg: "已切换到: ${selectedTenant.name}",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      },
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 显示模型选择对话框
+  /// @date: 2026-07-11
+  void _showModelSelectionDialog() {
+    if (modelList.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "暂无模型可选",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+      return;
+    }
+
+    // 构建选项列表：模型名称
+    final options = modelList.map((item) => item.modelName).toList();
+
+    // 使用 BottomSelectionDialog 组件
+    BottomSelectionDialog.show(
+      context: context,
+      options: options,
+      selectedOption: activeModelName,
+      onTap: (String selectedOption, int index) {
+        setState(() {
+          activeModelName = selectedOption;
+          // 切换模型时，如果有WebSocket连接，关闭并重置聊天状态
+          if (channel != null || subscription != null) {
+            closeWebSocket();
+            // 重置聊天列表，保留欢迎语
+            chatList = [
+              ChatModel(
+                position: PositionEnum.left,
+                thinkContent: "",
+                responseContent: "你好，我是智能音乐助手小吴同学，请问有什么可以帮助您？",
+              )
+            ];
+            chatId = generateSecureID();
+            thinkContent = "";
+            responseContent = "";
+          }
+        });
+
+        Fluttertoast.showToast(
+          msg: "已切换到模型: $selectedOption",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: ThemeSize.middleFont,
+        );
+      },
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 加载租户列表和模型列表
+  /// @date: 2026-07-11
+  void _loadTenantListAndModel() {
+    final companyId = chatProvider.currentCompanyId;
+    final userId = userInfoProvider.userInfo?.id ?? '';
+
+    // 1. 获取租户列表
+    getTenantListService(companyId).then((res) {
+      if (res.data.isNotEmpty) {
+        // 解析租户列表
+        final tenantList = res.data
+            .map((item) => TenantModel.fromJson(item))
+            .toList();
+
+        // 保存到 ChatProvider
+        chatProvider.setTenantList(tenantList);
+
+        // 2. 从缓存获取租户ID
+        LocalStorageUtils.getTenantId().then((cachedTenantId) {
+          TenantModel? targetTenant;
+
+          // 根据缓存查找租户
+          if (cachedTenantId.isNotEmpty) {
+            targetTenant = chatProvider.getTenantById(cachedTenantId);
+          }
+
+          // 如果缓存中没有或找不到，使用第一条
+          if (targetTenant == null && tenantList.isNotEmpty) {
+            targetTenant = tenantList.first;
+          }
+
+          // 设置当前租户
+          if (targetTenant != null) {
+            chatProvider.setCurrentTenant(targetTenant);
+
+            // ✅ 更新UI - 刷新标题栏显示当前租户名称
+            setState(() {});
+          }
+        });
+      }
+    }).catchError((error) {
+      debugPrint('加载租户列表失败: $error');
+    });
+
+    // 3. 获取模型列表（独立进行）
+    _loadModelList();
   }
 
   Widget buildChatList() {
