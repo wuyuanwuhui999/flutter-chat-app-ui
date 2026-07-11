@@ -159,7 +159,7 @@ Future<ResponseModel<List<dynamic>>> getMyDocListService(String tenantId) async 
   Future<ResponseModel<List<dynamic>>> getTenantListService(String companyId) async {
     try {
       Response response =
-      await dio.get(servicePath['getUserTenantList']!,queryParameters: {"companyId":companyId});
+      await dio.get(servicePath['getTenantList']!,queryParameters: {"companyId":companyId});
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       print('ERROR:======>${e}');
