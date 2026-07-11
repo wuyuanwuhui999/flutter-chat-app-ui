@@ -195,13 +195,30 @@ Future<ResponseModel<List<dynamic>>> getDirectoryListService(String tenantId) as
   }
 }
 
-///@author: wuwenqiang
-///@description: 获取当前租户的用户列表
-/// @date: 2025-06-09 19:39
-Future<ResponseModel<List<dynamic>>> getTenantUserListService(String tenantId,int pageNum,int pageSize) async {
+/// @author: wuwenqiang
+/// @description: 获取当前租户的用户列表（支持关键词搜索）
+/// @date: 2025-09-11
+Future<ResponseModel<List<dynamic>>> getTenantUserListService(
+  String tenantId,
+  int pageNum,
+  int pageSize,
+  String keyword
+) async {
   try {
-    Response response =
-    await dio.get(servicePath['getTenantUserList']!,queryParameters:{"pageNum":pageNum,"pageSize":pageSize,"tenantId":tenantId});
+    final Map<String, dynamic> queryParams = {
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+      "tenantId": tenantId,
+    };
+    // 如果 keyword 不为空，添加到请求参数中
+    if (keyword.isNotEmpty) {
+      queryParams["keyword"] = keyword;
+    }
+
+    Response response = await dio.get(
+      servicePath['getTenantUserList']!,
+      queryParameters: queryParams,
+    );
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');

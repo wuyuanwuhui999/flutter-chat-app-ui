@@ -1,3 +1,5 @@
+// lib/model/TenantUserModel.dart
+
 class TenantUserModel {
   final String id;
   final String tenantId;
@@ -8,6 +10,7 @@ class TenantUserModel {
   String? createBy;
   final int disabled;
   final String username;
+  final String userAccount; // ✅ 新增：工号
   String? avatar;
   String? email;
 
@@ -21,6 +24,7 @@ class TenantUserModel {
     this.createBy,
     required this.disabled,
     required this.username,
+    required this.userAccount, // ✅ 新增
     this.avatar,
     this.email,
   });
@@ -32,14 +36,18 @@ class TenantUserModel {
       tenantName: json['tenantName'] as String? ?? '私人空间',
       userId: json['userId'] as String? ?? '',
       role: json['role'] as int? ?? 0,
-      joinDate: json['joinDate'] != "" && json['joinDate'] != null ? DateTime.parse(json['joinDate']) : null,
+      joinDate: json['joinDate'] != "" && json['joinDate'] != null
+          ? DateTime.parse(json['joinDate'])
+          : null,
       createBy: json['createBy'] ?? "",
       disabled: json['disabled'] as int? ?? 0,
       username: json['username'] as String? ?? '',
-      avatar: json['avater'] ?? "", // 注意JSON字段名是avater
+      userAccount: json['userAccount'] as String? ?? '', // ✅ 新增
+      avatar: json['avater'] ?? "",
       email: json['email'] ?? "",
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -51,7 +59,8 @@ class TenantUserModel {
       'createBy': createBy,
       'disabled': disabled,
       'username': username,
-      'avater': avatar, // 保持与fromJson一致的字段名
+      'userAccount': userAccount, // ✅ 新增
+      'avater': avatar,
       'email': email,
     };
   }

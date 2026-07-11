@@ -1,3 +1,5 @@
+// lib/pages/UserPage.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_music_app/model/TenantModel.dart';
@@ -184,67 +186,14 @@ class UserPageState extends State<UserPage> {
     });
   }
 
-  /// @author: wuwenqiang
-  /// @description: 显示租户切换弹窗
-  /// @date: 2026-07-11
-  void _showTenantSwitchDialog() {
-    final tenantList = chatProvider.tenantList;
-
-    if (tenantList.isEmpty) {
-      Fluttertoast.showToast(
-        msg: "暂无租户可切换",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-      );
-      return;
-    }
-
-    // 构建选项列表，显示租户名称和角色
-    final options = tenantList.map((item) {
-      final isCurrent = item.id == chatProvider.currentTenantId;
-      final roleText = item.roleText;
-      return isCurrent ? '${item.name} ($roleText) ✓' : '${item.name} ($roleText)';
-    }).toList();
-
-    BottomSelectionDialog.show(
-      context: context,
-      options: options,
-      onTap: (String value, int index) {
-        final selectedTenant = tenantList[index];
-        // 如果选择的是当前租户，不做任何操作
-        if (selectedTenant.id == chatProvider.currentTenantId) {
-          Fluttertoast.showToast(
-            msg: "当前已是该租户",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-          );
-          return;
-        }
-
-        // 切换租户
-        chatProvider.setCurrentTenant(selectedTenant);
-
-        // 刷新页面
-        setState(() {});
-
-        Fluttertoast.showToast(
-          msg: "已切换到: ${selectedTenant.name}",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     userProvider = Provider.of<UserInfoProvider>(context, listen: true);
     chatProvider = Provider.of<ChatProvider>(context, listen: true);
 
-    final tenantList = chatProvider.tenantList;
+    // 获取当前租户名称
     final currentTenantName = chatProvider.currentTenantName;
+    // 判断当前用户是否为管理员（用于控制租户管理按钮显示）
     final isAdmin = chatProvider.isCurrentTenantAdmin || chatProvider.isCurrentTenantOwner;
 
     return Scaffold(
@@ -496,36 +445,7 @@ class UserPageState extends State<UserPage> {
                       ),
                     ),
 
-                    // 切换租户按钮
-                    if (tenantList.isNotEmpty)
-                      GestureDetector(
-                        onTap: _showTenantSwitchDialog,
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            top: ThemeSize.middleGap,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ThemeColors.white,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(ThemeSize.superRadius),
-                            ),
-                            border: Border.all(
-                              color: ThemeColors.gray,
-                            ),
-                          ),
-                          width: double.infinity,
-                          height: ThemeSize.btnHeight,
-                          child: Center(
-                            child: Text(
-                              '切换租户 (当前: $currentTenantName)',
-                              style: const TextStyle(
-                                color: ThemeColors.mainTitle,
-                                fontSize: ThemeSize.normalFont,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    // ❌ 已移除"切换租户"按钮
 
                     // 租户管理按钮（仅管理员可见）
                     if (isAdmin)
@@ -662,27 +582,11 @@ class UserPageState extends State<UserPage> {
 
       if (image == null) return;
 
-      // 显示加载中
       await EasyLoading.show(status: '上传中...');
 
       // TODO: 实现头像上传功能
       // 这里需要调用上传头像的接口
       // 目前注释掉，待实现
-      /*
-      final file = File(image.path);
-      final bytes = await file.readAsBytes();
-      final base64Str = "data:image/png;base64," + base64Encode(bytes);
-
-      updateAvaterService({"img": base64Str}).then((res) {
-        if (res.status == SUCCESS) {
-          userProvider.userInfo.avater = res.data;
-          userProvider.setUserInfo(userProvider.userInfo);
-          Fluttertoast.showToast(msg: "头像更新成功");
-        }
-      }).finally(() {
-        EasyLoading.dismiss();
-      });
-      */
 
       await EasyLoading.dismiss();
       Fluttertoast.showToast(
