@@ -26,7 +26,7 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     userInfoProvider = Provider.of<UserInfoProvider>(context,listen: true);
-    String userAccount = userInfoProvider.userInfo?.userAccount ?? "";
+    String userAccount = userInfoProvider.userInfo?.userAccount ?? "吴怨吴悔";
     String email = "";
     String code = "";
     TextEditingController userController = TextEditingController(text: userAccount);
@@ -334,9 +334,8 @@ class LoginPageState extends State<LoginPage> {
                               print("111");
                               userInfoProvider.setUserInfo(userModel);
                               Routes.router.navigateTo(
-                                  context, '/ChatPage',
+                                  context, '/CompanyPage',
                                   replace: true);
-
                             } else {
                               Fluttertoast.showToast(
                                   msg: "登录失败，账号或密码错误",
@@ -346,7 +345,7 @@ class LoginPageState extends State<LoginPage> {
                                   textColor: Colors.white,
                                   fontSize: ThemeSize.middleFont);
                             }
-                          }).catchError((){
+                          }).catchError((error) {
                             Fluttertoast.showToast(
                                 msg: "登录失败，账号或密码错误",
                                 toastLength: Toast.LENGTH_SHORT,
@@ -354,6 +353,7 @@ class LoginPageState extends State<LoginPage> {
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
                                 fontSize: ThemeSize.middleFont);
+                            print('登录错误: $error');
                           });
                         } else if (email.trim() == "") {
                           Fluttertoast.showToast(
@@ -387,7 +387,7 @@ class LoginPageState extends State<LoginPage> {
                               userInfoProvider.setUserInfo(
                                   UserInfoModel.fromJson(res.data));
                               Routes.router.navigateTo(
-                                  context, '/ChatPage',
+                                  context, '/CompanyPage',
                                   replace: true);
                             } else {
                               Fluttertoast.showToast(

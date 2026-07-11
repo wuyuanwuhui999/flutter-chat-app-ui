@@ -67,7 +67,7 @@ class TenantManagePageState extends State<TenantManagePage> {
         // 创建新对象替换
         tenantUserList[index] = TenantUserModel.fromJson({
           ...tenantUserList[index].toJson(),
-          'roleType': 0,
+          'role': 0,
         });
       });
     });
@@ -88,7 +88,7 @@ class TenantManagePageState extends State<TenantManagePage> {
       setState(() {
         tenantUserList[index] = TenantUserModel.fromJson({
           ...tenantUserList[index].toJson(),
-          'roleType': 1,
+          'role': 1,
         });
       });
     });
@@ -180,28 +180,28 @@ class TenantManagePageState extends State<TenantManagePage> {
                                         ),
                                       ),
                                       child: Slidable(
-                                          enabled: entry.value.roleType != 2,
+                                          enabled: entry.value.role != 2,
                                           endActionPane: ActionPane(
                                             motion: const ScrollMotion(),
                                             children: [
                                               SlidableAction(
                                                 onPressed: (context) {
-                                                  if (entry.value.roleType ==
+                                                  if (entry.value.role ==
                                                       1) {
                                                     onCancelAdmin(entry.key);
                                                   } else if (entry
-                                                          .value.roleType ==
+                                                          .value.role ==
                                                       0) {
                                                     onAddAdmin(entry.key);
                                                   }
                                                 },
                                                 backgroundColor:
-                                                    entry.value.roleType == 2
+                                                    entry.value.role == 2
                                                         ? ThemeColors
                                                             .gray
                                                         : Colors.red,
                                                 foregroundColor: Colors.white,
-                                                label: entry.value.roleType > 0
+                                                label: entry.value.role > 0
                                                     ? "取消管理员"
                                                     : "设为管理员",
                                               ),

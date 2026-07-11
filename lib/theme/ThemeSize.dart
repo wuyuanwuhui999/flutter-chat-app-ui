@@ -25,4 +25,6 @@ class ThemeSize {
   static const double opacity = 0.5;// 图标透明度
   static const double titleBarHeight = 50;// 标题栏高度
   static const double radioSize = 24;// 单选框的大小
+  static const double normalFont = 16; // 常规字体
+
 }

@@ -1,3 +1,4 @@
+// lib/utils/HttpUtil.dart
 import '../common/constant.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -74,7 +75,10 @@ class HttpUtil {
           }
         },
         onRequest: (RequestOptions options, RequestInterceptorHandler handler){
-          options.headers['Authorization'] = token;
+          // 【修改点】添加 Bearer 前缀
+          if (token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(options); // 继续
         },
         onError: (DioException err, ErrorInterceptorHandler handler){

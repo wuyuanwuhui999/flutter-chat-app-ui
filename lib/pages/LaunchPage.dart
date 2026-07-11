@@ -1,3 +1,5 @@
+// lib/pages/LaunchPage.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../provider/ChatProvider.dart';
@@ -25,43 +27,46 @@ class LaunchPageState extends State<LaunchPage> {
 
   @override
   void initState() {
-    userInfoprovider =  Provider.of<UserInfoProvider>(context,listen: false);
-    chatProvider = Provider.of<ChatProvider>(context,listen: false);
+    userInfoprovider = Provider.of<UserInfoProvider>(context, listen: false);
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
-    LocalStorageUtils.getToken().then((res){
+    LocalStorageUtils.getToken().then((res) {
       Future.delayed(const Duration(seconds: 1), () {
         // 这里是你想要延时执行的代码
         HttpUtil.getInstance().setToken(res);
-        if(res != ""){// 已经登录
-          getUserDataService().then((data){
-            if(data.token != null){
+        if (res != "") {
+          // 已经登录
+          getUserDataService().then((data) {
+            if (data.token != null) {
               String token = data.token!;
               LocalStorageUtils.setToken(token);
               HttpUtil.getInstance().setToken(token);
               userInfoprovider.setUserInfo(UserInfoModel.fromJson(data.data));
             }
-            Routes.router.navigateTo(context, '/ChatPage',replace: true);
-          }).catchError((err){
-            Routes.router.navigateTo(context, '/LoginPage',replace: true);
+            // 修改：跳转到CompanyPage而非ChatPage
+            Routes.router.navigateTo(context, '/CompanyPage', replace: true);
+          }).catchError((err) {
+            Routes.router.navigateTo(context, '/LoginPage', replace: true);
           });
-        }else{// 没有登录
-          Routes.router.navigateTo(context, '/LoginPage',replace: true);
+        } else {
+          // 没有登录
+          Routes.router.navigateTo(context, '/LoginPage', replace: true);
         }
       });
     });
-     PackageInfo.fromPlatform().then((value){
-       chatProvider.setVersion(value.version);
+    PackageInfo.fromPlatform().then((value) {
+      chatProvider.setVersion(value.version);
     });
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
-      deviceInfo.androidInfo.then((value){
+      deviceInfo.androidInfo.then((value) {
         chatProvider.setDevice(value.model);
       });
     } else if (Platform.isIOS) {
-      deviceInfo.iosInfo.then((value){
+      deviceInfo.iosInfo.then((value) {
         chatProvider.setDevice(value.model);
       });
-    }else{
+    } else {
       chatProvider.setDevice('Unknown');
     }
     super.initState();
@@ -75,7 +80,7 @@ class LaunchPageState extends State<LaunchPage> {
           child: SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child:Center(child: Text('欢迎使用')),
+            child: Center(child: Text('欢迎使用')),
           ),
         ));
   }

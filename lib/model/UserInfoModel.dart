@@ -1,4 +1,4 @@
-class UserInfoModel{
+class UserInfoModel {
   String id;
   String? avater;
   String? birthday;
@@ -32,27 +32,48 @@ class UserInfoModel{
     this.region,
     this.disabled,
     this.permission,
-    this.checked
+    this.checked,
   });
-  //工厂模式-用这种模式可以省略New关键字
+
+  /// 安全转换为 int? 的辅助方法
+  static int? _toInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) {
+      // 处理空字符串
+      if (value.isEmpty) return null;
+      // 尝试解析为数字
+      return int.tryParse(value);
+    }
+    return null;
+  }
+
+  /// 安全转换为 String? 的辅助方法
+  static String? _toString(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    return value.toString();
+  }
+
+  // 工厂模式 - 用这种模式可以省略New关键字
   factory UserInfoModel.fromJson(Map<String, dynamic> json) {
     return UserInfoModel(
-        id: json["id"],
-        avater: json["avater"],
-        birthday: json["birthday"],
-        createDate: json["createDate"],
-        email: json["email"],
-        role: json["role"],
-        sex: json["sex"],
-        telephone: json["telephone"],
-        updateDate: json["updateDate"],
-        userAccount: json["userAccount"],
-        username: json["username"],
-        sign: json["sign"],
-        region: json["region"],
-        disabled: json["disabled"],
-        permission: json["permission"],
-        checked: json["checked"]
+      id: _toString(json["id"]) ?? '',
+      avater: _toString(json["avater"]),
+      birthday: _toString(json["birthday"]),
+      createDate: _toString(json["createDate"]) ?? '',
+      email: _toString(json["email"]),
+      role: _toString(json["role"]),
+      sex: _toInt(json["sex"]),
+      telephone: _toString(json["telephone"]),
+      updateDate: _toString(json["updateDate"]) ?? '',
+      userAccount: _toString(json["userAccount"]) ?? '',
+      username: _toString(json["username"]) ?? '',
+      sign: _toString(json["sign"]),
+      region: _toString(json["region"]),
+      disabled: _toInt(json["disabled"]),
+      permission: _toInt(json["permission"]),
+      checked: _toInt(json["checked"]),
     );
   }
 
@@ -71,7 +92,7 @@ class UserInfoModel{
       "username": username,
       "sign": sign,
       "region": region,
-      "checked": checked
+      "checked": checked,
     };
   }
 }

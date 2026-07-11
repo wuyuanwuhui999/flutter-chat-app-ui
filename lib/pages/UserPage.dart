@@ -177,18 +177,20 @@ class UserPageState extends State<UserPage> {
     // });
   }
 
-  getUserTenantList(){
-    getUserTenantListService().then((res){
-      if(res.data.isNotEmpty){
+  /// 获取用户租户列表
+  void getUserTenantList() {
+    final companyId = chatProvider.currentCompanyId; // 获取当前公司ID
+    getTenantListService(companyId.isNotEmpty ? companyId : "").then((res) {
+      if (res.data.isNotEmpty) {
         setState(() {
-          tenantList.add(TenantModel(id: '0', name: '私人空间', code: 'personal', status: 1, createdBy: 'system'));
-          res.data.forEach((item){
+          res.data.forEach((item) {
             tenantList.add(TenantModel.fromJson(item));
           });
         });
       }
     });
   }
+
   onTabTenant(){
     BottomSelectionDialog.show(
         context:context,
@@ -482,7 +484,7 @@ class UserPageState extends State<UserPage> {
                                     height: ThemeSize.btnHeight,
                                     child: const Center(child: Text("切换租户"))))
                             :const SizedBox(),
-                            chatProvider.tenantUser.roleType > 0 ?
+                            chatProvider.tenantUser.role > 0 ?
                             GestureDetector(
                                 onTap: () {
                                   Routes.router.navigateTo(

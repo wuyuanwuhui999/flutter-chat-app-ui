@@ -3,7 +3,7 @@ class TenantUserModel {
   final String tenantId;
   final String tenantName;
   final String userId;
-  late final int roleType;
+  late final int role;
   DateTime? joinDate;
   String? createBy;
   final int disabled;
@@ -16,7 +16,7 @@ class TenantUserModel {
     required this.tenantId,
     required this.tenantName,
     required this.userId,
-    required this.roleType,
+    required this.role,
     this.joinDate,
     this.createBy,
     required this.disabled,
@@ -31,7 +31,7 @@ class TenantUserModel {
       tenantId: json['tenantId'] as String? ?? '',
       tenantName: json['tenantName'] as String? ?? '私人空间',
       userId: json['userId'] as String? ?? '',
-      roleType: json['roleType'] as int? ?? 0,
+      role: json['role'] as int? ?? 0,
       joinDate: json['joinDate'] != "" && json['joinDate'] != null ? DateTime.parse(json['joinDate']) : null,
       createBy: json['createBy'] ?? "",
       disabled: json['disabled'] as int? ?? 0,
@@ -46,7 +46,7 @@ class TenantUserModel {
       'tenantId': tenantId,
       'tenantName': tenantName,
       'userId': userId,
-      'roleType': roleType,
+      'role': role,
       'joinDate': joinDate?.toIso8601String(),
       'createBy': createBy,
       'disabled': disabled,

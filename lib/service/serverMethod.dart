@@ -146,10 +146,10 @@ Future<ResponseModel<List<dynamic>>> getMyDocListService(String tenantId) async 
   ///@author: wuwenqiang
   ///@description: 获取用户租户列表
   /// @date: 2025-06-09 19:39
-  Future<ResponseModel<List<dynamic>>> getUserTenantListService() async {
+  Future<ResponseModel<List<dynamic>>> getTenantListService(String companyId) async {
     try {
       Response response =
-      await dio.get(servicePath['getUserTenantList']!);
+      await dio.get(servicePath['getUserTenantList']!,queryParameters: {"companyId":companyId});
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       print('ERROR:======>${e}');
@@ -294,5 +294,16 @@ Future<ResponseModel<dynamic>> createDirService(DirectoryModel directoryMode) as
   } catch (e) {
     print('ERROR:======>${e}');
     throw Error();
+  }
+}
+
+/// 获取当前用户的公司列表
+Future<ResponseModel<List<dynamic>>> getCompanyListService() async {
+  try {
+    Response response = await dio.get(servicePath['getCompanyList']!);
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: 获取公司列表失败: $e');
+    throw Exception('获取公司列表失败: $e');
   }
 }
