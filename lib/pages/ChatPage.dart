@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../api/api.dart';
+import '../model/TenantModel.dart';
 import '../component/CustomDialogComponent.dart';
 import '../component/DialogComponent.dart';
 import '../component/DocumentListComponent.dart';
@@ -85,35 +86,86 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    super.initState();
+
+    // 初始化 Provider
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+
+    // 获取 Token
     LocalStorageUtils.getToken().then((res) {
       token = res;
     });
 
-    // 获取当前公司ID
+    // ✅ 加载租户列表（在加载模型列表之前）
+    _loadTenantListAndModel();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 加载租户列表和模型列表
+  /// @date: 2026-07-11
+  void _loadTenantListAndModel() {
+    final companyId = chatProvider.currentCompanyId;
+    final userId = userInfoProvider.userInfo?.id ?? '';
+
+    // 1. 获取租户列表
+    getTenantListService(companyId).then((res) {
+      if (res.data.isNotEmpty) {
+        // 解析租户列表
+        final tenantList = res.data
+            .map((item) => TenantModel.fromJson(item))
+            .toList();
+
+        // 保存到 ChatProvider
+        chatProvider.setTenantList(tenantList);
+
+        // 2. 从缓存获取租户ID
+        LocalStorageUtils.getTenantId().then((cachedTenantId) {
+          TenantModel? targetTenant;
+
+          // 根据缓存查找租户
+          if (cachedTenantId.isNotEmpty) {
+            targetTenant = chatProvider.getTenantById(cachedTenantId);
+          }
+
+          // 如果缓存中没有或找不到，使用第一条
+          if (targetTenant == null && tenantList.isNotEmpty) {
+            targetTenant = tenantList.first;
+          }
+
+          // 设置当前租户
+          if (targetTenant != null) {
+            chatProvider.setCurrentTenant(targetTenant);
+
+            // 更新UI
+            setState(() {
+              // 刷新标题等
+            });
+          }
+        });
+      }
+    }).catchError((error) {
+      debugPrint('加载租户列表失败: $error');
+    });
+
+    // 3. 获取模型列表（独立进行）
+    _loadModelList();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 加载模型列表
+  /// @date: 2026-07-11
+  void _loadModelList() {
     final companyId = chatProvider.currentCompanyId;
 
     getModelListService(companyId: companyId).then((res) {
       final models = res.data.map((item) => AiModel.fromJson(item)).toList();
       setState(() {
         modelList = models;
-        activeModelName = models.isNotEmpty ? models.first.modelName : ''; // 确保首次赋值
+        activeModelName = models.isNotEmpty ? models.first.modelName : '';
       });
-    });
-    userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-    getStorageTenant();
-    super.initState();
-  }
-
-
-  ///@author: wuwenqiang
-  ///@description: 获取缓存的租户
-  /// @date: 2024-07-30 22:58
-  getStorageTenant() {
-    LocalStorageUtils.getTenantId().then((tenantId) {
-      getTenantUserService(tenantId).then((res) {
-        chatProvider.setTenantUser(TenantUserModel.fromJson(res.data ??
-            {"tenantId": userInfoProvider.userInfo.id, "tenantName": "私人空间"}));
-      });
+    }).catchError((error) {
+      debugPrint('加载模型列表失败: $error');
     });
   }
 
@@ -413,7 +465,7 @@ class ChatPageState extends State<ChatPage> {
                   id: "",
                   userId: "",
                   directory: directoryNameController.text,
-                  tenantId: chatProvider.tenantUser.tenantId))
+                  tenantId: chatProvider.currentTenantId))
               .then((res) {
             if (res.data != null) {
               Fluttertoast.showToast(msg: "创建成功");
@@ -425,25 +477,49 @@ class ChatPageState extends State<ChatPage> {
         }).show();
   }
 
-  // 头部
+  /// @author: wuwenqiang
+  /// @description: 头部标题栏，显示"当前租户名称 | 当选模型名称"
+  /// @date: 2026-07-11
   Widget buildHeaderWidget() {
+    // 获取当前租户名称和模型名称
+    final tenantName = chatProvider.currentTenantName;
+    final modelName = activeModelName.isNotEmpty ? activeModelName : '未选择模型';
+
     return Container(
       padding: const EdgeInsets.all(ThemeSize.middleGap),
       decoration: const BoxDecoration(color: ThemeColors.white),
       child: Row(
         children: [
+          // 头像
           AvaterComponent(
-              size: ThemeSize.smallAvater,
-              avater: userInfoProvider.userInfo.avater ?? ""),
+            size: ThemeSize.smallAvater,
+            avater: userInfoProvider.userInfo.avater ?? "",
+          ),
+          const SizedBox(width: ThemeSize.smallMargin),
+
+          // ✅ 标题：显示 "当前租户名称 | 当选模型名称"
           Expanded(
-              child: Text(
-            "当前接入模型：${activeModelName}",
-            textAlign: TextAlign.center,
-          )),
+            flex: 1,
+            child: Text(
+              "$tenantName | $modelName",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: ThemeSize.normalFont,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+
+          // 菜单按钮
           PopupMenuButton<String>(
             color: ThemeColors.popupMenu.withOpacity(1),
-            child: Image.asset('lib/assets/images/icon_menu.png',
-                width: ThemeSize.smallIcon, height: ThemeSize.smallIcon),
+            child: Image.asset(
+              'lib/assets/images/icon_menu.png',
+              width: ThemeSize.smallIcon,
+              height: ThemeSize.smallIcon,
+            ),
             onSelected: (String item) {
               if (item == "上传文档") {
                 onUploadDoc();
@@ -461,29 +537,39 @@ class ChatPageState extends State<ChatPage> {
             itemBuilder: (context) {
               return <PopupMenuEntry<String>>[
                 const PopupMenuItem<String>(
-                    value: "上传文档",
-                    child: Text(
-                      "上传文档",
-                      style: TextStyle(color: ThemeColors.white),
-                    )),
+                  value: "上传文档",
+                  child: Text(
+                    "上传文档",
+                    style: TextStyle(color: ThemeColors.white),
+                  ),
+                ),
                 const PopupMenuDivider(height: 1),
                 const PopupMenuItem<String>(
-                    value: "我的文档",
-                    child: Text("我的文档",
-                        style: TextStyle(color: ThemeColors.gray))),
+                  value: "我的文档",
+                  child: Text(
+                    "我的文档",
+                    style: TextStyle(color: ThemeColors.gray),
+                  ),
+                ),
                 const PopupMenuDivider(height: 1),
                 const PopupMenuItem<String>(
-                    value: "会话记录",
-                    child: Text("会话记录",
-                        style: TextStyle(color: ThemeColors.gray))),
+                  value: "会话记录",
+                  child: Text(
+                    "会话记录",
+                    style: TextStyle(color: ThemeColors.gray),
+                  ),
+                ),
                 const PopupMenuDivider(height: 1),
                 const PopupMenuItem<String>(
-                    value: "切换模型",
-                    child: Text("切换模型",
-                        style: TextStyle(color: ThemeColors.gray))),
+                  value: "切换模型",
+                  child: Text(
+                    "切换模型",
+                    style: TextStyle(color: ThemeColors.gray),
+                  ),
+                ),
               ];
             },
-          )
+          ),
         ],
       ),
     );

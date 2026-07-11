@@ -8,7 +8,9 @@ import '../model/DocModel.dart';
 import '../theme/ThemeSize.dart';
 import '../utils/common.dart';
 
-// 有状态的目录列表组件（内部管理选中状态）
+/// @author: wuwenqiang
+/// @description: 文档列表组件（按目录分组显示）
+/// @date: 2025-09-08
 class DocListComponent extends StatefulWidget {
   const DocListComponent({
     super.key,
@@ -21,6 +23,7 @@ class DocListComponent extends StatefulWidget {
 class _DocListComponentState extends State<DocListComponent> {
   List<List<DocModel>> docList = [];
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -31,61 +34,79 @@ class _DocListComponentState extends State<DocListComponent> {
     });
   }
 
-  // 在 didChangeDependencies 中获取 provider 数据
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 也可以在这里加载数据
-  }
-
+  /// @author: wuwenqiang
+  /// @description: 加载文档列表
+  /// @date: 2025-09-08
   Future<void> _loadDocs() async {
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
     try {
       // 使用 listen: false 来获取 provider，不监听变化
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-      final tenantId = chatProvider.tenantUser?.tenantId;
+      // ✅ 使用 currentTenantId
+      final tenantId = chatProvider.currentTenantId;
 
-      if (tenantId == null) {
-        print('tenantId is null');
+      if (tenantId.isEmpty) {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+            errorMessage = '请先选择租户';
+          });
+        }
         return;
       }
 
-      var res = await getMyDocListService(tenantId);
+      final res = await getMyDocListService(tenantId);
+
+      if (!mounted) return;
 
       if (res.data.isNotEmpty) {
         // 使用 Map 来按 directoryId 分组
-        Map<String, List<DocModel>> groupedMap = {};
+        final Map<String, List<DocModel>> groupedMap = {};
         for (var doc in res.data) {
-          // 如果该 directoryId 还没有对应的列表，就创建一个
-          DocModel docModel = DocModel.fromJson(doc);
-          if (!groupedMap.containsKey(docModel.directoryId)) {
-            groupedMap[docModel.directoryId] = [];
+          final docModel = DocModel.fromJson(doc);
+          final key = docModel.directoryId.isNotEmpty
+              ? docModel.directoryId
+              : 'default';
+
+          if (!groupedMap.containsKey(key)) {
+            groupedMap[key] = [];
           }
-          // 将文档添加到对应的分组中
-          groupedMap[docModel.directoryId]!.add(docModel);
+          groupedMap[key]!.add(docModel);
         }
 
-        if (mounted) {
-          setState(() {
-            // 将 Map 的值转换为二维列表
-            docList = groupedMap.values.toList();
-            isLoading = false;
-          });
-        }
+        setState(() {
+          // 将 Map 的值转换为二维列表
+          docList = groupedMap.values.toList();
+          isLoading = false;
+        });
       } else {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
+        setState(() {
+          isLoading = false;
+          docList = [];
+        });
       }
     } catch (e) {
-      print('加载文档列表失败: $e');
+      debugPrint('加载文档列表失败: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
+          errorMessage = '加载失败，请重试';
         });
       }
     }
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 刷新文档列表
+  /// @date: 2025-09-08
+  Future<void> _refreshDocs() async {
+    await _loadDocs();
   }
 
   @override
@@ -96,9 +117,41 @@ class _DocListComponentState extends State<DocListComponent> {
       );
     }
 
+    if (errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              errorMessage!,
+              style: const TextStyle(
+                color: ThemeColors.gray,
+                fontSize: ThemeSize.normalFont,
+              ),
+            ),
+            const SizedBox(height: ThemeSize.middleGap),
+            ElevatedButton(
+              onPressed: _refreshDocs,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ThemeColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('重试'),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (docList.isEmpty) {
       return const Center(
-        child: Text('暂无文档', style: TextStyle(color: ThemeColors.gray)),
+        child: Text(
+          '暂无文档',
+          style: TextStyle(
+            color: ThemeColors.gray,
+            fontSize: ThemeSize.normalFont,
+          ),
+        ),
       );
     }
 
@@ -109,43 +162,99 @@ class _DocListComponentState extends State<DocListComponent> {
       separatorBuilder: (context, index) => const Divider(
         height: 1,
         thickness: 1,
-        color: Colors.grey,
+        color: ThemeColors.gray,
       ),
       itemBuilder: (context, index) {
         final docItems = docList[index];
         if (docItems.isEmpty) return const SizedBox();
 
         return Padding(
-            padding: ThemeStyle.padding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 目录标题
-                Text(
-                  docItems[0].directoryName,
+          padding: ThemeStyle.padding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 目录标题
+              Text(
+                docItems[0].directoryName.isNotEmpty
+                    ? docItems[0].directoryName
+                    : '默认文件夹',
+                style: const TextStyle(
+                  fontSize: ThemeSize.normalFont,
+                  fontWeight: FontWeight.w500,
+                  color: ThemeColors.mainTitle,
                 ),
-
-                // 目录下的文档列表
-                ...docItems.map((item) {
-                  return Padding(
-                      padding: const EdgeInsets.only(top: ThemeSize.smallMargin),
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: item.name),
-                            TextSpan(
-                              text: "  ${formatTimeAgo(item.createTime)}",
-                              style: const TextStyle(
-                                color: ThemeColors.gray,
+              ),
+              const SizedBox(height: ThemeSize.smallMargin),
+              // 目录下的文档列表
+              ...docItems.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    top: ThemeSize.smallMargin,
+                    left: ThemeSize.smallMargin,
+                  ),
+                  child: Row(
+                    children: [
+                      // 文档图标
+                      Image.asset(
+                        _getDocIcon(item.ext),
+                        width: ThemeSize.smallIcon,
+                        height: ThemeSize.smallIcon,
+                      ),
+                      const SizedBox(width: ThemeSize.smallMargin),
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: item.name,
+                                style: const TextStyle(
+                                  color: ThemeColors.mainTitle,
+                                ),
                               ),
-                            ),
-                          ],
+                              TextSpan(
+                                text: "  ${formatTimeAgo(item.createTime)}",
+                                style: const TextStyle(
+                                  color: ThemeColors.gray,
+                                  fontSize: ThemeSize.smallFont,
+                                ),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ));
-                }),
-              ],
-            ));
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
       },
     );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 根据文件扩展名获取对应的图标
+  /// @date: 2025-09-08
+  String _getDocIcon(String ext) {
+    switch (ext.toLowerCase()) {
+      case 'pdf':
+        return 'lib/assets/images/icon_pdf.png';
+      case 'txt':
+        return 'lib/assets/images/icon_txt.png';
+      case 'doc':
+      case 'docx':
+        return 'lib/assets/images/icon_doc.png';
+      case 'xls':
+      case 'xlsx':
+        return 'lib/assets/images/icon_excel.png';
+      case 'ppt':
+      case 'pptx':
+        return 'lib/assets/images/icon_ppt.png';
+      default:
+        return 'lib/assets/images/icon_file.png';
+    }
   }
 }

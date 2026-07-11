@@ -17,7 +17,6 @@ const servicePath = {
   'deleteDoc': "/service/chat/deleteDoc/",// 查询我的文档
   'getDirectoryList':"/service/chat/getDirectoryList",// 按照租户查询文档目录列表
   'createDir': "/service/chat/createDir",// 创建目录
-  'getTenantUser':"/service/tenant/getTenantUser",// 获取当前租户信息
   'getTenantList': "/service/tenant/getTenantList",// 获取用户的所有租户
   'getTenantUserList': "/service/tenant/getTenantUserList",// 获取当前租户下的所有租户
   'addAdmin': "/service/tenant/addAdmin",// 给用户添加管理员

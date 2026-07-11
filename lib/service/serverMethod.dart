@@ -196,20 +196,6 @@ Future<ResponseModel<List<dynamic>>> getDirectoryListService(String tenantId) as
 }
 
 ///@author: wuwenqiang
-///@description: 获取当前租户的用户信息
-/// @date: 2025-06-09 19:39
-Future<ResponseModel<dynamic>> getTenantUserService(String tenantId) async {
-  try {
-    Response response =
-    await dio.get(servicePath['getTenantUser']!,queryParameters:{"tenantId":tenantId});
-    return ResponseModel.fromJson(response.data);
-  } catch (e) {
-    print('ERROR:======>${e}');
-    throw Error();
-  }
-}
-
-///@author: wuwenqiang
 ///@description: 获取当前租户的用户列表
 /// @date: 2025-06-09 19:39
 Future<ResponseModel<List<dynamic>>> getTenantUserListService(String tenantId,int pageNum,int pageSize) async {

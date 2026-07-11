@@ -4,7 +4,7 @@ import 'package:flutter_music_app/common/constant.dart';
 import 'package:flutter_music_app/model/TenantUserModel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 import '../model/UserInfoModel.dart';
 import '../provider/ChatProvider.dart';
 import '../service/serverMethod.dart';
@@ -55,8 +55,8 @@ class AddTenantUserDialogState extends State<AddTenantUserDialog> {
 
   void selectItem(int index) {
     if (searchList[index].checked == 0 || searchList[index].checked == null) {
-      addTenantUserService(
-              chatProvider.tenantUser.tenantId, searchList[index].id ?? "")
+       addTenantUserService(
+           chatProvider.currentTenantId, searchList[index].id ?? "")
           .then((res) {
         setState(() {
           searchList[index].checked = 1;

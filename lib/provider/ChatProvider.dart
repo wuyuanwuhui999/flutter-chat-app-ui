@@ -1,15 +1,11 @@
-// lib/provider/ChatProvider.dart
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/model/CompanyModel.dart'; // 新增导入
+import 'package:flutter_music_app/model/CompanyModel.dart';
 import 'package:flutter_music_app/model/DirectoryModel.dart';
-import 'package:flutter_music_app/model/TenantUserModel.dart';
-import '../model/TenantModel.dart';
+import 'package:flutter_music_app/model/TenantModel.dart';
 import '../utils/LocalStorageUtils.dart';
 import '../common/constant.dart';
-import '../service/serverMethod.dart';
 
 class ChatProvider with ChangeNotifier {
   late String _version;
@@ -17,17 +13,14 @@ class ChatProvider with ChangeNotifier {
   final String _platform =
       '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
   List<DirectoryModel> _directoryList = [];
-  TenantUserModel _tenantUser = TenantUserModel(
-    id: "",
-    tenantId: 'personal',
-    tenantName: '私人空间',
-    userId: '',
-    role: 0,
-    disabled: 0,
-    username: '',
-  );
-  
-  // 新增：当前选中的公司对象
+
+  // ✅ 租户列表
+  List<TenantModel> _tenantList = [];
+
+  // ✅ 当前选中的租户
+  TenantModel? _currentTenant;
+
+  // 当前选中的公司对象
   CompanyModel? _currentCompany;
 
   void setVersion(String version) {
@@ -38,10 +31,53 @@ class ChatProvider with ChangeNotifier {
     _device = device;
   }
 
-  void setTenantUser(TenantUserModel tenantUser) {
-    LocalStorageUtils.setTenantId(tenantUser.tenantId);
-    _tenantUser = tenantUser;
-    notifyListeners(); // 更新UI
+  /// @author: wuwenqiang
+  /// @description: 设置租户列表
+  /// @date: 2026-07-11
+  void setTenantList(List<TenantModel> list) {
+    _tenantList = list;
+    notifyListeners();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 设置当前租户并缓存到本地
+  /// @date: 2026-07-11
+  void setCurrentTenant(TenantModel tenant) {
+    _currentTenant = tenant;
+    // 缓存租户ID到本地
+    LocalStorageUtils.setTenantId(tenant.id);
+    notifyListeners();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 根据租户ID查找租户
+  /// @date: 2026-07-11
+  TenantModel? getTenantById(String tenantId) {
+    try {
+      return _tenantList.firstWhere((t) => t.id == tenantId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 获取用户在指定租户中的角色
+  /// @date: 2026-07-11
+  int getRoleInTenant(String tenantId) {
+    final tenant = getTenantById(tenantId);
+    return tenant?.role ?? 0;
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 切换租户
+  /// @date: 2026-07-11
+  void switchTenant(String tenantId) {
+    final tenant = getTenantById(tenantId);
+    if (tenant != null) {
+      _currentTenant = tenant;
+      LocalStorageUtils.setTenantId(tenantId);
+      notifyListeners();
+    }
   }
 
   // 添加目录的方法
@@ -68,19 +104,25 @@ class ChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Getters
+  // ✅ Getters
   get version => _version;
   get device => _device;
-  get tenantUser => _tenantUser;
+
+  // ✅ 租户相关 getters
+  List<TenantModel> get tenantList => _tenantList;
+  TenantModel? get currentTenant => _currentTenant;
+  String get currentTenantId => _currentTenant?.id ?? '';
+  String get currentTenantName => _currentTenant?.name ?? '默认空间';
+  int get currentTenantRole => _currentTenant?.role ?? 0;
+  bool get isCurrentTenantAdmin => _currentTenant?.isAdmin ?? false;
+  bool get isCurrentTenantOwner => _currentTenant?.isOwner ?? false;
+  bool get hasCurrentTenant => _currentTenant != null;
+
   get directoryList => _directoryList;
-  
-  // 新增Getter
+
+  // 公司相关 getters
   CompanyModel? get currentCompany => _currentCompany;
   String get currentCompanyId => _currentCompany?.id ?? '';
-  
-  /// 获取当前公司角色（返回字符串）
   String get currentCompanyRole => _currentCompany?.role?.toString() ?? '';
-  
-  /// 获取当前公司角色（返回整型）
   int get currentCompanyRoleInt => _currentCompany?.role ?? 0;
 }
