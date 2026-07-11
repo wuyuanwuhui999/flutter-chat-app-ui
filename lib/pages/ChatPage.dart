@@ -350,12 +350,13 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  useTabModel() {
+  void useTabModel() {
     BottomSelectionDialog.show(
       context: context,
       options: modelList.map((item) {
         return item.modelName;
       }).toList(),
+      selectedOption: activeModelName, // ✅ 传入当前选中的模型名称
       onTap: (String selectedOption, int index) {
         setState(() {
           activeModelName = selectedOption;
@@ -797,38 +798,6 @@ class ChatPageState extends State<ChatPage> {
                           height: ThemeSize.smallIcon),)
                       ,
                     ],
-                  )),
-              const SizedBox(width: ThemeSize.middleGap),
-              OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      type = type == "db" ? "" : "db";
-                    });
-                  },
-
-                  ///圆角
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: ThemeColors.white,
-                    // 背景色（可选）
-                    foregroundColor: ThemeColors.white,
-                    // 文字颜色
-                    side: BorderSide(
-                        color: type == "db"
-                            ? ThemeColors.primary
-                            : ThemeColors.subTitle),
-                    // 设置边框颜色（这里是黑色）
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(ThemeSize.bigRadius), // 圆角
-                    ),
-                  ),
-                  child: Text(
-                    '查询数据库',
-                    style: TextStyle(
-                        fontSize: ThemeSize.middleFont,
-                        color: type == "db"
-                            ? ThemeColors.primary
-                            : ThemeColors.subTitle),
                   )),
               SizedBox(width: ThemeSize.middleGap),
               OutlinedButton(
