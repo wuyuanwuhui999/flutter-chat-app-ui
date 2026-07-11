@@ -38,7 +38,6 @@ class TenantManagePageState extends State<TenantManagePage> {
   @override
   void initState() {
     super.initState();
-    // 延迟执行，确保 provider 已初始化
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getTenantUserList();
     });
@@ -66,7 +65,6 @@ class TenantManagePageState extends State<TenantManagePage> {
       if (mounted) {
         setState(() {
           total = res.total!;
-          // 如果是第一页，清空列表；否则追加
           if (pageNum == 1) {
             tenantUserList.clear();
           }
@@ -90,7 +88,7 @@ class TenantManagePageState extends State<TenantManagePage> {
   }
 
   /// @author: wuwenqiang
-  /// @description: 搜索用户（支持关键词搜索）
+  /// @description: 搜索用户
   /// @date: 2025-09-11
   void onSearchUser() {
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
@@ -106,7 +104,6 @@ class TenantManagePageState extends State<TenantManagePage> {
       return;
     }
 
-    // 重置页码为第一页
     pageNum = 1;
     tenantUserList.clear();
     getTenantUserList();
@@ -285,7 +282,6 @@ class TenantManagePageState extends State<TenantManagePage> {
           height: double.infinity,
           child: Column(
             children: <Widget>[
-              // 标题栏显示当前租户名称
               NavigatorTitleComponent(
                 title: tenantName,
                 icon: GestureDetector(
@@ -297,9 +293,9 @@ class TenantManagePageState extends State<TenantManagePage> {
                   ),
                 ),
               ),
-              // ✅ 搜索框 - 胶囊形白色背景，无卡片包裹
+              // 搜索框
               _buildSearchBar(),
-              // 用户列表 - 距离搜索框间距为 middleGap
+              // 用户列表
               Expanded(
                 flex: 1,
                 child: tenantUserList.isEmpty
@@ -370,13 +366,14 @@ class TenantManagePageState extends State<TenantManagePage> {
             child: TextField(
               controller: searchController,
               cursorColor: ThemeColors.gray,
+              // ✅ 设置文本垂直居中
+              textAlignVertical: TextAlignVertical.center,
               onChanged: (String value) {
                 setState(() {
                   keyword = value;
                 });
               },
               onSubmitted: (String value) {
-                // 回车触发搜索
                 if (value.isNotEmpty) {
                   onSearchUser();
                 }
@@ -387,9 +384,10 @@ class TenantManagePageState extends State<TenantManagePage> {
                   fontSize: ThemeSize.smallFont,
                   color: ThemeColors.gray,
                 ),
-                contentPadding: const EdgeInsets.only(
-                  left: ThemeSize.middleGap,
-                  right: ThemeSize.smallMargin,
+                // ✅ 调整 contentPadding，使文字垂直居中
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: ThemeSize.middleGap,
                 ),
                 border: InputBorder.none,
               ),
@@ -483,18 +481,15 @@ class TenantManagePageState extends State<TenantManagePage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // 头像
                         AvaterComponent(
                           size: ThemeSize.smallAvater,
                           avater: user.avatar ?? "",
                         ),
                         const SizedBox(width: ThemeSize.middleGap),
-                        // 用户信息
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 姓名行：姓名 + 管理员标签（在姓名右边）
                               Row(
                                 children: [
                                   Text(
@@ -505,7 +500,6 @@ class TenantManagePageState extends State<TenantManagePage> {
                                     ),
                                   ),
                                   const SizedBox(width: ThemeSize.miniMargin),
-                                  // 管理员标签（role:1 管理员，role:2 超级管理员）
                                   if (isOwner)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -549,7 +543,6 @@ class TenantManagePageState extends State<TenantManagePage> {
                                 ],
                               ),
                               const SizedBox(height: ThemeSize.miniMargin),
-                              // ✅ 显示 userAccount（工号）
                               Text(
                                 user.userAccount,
                                 style: const TextStyle(
