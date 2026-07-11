@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../common/constant.dart';
 import '../component/CustomDialogComponent.dart';
-import '../component/SelectDialogComponent.dart';
+import '../component/BottomSelectionDialog.dart';
 import '../model/TenantModel.dart';
 import '../provider/UserInfoProvider.dart';
 import '../router/index.dart';

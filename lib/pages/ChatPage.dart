@@ -16,7 +16,7 @@ import '../model/TenantModel.dart';
 import '../component/CustomDialogComponent.dart';
 import '../component/DialogComponent.dart';
 import '../component/DocumentListComponent.dart';
-import '../component/SelectDialogComponent.dart';
+import '../component/BottomSelectionDialog.dart';
 import '../component/TriangleComponent.dart';
 import '../component/UploadDirectoryComponent.dart';
 import '../enum/ConnectionStatus.dart';

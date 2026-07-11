@@ -1,5 +1,3 @@
-// lib/component/SelectDialogComponent.dart
-
 import 'package:flutter/material.dart';
 import '../theme/ThemeSize.dart';
 import '../theme/ThemeColors.dart';
