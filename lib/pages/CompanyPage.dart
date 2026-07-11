@@ -73,10 +73,7 @@ class CompanyPageState extends State<CompanyPage> {
           _isLoading = false;
         });
 
-        // 5. 如果找到了匹配的公司，自动选中并跳转
-        if (foundCompanyId.isNotEmpty) {
-          _selectCompanyAndProceed(foundCompanyId);
-        }
+        // 注意：不再自动跳转，让用户手动选择公司
       } else {
         setState(() {
           _isLoading = false;
@@ -151,12 +148,12 @@ class CompanyPageState extends State<CompanyPage> {
             // 内容区域
             Expanded(
               flex: 1,
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _companyList.isEmpty
-                      ? _buildEmptyView()
-                      : _buildCompanyList(),
-            ),
+              child:
+               Container(child:_isLoading
+                 ? const Center(child: CircularProgressIndicator())
+                 : _companyList.isEmpty
+                     ? _buildEmptyView()
+                     : _buildCompanyList())),
             // 底部确定按钮
             _buildConfirmButton(),
           ],

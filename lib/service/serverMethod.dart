@@ -104,16 +104,26 @@ Future<ResponseModel<dynamic>> loginByEmailService(String email,String code) asy
 ///@author: wuwenqiang
 ///@description: 获取模型列表
 /// @date: 2025-06-08 20:21
-Future<ResponseModel<List<dynamic>>> getModelListService() async {
+/// @param companyId: 公司ID，用于获取对应公司的模型列表
+Future<ResponseModel<List<dynamic>>> getModelListService({String companyId = ''}) async {
   try {
-    Response response =
-    await dio.get(servicePath['getModelList']!,);
+    // 构建查询参数
+    final Map<String, dynamic> queryParams = {};
+    if (companyId.isNotEmpty) {
+      queryParams['companyId'] = companyId;
+    }
+
+    Response response = await dio.get(
+      servicePath['getModelList']!,
+      queryParameters: queryParams,
+    );
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
     throw Error();
   }
 }
+
 
 ///@author: wuwenqiang
 ///@description: 获取历史对话

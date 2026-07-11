@@ -89,17 +89,21 @@ class ChatPageState extends State<ChatPage> {
       token = res;
     });
 
-    getModelListService().then((res) {
+    // 获取当前公司ID
+    final companyId = chatProvider.currentCompanyId;
+
+    getModelListService(companyId: companyId).then((res) {
       final models = res.data.map((item) => AiModel.fromJson(item)).toList();
       setState(() {
         modelList = models;
-        activeModelName = models.first.modelName; // 确保首次赋值
+        activeModelName = models.isNotEmpty ? models.first.modelName : ''; // 确保首次赋值
       });
     });
     userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     getStorageTenant();
     super.initState();
   }
+
 
   ///@author: wuwenqiang
   ///@description: 获取缓存的租户
