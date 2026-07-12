@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_music_app/model/TenantModel.dart';
-import 'package:flutter_music_app/provider/ChatProvider.dart';
+import 'package:flutter_chat_app/model/TenantModel.dart';
+import 'package:flutter_chat_app/provider/ChatProvider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
 import '../common/config.dart';

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:flutter_music_app/model/DirectoryModel.dart';
+import 'package:flutter_chat_app/model/DirectoryModel.dart';
 import '../common/config.dart';
 import '../model/FavoriteDirectoryModel.dart';
 import '../api/api.dart';

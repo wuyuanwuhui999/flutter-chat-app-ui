@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/theme/ThemeSize.dart';
+import 'package:flutter_chat_app/theme/ThemeSize.dart';
 
 class DialogComponent extends StatelessWidget {
   final String title;

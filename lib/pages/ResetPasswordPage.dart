@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/model/UserInfoModel.dart';
+import 'package:flutter_chat_app/model/UserInfoModel.dart';
 import 'package:provider/provider.dart';
 import '../provider/UserInfoProvider.dart';
 import '../router/index.dart';

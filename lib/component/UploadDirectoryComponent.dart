@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/provider/ChatProvider.dart';
-import 'package:flutter_music_app/theme/ThemeColors.dart';
-import 'package:flutter_music_app/theme/ThemeStyle.dart';
+import 'package:flutter_chat_app/provider/ChatProvider.dart';
+import 'package:flutter_chat_app/theme/ThemeColors.dart';
+import 'package:flutter_chat_app/theme/ThemeStyle.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../common/constant.dart';

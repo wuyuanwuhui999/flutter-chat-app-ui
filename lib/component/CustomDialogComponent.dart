@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/theme/ThemeColors.dart';
+import 'package:flutter_chat_app/theme/ThemeColors.dart';
 
 enum Action {
   Ok,

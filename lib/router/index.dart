@@ -52,8 +52,7 @@ class Routes {
     }));
     router.define('/AddTenantUserPage', handler: Handler(
         handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-          final tenantId = params['tenantId']?.first ?? '';
-          return AddTenantUserPage(tenantId: tenantId);
+          return const AddTenantUserPage();
         }
     ));
   }

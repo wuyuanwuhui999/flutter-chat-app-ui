@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_music_app/model/CompanyModel.dart';
-import 'package:flutter_music_app/model/DirectoryModel.dart';
-import 'package:flutter_music_app/model/TenantModel.dart';
+import 'package:flutter_chat_app/model/CompanyModel.dart';
+import 'package:flutter_chat_app/model/DirectoryModel.dart';
+import 'package:flutter_chat_app/model/TenantModel.dart';
 import '../utils/LocalStorageUtils.dart';
 import '../common/constant.dart';
 

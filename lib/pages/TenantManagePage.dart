@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:flutter_music_app/component/AvaterComponent.dart';
-import 'package:flutter_music_app/model/TenantUserModel.dart';
-import 'package:flutter_music_app/provider/ChatProvider.dart';
+import 'package:flutter_chat_app/component/AvaterComponent.dart';
+import 'package:flutter_chat_app/model/TenantUserModel.dart';
+import 'package:flutter_chat_app/provider/ChatProvider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
@@ -251,10 +251,9 @@ class TenantManagePageState extends State<TenantManagePage> {
       return;
     }
 
-    // ✅ 跳转到 AddTenantUserPage，传递 tenantId
     Routes.router.navigateTo(
       context,
-      '/AddTenantUserPage?tenantId=$tenantId',
+      '/AddTenantUserPage',
       replace: false,
     );
   }
