@@ -12,12 +12,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../common/constant.dart';
-import '../component/AddTenantUserComponent.dart';
 import '../theme/ThemeColors.dart';
 import '../theme/ThemeSize.dart';
 import '../theme/ThemeStyle.dart';
 import '../service/serverMethod.dart';
 import '../component/NavigatorTitleComponent.dart';
+import '../router/index.dart';
 
 class TenantManagePage extends StatefulWidget {
   const TenantManagePage({super.key});
@@ -235,7 +235,7 @@ class TenantManagePageState extends State<TenantManagePage> {
   }
 
   /// @author: wuwenqiang
-  /// @description: 添加租户用户弹窗
+  /// @description: 跳转到添加租户用户页面
   /// @date: 2025-09-11 22:08
   void onAddTenantUser() {
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
@@ -251,20 +251,11 @@ class TenantManagePageState extends State<TenantManagePage> {
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AddTenantUserDialog(
-          tenantId: tenantId,
-          onUserSelected: (TenantUserModel selectedUser) {
-            if (mounted) {
-              setState(() {
-                tenantUserList.add(selectedUser);
-              });
-            }
-          },
-        );
-      },
+    // ✅ 跳转到 AddTenantUserPage，传递 tenantId
+    Routes.router.navigateTo(
+      context,
+      '/AddTenantUserPage?tenantId=$tenantId',
+      replace: false,
     );
   }
 
@@ -368,28 +359,22 @@ class TenantManagePageState extends State<TenantManagePage> {
               cursorColor: ThemeColors.gray,
               // ✅ 设置文本垂直居中
               textAlignVertical: TextAlignVertical.center,
-              onChanged: (String value) {
-                setState(() {
-                  keyword = value;
-                });
-              },
-              onSubmitted: (String value) {
-                if (value.isNotEmpty) {
-                  onSearchUser();
-                }
-              },
+              // ✅ 修复：使用 EdgeInsets.zero 并配合 textAlignVertical 实现居中
               decoration: InputDecoration(
                 hintText: "请输入工号/姓名/邮箱/电话",
                 hintStyle: const TextStyle(
                   fontSize: ThemeSize.smallFont,
                   color: ThemeColors.gray,
                 ),
-                // ✅ 调整 contentPadding，使文字垂直居中
+                // ✅ 关键修复：将 contentPadding 的垂直方向设为 0
+                // 配合 textAlignVertical: TextAlignVertical.center 实现完美居中
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 0,
                   horizontal: ThemeSize.middleGap,
                 ),
                 border: InputBorder.none,
+                // ✅ 移除内部默认间距
+                isDense: true,
               ),
             ),
           ),

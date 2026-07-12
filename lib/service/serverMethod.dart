@@ -232,7 +232,7 @@ Future<ResponseModel<List<dynamic>>> getTenantUserListService(
 Future<ResponseModel<int>> addAdminService(String tenantId,String userId) async {
   try {
     Response response =
-    await dio.put("${servicePath['addAdmin']}/${tenantId}/${userId}");
+    await dio.post("${servicePath['addAdmin']}/${tenantId}/${userId}");
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
@@ -247,20 +247,6 @@ Future<ResponseModel<int>> cancelAdminService(String tenantId,String userId) asy
   try {
     Response response =
     await dio.put("${servicePath['cancelAdmin']}/${tenantId}/${userId}");
-    return ResponseModel.fromJson(response.data);
-  } catch (e) {
-    print('ERROR:======>${e}');
-    throw Error();
-  }
-}
-
-///@author: wuwenqiang
-///@description: 取消租户为管理员
-/// @date: 2025-09-12 09:36
-Future<ResponseModel<List<dynamic>>> searchUsersService(String tenantId,String keyword,int pageNum,int pageSize) async {
-  try {
-    Response response =
-    await dio.get(servicePath['searchUsers']!,queryParameters: {"tenantId":tenantId,"keyword":keyword,"pageNum":pageNum,"pageSize":pageSize});
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');
@@ -318,5 +304,42 @@ Future<ResponseModel<List<dynamic>>> getCompanyListService() async {
   } catch (e) {
     print('ERROR: 获取公司列表失败: $e');
     throw Exception('获取公司列表失败: $e');
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 搜索用户（用于添加租户用户）
+/// @date: 2026-07-12
+/// @param tenantId: 租户ID
+/// @param companyId: 公司ID
+/// @param keyword: 搜索关键词
+/// @param pageNum: 页码
+/// @param pageSize: 每页数量
+Future<ResponseModel<List<dynamic>>> searchTenantUsersService(
+  String tenantId,
+  String companyId,
+  String keyword,
+  int pageNum,
+  int pageSize,
+) async {
+  try {
+    final Map<String, dynamic> queryParams = {
+      "tenantId": tenantId,
+      "companyId": companyId,
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+    };
+    if (keyword.isNotEmpty) {
+      queryParams["keyword"] = keyword;
+    }
+
+    final response = await dio.get(
+      servicePath['searchTenantUsers']!,
+      queryParameters: queryParams,
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: searchTenantUsers: $e');
+    throw Exception('搜索用户失败: $e');
   }
 }

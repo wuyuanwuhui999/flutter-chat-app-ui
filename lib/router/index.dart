@@ -1,5 +1,3 @@
-// lib/router/index.dart
-
 import 'dart:convert';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +11,7 @@ import '../pages/TenantManagePage.dart';
 import '../pages/UpdatePasswordPage.dart';
 import '../pages/UserPage.dart';
 import '../pages/RegisterPage.dart';
+import '../pages/AddTenantUserPage.dart';
 
 class Routes {
   static final FluroRouter router = FluroRouter();
@@ -51,5 +50,11 @@ class Routes {
     router.define('/CompanyPage', handler: Handler(handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
       return const CompanyPage();
     }));
+    router.define('/AddTenantUserPage', handler: Handler(
+        handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+          final tenantId = params['tenantId']?.first ?? '';
+          return AddTenantUserPage(tenantId: tenantId);
+        }
+    ));
   }
 }
