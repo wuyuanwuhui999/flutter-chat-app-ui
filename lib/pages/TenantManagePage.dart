@@ -1,3 +1,5 @@
+// lib/pages/TenantManagePage.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
@@ -550,7 +552,6 @@ class TenantManagePageState extends State<TenantManagePage> {
           final isOwner = user.role == 2;
           final isAdmin = user.role == 1;
           final currentUserId = userInfoProvider.userInfo?.id ?? '';
-          final isCurrentUser = user.userId == currentUserId;
 
           // 判断是否显示删除按钮
           final showDelete = _shouldShowDeleteButton() && !isOwner;
@@ -565,13 +566,13 @@ class TenantManagePageState extends State<TenantManagePage> {
           }
 
           // 构建滑动操作按钮列表
-          final List<SlidableAction> actions = [];
+          final List<Widget> actionWidgets = [];
 
           // 添加管理员操作按钮（如果显示）
           if (showAdminAction) {
-            actions.add(
-              SlidableAction(
-                onPressed: (context) {
+            actionWidgets.add(
+              _buildCustomSlidableAction(
+                onPressed: () {
                   if (isAdmin) {
                     onCancelAdmin(index);
                   } else {
@@ -579,7 +580,6 @@ class TenantManagePageState extends State<TenantManagePage> {
                   }
                 },
                 backgroundColor: ThemeColors.primary,
-                foregroundColor: Colors.white,
                 label: adminActionText,
               ),
             );
@@ -587,20 +587,19 @@ class TenantManagePageState extends State<TenantManagePage> {
 
           // 添加删除按钮（如果显示）
           if (showDelete) {
-            actions.add(
-              SlidableAction(
-                onPressed: (context) {
+            actionWidgets.add(
+              _buildCustomSlidableAction(
+                onPressed: () {
                   onDeleteTenantUser(index);
                 },
                 backgroundColor: ThemeColors.warn,
-                foregroundColor: Colors.white,
                 label: '删除',
               ),
             );
           }
 
           // 如果没有任何操作按钮，不启用 Slidable
-          if (actions.isEmpty) {
+          if (actionWidgets.isEmpty) {
             return Container(
               decoration: BoxDecoration(
                 border: Border(
@@ -634,7 +633,9 @@ class TenantManagePageState extends State<TenantManagePage> {
               key: ValueKey(user.userId),
               endActionPane: ActionPane(
                 motion: const ScrollMotion(),
-                children: actions,
+                // 使用 extentRatio 让按钮宽度自适应
+                extentRatio: actionWidgets.length * 0.4,
+                children: actionWidgets,
               ),
               child: Container(
                 padding: EdgeInsets.only(
@@ -652,12 +653,42 @@ class TenantManagePageState extends State<TenantManagePage> {
   }
 
   /// @author: wuwenqiang
+  /// @description: 构建自定义滑动操作按钮（使用 CustomSlidableAction 默认填充）
+  /// @date: 2026-07-12
+  Widget _buildCustomSlidableAction({
+    required VoidCallback onPressed,
+    required Color backgroundColor,
+    required String label,
+  }) {
+    return CustomSlidableAction(
+      onPressed: (context) {
+        onPressed();
+      },
+      backgroundColor: backgroundColor,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(
+        horizontal: ThemeSize.smallMargin,
+      ),
+      child: Center(
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: ThemeSize.normalFont,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// @author: wuwenqiang
   /// @description: 构建单个用户条目
   /// @date: 2026-07-12
   Widget _buildUserItem(TenantUserModel user, bool isOwner, bool isAdmin) {
-    final currentUserId = userInfoProvider.userInfo?.id ?? '';
-    final isCurrentUser = user.userId == currentUserId;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -715,27 +746,6 @@ class TenantManagePageState extends State<TenantManagePage> {
                       ),
                       child: const Text(
                         "管理员",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: ThemeSize.smallFont,
-                        ),
-                      ),
-                    ),
-                  // 当前用户标签
-                  if (isCurrentUser)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ThemeSize.miniMargin,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: ThemeColors.gray,
-                        borderRadius: BorderRadius.circular(
-                          ThemeSize.minBtnRadius,
-                        ),
-                      ),
-                      child: const Text(
-                        "我",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: ThemeSize.smallFont,
