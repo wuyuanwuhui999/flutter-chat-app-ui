@@ -1,5 +1,6 @@
 // lib/pages/AddTenantUserPage.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_chat_app/common/constant.dart';
@@ -34,27 +35,81 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
   int pageNum = 1;
   int total = 0;
 
+  /// 防抖定时器
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
+
+    /// 监听输入框变化，自动触发搜索（带防抖）
+    searchController.addListener(_onSearchTextChanged);
   }
 
   @override
   void dispose() {
+    /// 取消防抖定时器
+    _debounceTimer?.cancel();
+    searchController.removeListener(_onSearchTextChanged);
+    searchController.dispose();
     searchUserController.dispose();
     super.dispose();
   }
 
   /// @author: wuwenqiang
-  /// @description: 搜索用户
+  /// @description: 搜索文本变化时触发（带防抖，500ms）
   /// @date: 2026-07-12
-  void onSearchUser() {
-    // ✅ 从 ChatProvider 获取当前租户ID和公司ID
+  void _onSearchTextChanged() {
+    final value = searchController.text;
+    setState(() {
+      inputValue = value;
+    });
+
+    /// 取消之前的定时器
+    _debounceTimer?.cancel();
+
+    /// 如果输入为空，清空列表并重置状态
+    if (value.trim().isEmpty) {
+      setState(() {
+        searchList.clear();
+        pageNum = 1;
+        total = 0;
+      });
+      return;
+    }
+
+    /// 设置防抖定时器，500ms 后执行搜索
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _performSearch();
+    });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 执行搜索
+  /// @date: 2026-07-12
+  void _performSearch() {
+    final keyword = searchController.text.trim();
+    if (keyword.isEmpty) {
+      return;
+    }
+
+    /// 重置列表和页码，重新搜索
+    setState(() {
+      searchList.clear();
+      pageNum = 1;
+    });
+    _fetchSearchResults(reset: true);
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 获取搜索结果（支持分页）
+  /// @date: 2026-07-12
+  void _fetchSearchResults({bool reset = false}) {
     final tenantId = chatProvider.currentTenantId;
     final companyId = chatProvider.currentCompanyId;
+    final keyword = searchController.text.trim();
 
-    // 校验租户是否已选择
     if (tenantId.isEmpty) {
       Fluttertoast.showToast(
         msg: "请先选择租户",
@@ -67,19 +122,29 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
       return;
     }
 
+    if (keyword.isEmpty) {
+      return;
+    }
+
     searchTenantUsersService(
       tenantId,
       companyId,
-      searchController.text,
+      keyword,
       pageNum,
       PAGE_SIZE,
     ).then((res) {
       if (!mounted) return;
       setState(() {
-        total = res.total!;
-        res.data.forEach((item) {
-          searchList.add(UserInfoModel.fromJson(item));
-        });
+        total = res.total ?? 0;
+        // 如果是重置（新搜索），直接替换列表
+        if (reset) {
+          searchList = res.data.map((item) => UserInfoModel.fromJson(item)).toList();
+        } else {
+          // 分页加载，追加到列表
+          res.data.forEach((item) {
+            searchList.add(UserInfoModel.fromJson(item));
+          });
+        }
       });
     }).catchError((error) {
       if (!mounted) return;
@@ -92,6 +157,20 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
         fontSize: ThemeSize.middleFont,
       );
     });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 清空搜索内容
+  /// @date: 2026-07-12
+  void _clearSearch() {
+    searchController.clear();
+    setState(() {
+      searchList.clear();
+      inputValue = "";
+      pageNum = 1;
+      total = 0;
+    });
+    _debounceTimer?.cancel();
   }
 
   /// @author: wuwenqiang
@@ -155,21 +234,20 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
             // 搜索框
             _buildSearchBar(),
             // 搜索结果列表
-            Expanded(
-              flex: 1,
-              child: searchList.isEmpty
-                  ? Container(
+            searchList.isEmpty
+            ? Container(
                 margin: ThemeStyle.paddingBox,
                 decoration: ThemeStyle.boxDecoration,
-                padding: ThemeStyle.padding,
-                child: const Center(
+                padding: ThemeStyle.padding * 2,
+                child: Center(
                   child: Text(
-                    "暂无数据",
-                    style: TextStyle(color: ThemeColors.gray),
+                    inputValue.isEmpty ? "请输入关键词搜索" : "暂无数据",
+                    style: const TextStyle(color: ThemeColors.gray),
                   ),
-                ),
-              )
-                  : _buildSearchResultList(),
+                )) :
+            Expanded(
+              flex: 1,
+              child: _buildSearchResultList(),
             ),
           ],
         ),
@@ -191,17 +269,21 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // 搜索图标（左侧）
+          const SizedBox(width: ThemeSize.middleGap),
+          Image.asset(
+            "lib/assets/images/icon_search.png",
+            width: ThemeSize.smallIcon,
+            height: ThemeSize.smallIcon,
+          ),
+          const SizedBox(width: ThemeSize.smallMargin),
+          // 输入框
           Expanded(
             flex: 1,
             child: TextField(
               controller: searchController,
               cursorColor: ThemeColors.gray,
               textAlignVertical: TextAlignVertical.center,
-              onChanged: (value) {
-                setState(() {
-                  inputValue = value;
-                });
-              },
               decoration: InputDecoration(
                 hintText: "请输入工号/姓名/邮箱/电话",
                 hintStyle: const TextStyle(
@@ -210,7 +292,7 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 0,
-                  horizontal: ThemeSize.middleGap,
+                  horizontal: 0,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -220,14 +302,7 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
           // 清空按钮
           if (inputValue.isNotEmpty)
             GestureDetector(
-              onTap: () {
-                searchController.clear();
-                setState(() {
-                  searchList.clear();
-                  inputValue = "";
-                  pageNum = 1;
-                });
-              },
+              onTap: _clearSearch,
               child: Image.asset(
                 "lib/assets/images/icon_clear.png",
                 width: ThemeSize.smallIcon,
@@ -236,21 +311,6 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
             ),
           if (inputValue.isNotEmpty)
             const SizedBox(width: ThemeSize.smallMargin),
-          // 搜索按钮
-          GestureDetector(
-            onTap: () {
-              if (inputValue.isNotEmpty) {
-                searchList.clear();
-                pageNum = 1;
-                onSearchUser();
-              }
-            },
-            child: Image.asset(
-              "lib/assets/images/icon_search.png",
-              width: ThemeSize.smallIcon,
-              height: ThemeSize.smallIcon,
-            ),
-          ),
           const SizedBox(width: ThemeSize.middleGap),
         ],
       ),
@@ -275,7 +335,7 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
       onLoad: () async {
         if (pageNum * PAGE_SIZE < total) {
           pageNum++;
-          onSearchUser();
+          _fetchSearchResults(reset: false);
         } else {
           Fluttertoast.showToast(
             msg: "已经到底了",
@@ -357,9 +417,7 @@ class AddTenantUserPageState extends State<AddTenantUserPage> {
                         vertical: ThemeSize.miniMargin,
                       ),
                       decoration: BoxDecoration(
-                        color: user.checked == 1
-                            ? ThemeColors.gray
-                            : ThemeColors.primary,
+                        color: user.checked == 1 ? ThemeColors.gray : ThemeColors.primary,
                         borderRadius: BorderRadius.circular(
                           ThemeSize.minBtnRadius,
                         ),
