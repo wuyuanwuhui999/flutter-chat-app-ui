@@ -1,3 +1,5 @@
+// lib/pages/ModelManagePage.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/model/AiModel.dart';
 import 'package:flutter_chat_app/provider/ChatProvider.dart';
@@ -7,7 +9,8 @@ import 'package:flutter_chat_app/theme/ThemeSize.dart';
 import 'package:flutter_chat_app/theme/ThemeStyle.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import '../router/index.dart';
+import 'AddModelPage.dart';
+import 'UpdateModelPage.dart';
 
 /// @author: wuwenqiang
 /// @description: 模型管理页面 - 显示当前公司的所有模型列表
@@ -74,12 +77,10 @@ class ModelManagePageState extends State<ModelManagePage> {
   /// @description: 跳转到添加模型页面
   /// @date: 2026-07-25
   void _onAddModel() {
-    Routes.router.navigateTo(
+    Navigator.push(
       context,
-      '/AddModelPage',
-      replace: false,
+      MaterialPageRoute(builder: (context) => const AddModelPage()),
     ).then((_) {
-      // 从添加页面返回时刷新列表
       _loadModelList();
     });
   }
@@ -88,13 +89,13 @@ class ModelManagePageState extends State<ModelManagePage> {
   /// @description: 点击模型条目，跳转到更新模型页面
   /// @date: 2026-07-25
   void _onModelTap(AiModel model) {
-    Routes.router.navigateTo(
+    Navigator.push(
       context,
-      '/UpdateModelPage',
-      replace: false,
-      routeSettings: RouteSettings(arguments: model),
+      MaterialPageRoute(
+        builder: (context) => const UpdateModelPage(),
+        settings: RouteSettings(arguments: model),
+      ),
     ).then((_) {
-      // 从更新页面返回时刷新列表
       _loadModelList();
     });
   }
@@ -138,10 +139,7 @@ class ModelManagePageState extends State<ModelManagePage> {
             // 标题栏
             _buildTitleBar(),
             // 内容区域
-            Expanded(
-              flex: 1,
-              child: _buildContent(),
-            ),
+            _buildContent(),
           ],
         ),
       ),
@@ -254,93 +252,89 @@ class ModelManagePageState extends State<ModelManagePage> {
       );
     }
 
+    // 所有模型放在同一个卡片中
     return Padding(
       padding: const EdgeInsets.all(ThemeSize.middleGap),
-      child: ListView.separated(
-        itemCount: _modelList.length,
-        separatorBuilder: (context, index) => const SizedBox(height: ThemeSize.middleGap),
-        itemBuilder: (context, index) {
-          final model = _modelList[index];
-          return _buildModelCard(model);
-        },
-      ),
-    );
-  }
-
-  /// @author: wuwenqiang
-  /// @description: 构建单个模型卡片
-  /// @date: 2026-07-25
-  Widget _buildModelCard(AiModel model) {
-    return GestureDetector(
-      onTap: () => _onModelTap(model),
       child: Container(
-        padding: const EdgeInsets.all(ThemeSize.middleGap),
         decoration: const BoxDecoration(
           color: ThemeColors.white,
           borderRadius: BorderRadius.all(
             Radius.circular(ThemeSize.middleRadius),
           ),
         ),
+        child: Column(
+          children: _modelList.asMap().entries.map((entry) {
+            final index = entry.key;
+            final model = entry.value;
+            final isLast = index == _modelList.length - 1;
+
+            return Column(
+              children: [
+                // 模型条目
+                _buildModelItem(model),
+                // 灰色横线（最后一个不显示）
+                if (!isLast)
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: ThemeSize.middleGap,
+                    ),
+                    height: 1,
+                    color: ThemeColors.gray,
+                  ),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 构建单个模型条目
+  /// @date: 2026-07-25
+  Widget _buildModelItem(AiModel model) {
+    return GestureDetector(
+      onTap: () => _onModelTap(model),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: ThemeSize.middleGap,
+          vertical: ThemeSize.middleGap,
+        ),
         child: Row(
           children: [
-            // 模型图标（首字母或默认图标）
-            Container(
-              width: ThemeSize.middleIcon,
-              height: ThemeSize.middleIcon,
-              decoration: BoxDecoration(
-                color: _getTypeColor(model.type).withOpacity(0.15),
-                borderRadius: BorderRadius.circular(ThemeSize.minBtnRadius),
-              ),
-              child: Center(
-                child: Text(
-                  model.modelName.isNotEmpty ? model.modelName[0].toUpperCase() : 'M',
-                  style: TextStyle(
-                    color: _getTypeColor(model.type),
-                    fontSize: ThemeSize.middleFont,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: ThemeSize.middleGap),
             // 模型名称
             Expanded(
               flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    model.modelName,
-                    style: const TextStyle(
-                      fontSize: ThemeSize.normalFont,
-                      color: ThemeColors.mainTitle,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: ThemeSize.miniMargin),
-                  // 模型类型标签
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: ThemeSize.smallMargin,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _getTypeColor(model.type).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(ThemeSize.minBtnRadius),
-                    ),
-                    child: Text(
-                      _getTypeText(model.type),
-                      style: TextStyle(
-                        color: _getTypeColor(model.type),
-                        fontSize: ThemeSize.smallFont,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                model.modelName,
+                style: const TextStyle(
+                  fontSize: ThemeSize.normalFont,
+                  color: ThemeColors.mainTitle,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: ThemeSize.middleGap),
+            // 模型类型标签
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: ThemeSize.smallMargin,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: _getTypeColor(model.type).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(ThemeSize.minBtnRadius),
+              ),
+              child: Text(
+                _getTypeText(model.type),
+                style: TextStyle(
+                  color: _getTypeColor(model.type),
+                  fontSize: ThemeSize.smallFont,
+                ),
+              ),
+            ),
+            const SizedBox(width: ThemeSize.smallMargin),
             // 箭头图标
             Image.asset(
               "lib/assets/images/icon_arrow.png",
