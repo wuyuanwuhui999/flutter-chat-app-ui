@@ -7,7 +7,7 @@ import '../api/api.dart';
 import '../utils/HttpUtil.dart';
 import '../utils/LocalStorageUtils.dart';
 import '../utils/crypto.dart';
-
+import '../model/AiModel.dart';
 //获取用户数据
 Future<ResponseModel<dynamic>> getUserDataService() async {
   try {
@@ -463,5 +463,41 @@ Future<ResponseModel<List<dynamic>>> getPositionsService(String departmentId) as
   } catch (e) {
     print('ERROR: getPositions: $e');
     throw Exception('获取职位列表失败: $e');
+  }
+}
+
+// lib/service/serverMethod.dart
+
+// 在文件末尾添加以下方法：
+
+/// @author: wuwenqiang
+/// @description: 更新模型
+/// @date: 2026-07-25
+Future<ResponseModel<int>> updateModelService(AiModel model) async {
+  try {
+    final response = await dio.put(
+      servicePath['updateModel']!,
+      data: model.toUpdateJson(),
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: 更新模型失败: $e');
+    throw Exception('更新模型失败: $e');
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 新增模型
+/// @date: 2026-07-25
+Future<ResponseModel<int>> addModelService(Map<String, dynamic> params) async {
+  try {
+    final response = await dio.post(
+      servicePath['addModel']!,
+      data: params,
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: 新增模型失败: $e');
+    throw Exception('新增模型失败: $e');
   }
 }

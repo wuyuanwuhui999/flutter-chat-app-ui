@@ -35,6 +35,7 @@ import '../theme/ThemeColors.dart';
 import '../common/constant.dart';
 import '../utils/LocalStorageUtils.dart';
 import '../utils/common.dart';
+import '../router/index.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -510,10 +511,22 @@ class ChatPageState extends State<ChatPage> {
                   showHistory = true;
                 });
                 useHistory();
+              } else if (item == "模型管理") {
+                // 跳转到模型管理页面
+                Routes.router.navigateTo(
+                  context,
+                  '/ModelManagePage',
+                  replace: false,
+                );
               }
             },
             itemBuilder: (context) {
-              return <PopupMenuEntry<String>>[
+              // 获取当前用户在公司中的角色
+              final companyRole = chatProvider.currentCompanyRoleInt;
+              // 只有 role > 0 才能看到模型管理菜单
+              final showModelManage = companyRole > 0;
+
+              final menuItems = <PopupMenuEntry<String>>[
                 const PopupMenuItem<String>(
                   value: "上传文档",
                   child: Text(
@@ -538,7 +551,23 @@ class ChatPageState extends State<ChatPage> {
                   ),
                 ),
               ];
-            },
+
+              // 如果用户有权限，在会话记录后面添加模型管理菜单
+              if (showModelManage) {
+                menuItems.addAll([
+                  const PopupMenuDivider(height: 1),
+                  const PopupMenuItem<String>(
+                    value: "模型管理",
+                    child: Text(
+                      "模型管理",
+                      style: TextStyle(color: ThemeColors.gray),
+                    ),
+                  ),
+                ]);
+              }
+
+              return menuItems;
+            }
           )
         ],
       ),

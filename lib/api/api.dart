@@ -31,4 +31,8 @@ const servicePath = {
   'addCompanyUser': '/service/company/addUser', // 添加用户到公司
   'getDepartments': '/service/company/getDepartments', // 获取部门列表
   'getPositions': '/service/company/getPositions', // 获取职位列表
+
+  'updateModel': '/service/chat/updateModel', // 更新模型
+  'addModel': '/service/chat/addModel',       // 新增模型
+
 };

@@ -26,5 +26,5 @@ class ThemeSize {
   static const double titleBarHeight = 50;// 标题栏高度
   static const double radioSize = 24;// 单选框的大小
   static const double normalFont = 16; // 常规字体
-
+static const double inputHeight = 45; // 输入框高度
 }
