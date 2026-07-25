@@ -5,7 +5,8 @@ class CompanyModel {
   final String id;
   final String name;
   final String code;
-  final int role;
+  final int role;  // 用户在该公司的角色：0普通用户，1管理员，2超级管理员
+  final String? positionId; // 职务ID
   final String? description;
   final int status;
   final String createDate;
@@ -18,6 +19,7 @@ class CompanyModel {
     required this.name,
     required this.code,
     required this.role,
+    this.positionId,
     this.description,
     required this.status,
     required this.createDate,
@@ -32,6 +34,7 @@ class CompanyModel {
       name: json['name'] as String? ?? '',
       code: json['code'] as String? ?? '',
       role: json['role'] as int? ?? 0,
+      positionId: json['positionId'] as String?,
       description: json['description'] as String?,
       status: json['status'] as int? ?? 0,
       createDate: json['createDate'] as String? ?? '',
@@ -47,6 +50,7 @@ class CompanyModel {
       'name': name,
       'code': code,
       'role': role,
+      'positionId': positionId,
       'description': description,
       'status': status,
       'createDate': createDate,
@@ -58,6 +62,11 @@ class CompanyModel {
 
   @override
   String toString() {
-    return 'CompanyModel{id: $id, name: $name, code: $code, role: $role, status: $status}';
+    return 'CompanyModel{id: $id, name: $name, code: $code, role: $role, positionId: $positionId, status: $status}';
   }
+
+  // 判断是否为管理员（role > 0）
+  bool get isAdmin => role > 0;
+  // 判断是否为超级管理员
+  bool get isSuperAdmin => role >= 2;
 }

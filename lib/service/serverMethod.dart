@@ -343,3 +343,125 @@ Future<ResponseModel<List<dynamic>>> searchTenantUsersService(
     throw Exception('搜索用户失败: $e');
   }
 }
+
+/// @author: wuwenqiang
+/// @description: 获取公司用户列表
+/// @date: 2026-07-25
+Future<ResponseModel<List<dynamic>>> getCompanyUsersService(
+  String companyId,
+  int pageNum,
+  int pageSize,
+  String keyword,
+) async {
+  try {
+    final Map<String, dynamic> queryParams = {
+      "companyId": companyId,
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+    };
+    if (keyword.isNotEmpty) {
+      queryParams["keyword"] = keyword;
+    }
+
+    final response = await dio.get(
+      servicePath['getCompanyUsers']!,
+      queryParameters: queryParams,
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: getCompanyUsers: $e');
+    throw Exception('获取公司用户列表失败: $e');
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 搜索用户（用于添加用户到公司）
+/// @date: 2026-07-25
+Future<ResponseModel<List<dynamic>>> searchUsersService(
+  String companyId,
+  int pageNum,
+  int pageSize,
+  String keyword,
+) async {
+  try {
+    final Map<String, dynamic> queryParams = {
+      "companyId": companyId,
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+    };
+    if (keyword.isNotEmpty) {
+      queryParams["keyword"] = keyword;
+    }
+
+    final response = await dio.get(
+      servicePath['searchUsers']!,
+      queryParameters: queryParams,
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: searchUsers: $e');
+    throw Exception('搜索用户失败: $e');
+  }
+}
+// lib/service/serverMethod.dart
+// 修改 addCompanyUserService 方法
+
+/// @author: wuwenqiang
+/// @description: 添加用户到公司
+/// @date: 2026-07-25
+Future<ResponseModel<int>> addCompanyUserService(
+  String userId,
+  String companyId,
+  int role,
+  String? positionId,
+) async {
+  final Map<String, dynamic> data = {
+    "userId": userId,
+    "companyId": companyId,
+    "role": role,
+  };
+  if (positionId != null && positionId.isNotEmpty) {
+    data["positionId"] = positionId;
+  }
+
+  try {
+      Response response =
+      await dio.post(servicePath['addCompanyUser']!,data: data);
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      print('ERROR:======>${e}');
+      throw Error();
+    }
+}
+
+/// @author: wuwenqiang
+/// @description: 获取部门列表
+/// @date: 2026-07-25
+Future<ResponseModel<List<dynamic>>> getDepartmentsService(String companyId) async {
+  try {
+    final response = await dio.get(
+      servicePath['getDepartments']!,
+      queryParameters: {"companyId": companyId},
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: getDepartments: $e');
+    throw Exception('获取部门列表失败: $e');
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 获取职位列表
+/// @date: 2026-07-25
+Future<ResponseModel<List<dynamic>>> getPositionsService(String departmentId) async {
+  try {
+    final response = await dio.get(
+      servicePath['getPositions']!,
+      queryParameters: {"departmentId": departmentId},
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: getPositions: $e');
+    throw Exception('获取职位列表失败: $e');
+  }
+}

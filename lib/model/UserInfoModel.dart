@@ -35,6 +35,12 @@ class UserInfoModel {
     this.checked,
   });
 
+  int get roleInt {
+    if (role == null) return 0;
+    return int.tryParse(role!) ?? 0;
+  }
+
+
   /// 安全转换为 int? 的辅助方法
   static int? _toInt(dynamic value) {
     if (value == null) return null;

@@ -1,6 +1,6 @@
 const SUCCESS = "SUCCESS";
 const FAIL = "FAIL";
-const HOST = 'http://192.168.1.102:4000';
+const HOST = 'http://192.168.1.105:4000';
 // const HOST = 'http://254a2y1767.qicp.vip:3000';
 
 const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_KEY';

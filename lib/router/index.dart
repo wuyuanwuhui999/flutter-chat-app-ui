@@ -12,6 +12,8 @@ import '../pages/UpdatePasswordPage.dart';
 import '../pages/UserPage.dart';
 import '../pages/RegisterPage.dart';
 import '../pages/AddTenantUserPage.dart';
+import '../pages/UserManagePage.dart';
+import '../pages/AddUserPage.dart';
 
 class Routes {
   static final FluroRouter router = FluroRouter();
@@ -55,5 +57,16 @@ class Routes {
           return const AddTenantUserPage();
         }
     ));
+    router.define('/UserManagePage', handler: Handler(
+      handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+        return const UserManagePage();
+      }
+    ));
+    router.define('/AddUserPage', handler: Handler(
+      handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+        return const AddUserPage();
+      }
+    ));
+
   }
 }

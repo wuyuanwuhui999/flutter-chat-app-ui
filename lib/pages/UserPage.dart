@@ -445,7 +445,42 @@ class UserPageState extends State<UserPage> {
                       ),
                     ),
 
-                    // ❌ 已移除"切换租户"按钮
+                    // 用户管理按钮（仅管理员可见 - role > 0）
+                    if (chatProvider.currentCompanyRoleInt > 0)
+                      GestureDetector(
+                        onTap: () {
+                          Routes.router.navigateTo(
+                            context,
+                            '/UserManagePage',
+                            replace: false,
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                            top: ThemeSize.middleGap,
+                          ),
+                          decoration: BoxDecoration(
+                            color: ThemeColors.white,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(ThemeSize.superRadius),
+                            ),
+                            border: Border.all(
+                              color: ThemeColors.gray,
+                            ),
+                          ),
+                          width: double.infinity,
+                          height: ThemeSize.btnHeight,
+                          child: const Center(
+                            child: Text(
+                              "用户管理",
+                              style: TextStyle(
+                                color: ThemeColors.mainTitle,
+                                fontSize: ThemeSize.normalFont,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
 
                     // 租户管理按钮（仅管理员可见）
                     if (isAdmin)

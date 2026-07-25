@@ -25,4 +25,10 @@ const servicePath = {
   'deleteTenantUser': "/service/tenant/deleteTenantUser",// 删除租户用户
   'getCompanyList': "/service/company/getCompanyList", // 获取公司列表
   'searchTenantUsers': "/service/tenant/searchTenantUsers",  // 搜索用户
+
+  'getCompanyUsers': '/service/company/getCompanyUsers', // 获取公司用户列表
+  'searchUsers': '/service/company/searchUsers', // 搜索用户（用于添加用户）
+  'addCompanyUser': '/service/company/addUser', // 添加用户到公司
+  'getDepartments': '/service/company/getDepartments', // 获取部门列表
+  'getPositions': '/service/company/getPositions', // 获取职位列表
 };
