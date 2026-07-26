@@ -128,10 +128,24 @@ Future<ResponseModel<List<dynamic>>> getModelListService({String companyId = ''}
 ///@author: wuwenqiang
 ///@description: 获取历史对话
 /// @date: 2025-06-09 19:39
-Future<ResponseModel<List<dynamic>>> getChatHistoryService(int pageNum,int pageSize) async {
+/// @author: wuwenqiang
+/// @description: 获取历史对话
+/// @date: 2025-06-09 19:39
+Future<ResponseModel<List<dynamic>>> getChatHistoryService(
+  int pageNum,
+  int pageSize,
+  String tenantId,
+) async {
   try {
-    Response response =
-    await dio.get(servicePath['getChatHistory']!,queryParameters:{"pageNum":pageNum,"pageSize":pageSize});
+    final Map<String, dynamic> queryParams = {
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+      "tenantId": tenantId,
+    };
+    Response response = await dio.get(
+      servicePath['getChatHistory']!,
+      queryParameters: queryParams,
+    );
     return ResponseModel.fromJson(response.data);
   } catch (e) {
     print('ERROR:======>${e}');

@@ -134,8 +134,27 @@ class ChatPageState extends State<ChatPage> {
     super.dispose(); // 最后调用父类dispose
   }
 
-  useHistory() {
-    getChatHistoryService(pageNum, PAGE_SIZE).then((res) {
+  /// @author: wuwenqiang
+  /// @description: 获取历史对话记录
+  /// @date: 2026-07-26
+  void useHistory() {
+    final tenantId = chatProvider.currentTenantId;
+
+    if (tenantId.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "请先选择租户",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: ThemeSize.middleFont,
+      );
+      return;
+    }
+
+    getChatHistoryService(pageNum, PAGE_SIZE, tenantId).then((res) {
+      if (!mounted) return;
+
       List<dynamic> items =
           res.data.map((item) => ChatHistoryModel.fromJson(item)).toList();
 
@@ -161,23 +180,20 @@ class ChatPageState extends State<ChatPage> {
         }
       }
 
-      // 转换为最终分组结构
-      final groups = mTimeAgoGroupMap.entries
-          .map((entry) => ChatHistoryGroupModel(
-                timeAgo: entry.key,
-                list: entry.value,
-              ))
-          .toList();
-
-      // 按时间倒序排序
-      groups.sort((a, b) {
-        // 这里简化排序逻辑，实际应根据时间值排序
-        return b.timeAgo.compareTo(a.timeAgo);
-      });
       setState(() {
         total = res.total!;
         timeAgoGroupMap = mTimeAgoGroupMap;
       });
+    }).catchError((error) {
+      debugPrint('获取历史记录失败: $error');
+      Fluttertoast.showToast(
+        msg: "获取历史记录失败",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: ThemeSize.middleFont,
+      );
     });
   }
 
@@ -507,10 +523,7 @@ class ChatPageState extends State<ChatPage> {
               } else if (item == "我的文档") {
                 onShowDocList();
               } else if (item == "会话记录") {
-                setState(() {
-                  showHistory = true;
-                });
-                useHistory();
+                showHistoryDialog();
               } else if (item == "模型管理") {
                 // 跳转到模型管理页面
                 Routes.router.navigateTo(
@@ -1133,122 +1146,201 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  // 历史记录弹窗
-  Widget buildHistoryWidget() {
-    return showHistory
-        ? Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            right: 0,
-            child: SizedBox(
-                width: MediaQuery.of(context).size.width, // 使用实际屏幕宽度
-                height: MediaQuery.of(context).size.height,
-                child: Row(children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: EasyRefresh(
-                        controller: historyEasyRefreshController,
-                        footer: ClassicalFooter(
-                          loadText: '上拉加载',
-                          loadReadyText: '准备加载',
-                          loadingText: '加载中...',
-                          loadedText: '加载完成',
-                          noMoreText: '没有更多',
-                          bgColor: Colors.transparent,
-                          textColor: ThemeColors.gray,
-                        ),
-                        onLoad: () async {
-                          pageNum++;
-                          if (total <= pageNum * PAGE_SIZE) {
-                            Fluttertoast.showToast(
-                                msg: "已经到底了",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.blue,
-                                textColor: Colors.white,
-                                fontSize: ThemeSize.middleFont);
-                          } else {}
-                        },
-                        child: Container(
-                            padding: ThemeStyle.padding,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: timeAgoGroupMap.entries
-                                  .toList()
-                                  .asMap()
-                                  .entries
-                                  .map((indexedEntry) {
-                                final index = indexedEntry.key;
-                                final item = indexedEntry.value;
-                                final isLast =
-                                    index == timeAgoGroupMap.entries.length - 1;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.key,
-                                      style: const TextStyle(
-                                          color: ThemeColors.gray),
-                                    ),
-                                    ...item.value.map((bItem) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            chatList.clear();
-                                            chatId = bItem.first.chatId;
-                                            showHistory = false;
-                                            for (var cItem in bItem) {
-                                              chatList
-                                                ..add(ChatModel(
-                                                    position:
-                                                        PositionEnum.right,
-                                                    responseContent:
-                                                        cItem.prompt))
-                                                ..add(ChatModel(
-                                                    position: PositionEnum.left,
-                                                    thinkContent:
-                                                        cItem.thinkContent,
-                                                    responseContent:
-                                                        cItem.responseContent));
-                                            }
-                                          });
-                                        },
-                                        child: Text(bItem.first.prompt),
-                                      );
-                                    }),
-                                    SizedBox(
-                                        height: isLast
-                                            ? 0
-                                            : ThemeSize.middleGap)
-                                  ],
-                                );
-                              }).toList(),
-                            ))),
+  /// @author: wuwenqiang
+  /// @description: 显示历史会话记录弹窗
+  /// @date: 2026-07-26
+  void showHistoryDialog() {
+    // 先加载历史数据
+    useHistory();
+
+    // 显示弹窗
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogComponent(
+          title: "会话记录",
+          showDivider: true,
+          content: _buildHistoryContent(),
+        );
+      },
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 构建历史记录内容（用于 DialogComponent）
+  /// @date: 2026-07-26
+  Widget _buildHistoryContent() {
+    if (timeAgoGroupMap.isEmpty) {
+      return const Center(
+        child: Text(
+          '暂无会话记录',
+          style: TextStyle(
+            color: ThemeColors.gray,
+            fontSize: ThemeSize.normalFont,
+          ),
+        ),
+      );
+    }
+
+    return EasyRefresh(
+      controller: historyEasyRefreshController,
+      footer: ClassicalFooter(
+        loadText: '上拉加载',
+        loadReadyText: '准备加载',
+        loadingText: '加载中...',
+        loadedText: '加载完成',
+        noMoreText: '没有更多',
+        bgColor: Colors.transparent,
+        textColor: ThemeColors.gray,
+      ),
+      onLoad: () async {
+        if (pageNum * PAGE_SIZE < total) {
+          pageNum++;
+          final tenantId = chatProvider.currentTenantId;
+          if (tenantId.isNotEmpty) {
+            getChatHistoryService(pageNum, PAGE_SIZE, tenantId)
+                .then((res) {
+              if (!mounted) return;
+
+              List<dynamic> items =
+                  res.data.map((item) => ChatHistoryModel.fromJson(item)).toList();
+
+              // 按chatId分组
+              final chatIdGroup = <String, List<ChatHistoryModel>>{};
+              for (var item in items) {
+                chatIdGroup.putIfAbsent(item.chatId, () => []);
+                chatIdGroup[item.chatId]!.add(item);
+              }
+
+              for (var key in chatIdGroup.keys) {
+                chatIdGroup[key] = chatIdGroup[key]!.reversed.toList();
+              }
+
+              final mTimeAgoGroupMap = <String, List<List<ChatHistoryModel>>>{};
+              for (var chatIdList in chatIdGroup.values) {
+                if (chatIdList.isNotEmpty) {
+                  final timeAgo = chatIdList.first.timeAgo ?? "";
+                  mTimeAgoGroupMap.putIfAbsent(timeAgo, () => []);
+                  mTimeAgoGroupMap[timeAgo]!.add(chatIdList);
+                }
+              }
+
+              setState(() {
+                total = res.total!;
+                timeAgoGroupMap = mTimeAgoGroupMap;
+              });
+            }).catchError((error) {
+              debugPrint('加载更多历史记录失败: $error');
+            });
+          }
+        } else {
+          Fluttertoast.showToast(
+            msg: "已经到底了",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.blue,
+            textColor: Colors.white,
+            fontSize: ThemeSize.middleFont,
+          );
+        }
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(ThemeSize.smallMargin),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: timeAgoGroupMap.entries.toList().asMap().entries.map((indexedEntry) {
+            final index = indexedEntry.key;
+            final item = indexedEntry.value;
+            final isLast = index == timeAgoGroupMap.entries.length - 1;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 时间分组标题
+                Text(
+                  item.key,
+                  style: const TextStyle(
+                    color: ThemeColors.gray,
+                    fontSize: ThemeSize.smallFont,
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          showHistory = false;
-                        });
-                      },
-                      child: Container(
-                        decoration:
-                            BoxDecoration(color: ThemeColors.popupMenu),
-                        height: MediaQuery.of(context).size.height,
+                ),
+                const SizedBox(height: ThemeSize.smallMargin),
+                // 该时间分组下的会话列表
+                ...item.value.map((bItem) {
+                  return GestureDetector(
+                    onTap: () {
+                      // 关闭弹窗
+                      Navigator.of(context).pop();
+                      // 恢复历史对话
+                      setState(() {
+                        chatList.clear();
+                        chatId = bItem.first.chatId;
+                        for (var cItem in bItem) {
+                          chatList
+                            ..add(ChatModel(
+                              position: PositionEnum.right,
+                              responseContent: cItem.prompt,
+                            ))
+                            ..add(ChatModel(
+                              position: PositionEnum.left,
+                              thinkContent: cItem.thinkContent,
+                              responseContent: cItem.responseContent,
+                            ));
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: ThemeSize.smallMargin,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: ThemeColors.gray.withOpacity(0.3),
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              bItem.first.prompt,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: ThemeSize.normalFont,
+                                color: ThemeColors.mainTitle,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: ThemeSize.smallMargin),
+                          Text(
+                            bItem.first.timeAgo,
+                            style: const TextStyle(
+                              fontSize: ThemeSize.smallFont,
+                              color: ThemeColors.subTitle,
+                            ),
+                          ),
+                          const SizedBox(width: ThemeSize.smallMargin),
+                          Image.asset(
+                            "lib/assets/images/icon_arrow.png",
+                            width: ThemeSize.miniIcon,
+                            height: ThemeSize.miniIcon,
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                ])),
-          )
-        : const SizedBox();
+                  );
+                }),
+                SizedBox(height: isLast ? 0 : ThemeSize.middleGap),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 
   onShowDocList() {
@@ -1269,7 +1361,7 @@ class ChatPageState extends State<ChatPage> {
       body: SafeArea(
           top: true,
           child: Stack(
-            children: [buildChatWidget(), buildHistoryWidget()],
+            children: [buildChatWidget()],
           )),
     );
   }
