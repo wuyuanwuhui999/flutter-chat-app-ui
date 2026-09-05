@@ -252,8 +252,6 @@ class CompanyPageState extends State<CompanyPage> {
                 company.name,
                 style: TextStyle(
                   fontSize: ThemeSize.normalFont,
-                  color: isSelected ? ThemeColors.primary : ThemeColors.mainTitle,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

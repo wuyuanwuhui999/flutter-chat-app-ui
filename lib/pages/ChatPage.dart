@@ -82,8 +82,10 @@ class ChatPageState extends State<ChatPage> {
   ScrollController scrollController = ScrollController();
   String language = "zh";
   String directoryId = "";
-  String uploadDirId = "";
-  List<String>docIds = [];
+  List<String> _docIds = [];
+  bool _isDocumentModeActive = false; // 文档查询模式是否激活
+  List<String> _selectedDocNames = []; // 选中的文档名称列表
+  List<String> _tempSelectedDocIds = []; // 弹窗中临时选中的文档ID
 
   @override
   void initState() {
@@ -301,7 +303,7 @@ class ChatPageState extends State<ChatPage> {
       "modelName": activeModelName,
       "token": token, // 替换为实际用户ID
       "chatId": chatId, // 替换为实际聊天ID
-      "docIds": docIds,
+      "docIds": _docIds,
       "prompt": prompt,
       "type": type,
       "showThink": showThink,
@@ -331,23 +333,69 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  ///@author: wuwenqiang
-  ///@description: 文档设置弹窗
+  /// @author: wuwenqiang
+  /// @description: 文档设置弹窗
   /// @date: 2025-09-08 16:23
   Future<void> showDocSettingDialog(BuildContext context) async {
-    showDialog(
+    // 如果是激活状态，将已选中的文档ID传递给弹窗
+    final List<String> initialSelectedIds = _isDocumentModeActive ? List.from(_docIds) : [];
+
+    // 显示弹窗并等待结果
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return DialogComponent(
-            showDivider: false,
-            title: "选择文档",
-            content:
-                DocumentListComponent(onItemSelected: (List<String> checkDocIds) {
-                  docIds = checkDocIds;
-                  print(docIds);
-            }));
+          showDivider: false,
+          title: "选择文档",
+          content: DocumentListComponent(
+            initialSelectedIds: initialSelectedIds,
+            onSelectionChanged: (List<String> selectedIds, List<String> selectedNames) {
+              // 更新临时选中的文档ID和名称
+              _tempSelectedDocIds = selectedIds;
+              _selectedDocNames = selectedNames;
+            },
+            onConfirm: (List<String> selectedIds, List<String> selectedNames) {
+              // 确认选择，关闭弹窗并返回结果
+              Navigator.of(context).pop({
+                'docIds': selectedIds,
+                'docNames': selectedNames,
+              });
+            },
+            onCancel: () {
+              // 取消选择，关闭弹窗并返回null
+              Navigator.of(context).pop(null);
+            },
+          ),
+        );
       },
     );
+
+    // 处理弹窗返回的结果
+    if (result != null && result.containsKey('docIds')) {
+      // 用户点击了确定
+      final List<String> selectedIds = result['docIds'] ?? [];
+      final List<String> selectedNames = result['docNames'] ?? [];
+
+      if (selectedIds.isNotEmpty) {
+        setState(() {
+          _docIds = selectedIds;
+          _selectedDocNames = selectedNames;
+          _isDocumentModeActive = true;
+          // 更新查询文档按钮的类型
+          type = "document";
+        });
+      }
+    } else {
+      // 用户点击了取消或关闭弹窗
+      setState(() {
+        // 清空选择
+        _docIds = [];
+        _selectedDocNames = [];
+        _isDocumentModeActive = false;
+        type = "";
+      });
+    }
   }
 
   ///@author: wuwenqiang
@@ -646,7 +694,7 @@ class ChatPageState extends State<ChatPage> {
           // 重置聊天ID，生成新的会话
           chatId = generateSecureID();
           // 清空文档选择
-          docIds = [];
+          _docIds = [];
           // 重置思考内容和响应内容
           thinkContent = "";
           responseContent = "";
@@ -940,56 +988,64 @@ class ChatPageState extends State<ChatPage> {
                             showThink ? ThemeColors.primary : ThemeColors.subTitle),
                   )),
               const SizedBox(width: ThemeSize.middleGap),
+              // 查询文档按钮 - 替换原 OutlinedButton
               OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      type = type == "document" ? "" : "document";
-                    });
-                  },
-
-                  ///圆角
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: ThemeColors.white,
-                    // 背景色（可选）
-                    foregroundColor: ThemeColors.white,
-                    // 文字颜色
-                    side: BorderSide(
-                        color: type == "document"
-                            ? ThemeColors.primary
-                            : ThemeColors.subTitle),
-                    // 设置边框颜色（这里是黑色）
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(ThemeSize.bigRadius), // 圆角
-                    ),
+                onPressed: () {
+                  // 点击查询文档按钮，弹出选择文档对话框
+                  showDocSettingDialog(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: ThemeColors.white,
+                  foregroundColor: ThemeColors.white,
+                  side: BorderSide(
+                    color: _isDocumentModeActive ? ThemeColors.primary : ThemeColors.subTitle,
                   ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '查询文档',
-                        style: TextStyle(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(ThemeSize.bigRadius),
+                  ),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '查询文档',
+                          style: TextStyle(
                             fontSize: ThemeSize.middleFont,
-                            color: type == "document"
-                                ? ThemeColors.primary
-                                : ThemeColors.subTitle),
+                            color: _isDocumentModeActive ? ThemeColors.primary : ThemeColors.subTitle,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // 角标 - 当激活且有选中文档时显示
+                    if (_isDocumentModeActive && _docIds.isNotEmpty)
+                      Positioned(
+                        top: -ThemeSize.miniMargin,
+                        right: -ThemeSize.miniMargin,
+                        child: Container(
+                          width: ThemeSize.smallIcon + 4,
+                          height: ThemeSize.smallIcon + 4,
+                          decoration: const BoxDecoration(
+                            color: ThemeColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              _docIds.length.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: ThemeSize.smallFont - 2,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      SizedBox(width: ThemeSize.smallMargin),
-                      GestureDetector(
-                        onTap: (){
-                          if(type == "document"){
-                            showDocSettingDialog(context);
-                          }else{
-                            setState(() {
-                              type = "document";
-                            });
-                          }
-                        },
-                        child: Image.asset(type == "document" ? 'lib/assets/images/icon_setting_active.png' : "lib/assets/images/icon_setting_disabled.png",
-                          width: ThemeSize.smallIcon,
-                          height: ThemeSize.smallIcon),)
-                      ,
-                    ],
-                  )),
+                  ],
+                ),
+              ),
               SizedBox(width: ThemeSize.middleGap),
               OutlinedButton(
                   onPressed: () {
