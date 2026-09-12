@@ -23,6 +23,9 @@ class ChatProvider with ChangeNotifier {
   // 当前选中的公司对象
   CompanyModel? _currentCompany;
 
+  // ✅ 当前使用的提示词ID
+  String? _promptId;
+
   void setVersion(String version) {
     _version = version;
   }
@@ -104,6 +107,22 @@ class ChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// @author: wuwenqiang
+  /// @description: 设置当前使用的提示词ID
+  /// @date: 2026-09-11
+  void setPromptId(String? promptId) {
+    _promptId = promptId;
+    notifyListeners();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 清除当前使用的提示词ID
+  /// @date: 2026-09-11
+  void clearPromptId() {
+    _promptId = null;
+    notifyListeners();
+  }
+
   // ✅ Getters
   get version => _version;
   get device => _device;
@@ -125,4 +144,8 @@ class ChatProvider with ChangeNotifier {
   String get currentCompanyId => _currentCompany?.id ?? '';
   String get currentCompanyRole => _currentCompany?.role?.toString() ?? '';
   int get currentCompanyRoleInt => _currentCompany?.role ?? 0;
+
+  // ✅ Getter
+  String? get promptId => _promptId;
+  bool get hasPrompt => _promptId != null && _promptId!.isNotEmpty;
 }

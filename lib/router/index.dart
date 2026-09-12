@@ -17,7 +17,7 @@ import '../pages/AddUserPage.dart';
 import '../pages/ModelManagePage.dart';
 import '../pages/UpdateModelPage.dart';
 import '../pages/AddModelPage.dart';
-
+import '../pages/AddPromptPage.dart';
 
 class Routes {
   static final FluroRouter router = FluroRouter();
@@ -85,6 +85,12 @@ class Routes {
       handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
         return const AddModelPage();
       }
+    ));
+
+    router.define('/AddPromptPage', handler: Handler(
+        handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+          return const AddPromptPage();
+        }
     ));
   }
 }

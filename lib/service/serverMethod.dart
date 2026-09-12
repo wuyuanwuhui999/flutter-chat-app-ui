@@ -515,3 +515,69 @@ Future<ResponseModel<int>> addModelService(Map<String, dynamic> params) async {
     throw Exception('新增模型失败: $e');
   }
 }
+
+/// @author: wuwenqiang
+/// @description: 获取提示词列表（分页 + 搜索）
+/// @date: 2026-09-11
+Future<ResponseModel<List<dynamic>>> getPromptListService(
+    String tenantId,
+    String keyword,
+    int pageNum,
+    int pageSize,
+    ) async {
+  try {
+    final Map<String, dynamic> queryParams = {
+      "tenantId": tenantId,
+      "pageNum": pageNum,
+      "pageSize": pageSize,
+    };
+    if (keyword.isNotEmpty) {
+      queryParams["keyword"] = keyword;
+    }
+    Response response = await dio.get(
+      servicePath['getPromptList']!,
+      queryParameters: queryParams,
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: getPromptList: $e');
+    throw Error();
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 删除提示词
+/// @date: 2026-09-11
+Future<ResponseModel<int>> deletePromptService(
+    String promptId,
+    String tenantId,
+    ) async {
+  try {
+    Response response = await dio.delete(
+      "${servicePath['deletePrompt']}/$promptId/$tenantId",
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: deletePrompt: $e');
+    throw Error();
+  }
+}
+
+/// @author: wuwenqiang
+/// @description: 新增提示词
+/// @date: 2026-09-11
+Future<ResponseModel<int>> insertPromptService(
+    String tenantId,
+    String prompt,
+    ) async {
+  try {
+    Response response = await dio.post(
+      servicePath['insertPrompt']!,
+      data: {"tenantId": tenantId, "prompt": prompt},
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: insertPrompt: $e');
+    throw Error();
+  }
+}

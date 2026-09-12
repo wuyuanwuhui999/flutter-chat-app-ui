@@ -5,6 +5,7 @@ class DialogComponent extends StatelessWidget {
   final String title;
   final Widget content;
   final Widget? leftIcon;
+  final Widget? rightIcon; // ✅ 新增：右侧图标
   final Function? onClose;
   final double topMarginRatio;
   final bool showDivider;
@@ -14,6 +15,7 @@ class DialogComponent extends StatelessWidget {
     required this.title,
     required this.content,
     this.leftIcon,
+    this.rightIcon, // ✅ 新增
     this.onClose,
     this.topMarginRatio = 0.2,
     this.showDivider = true
@@ -82,20 +84,20 @@ class DialogComponent extends StatelessWidget {
                             ),
                           ),
                         ),
-
-                        // 关闭按钮
+                        // 关闭按钮 / 自定义右侧图标
                         Align(
                           alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              if (onClose != null) {
-                                onClose!();
-                              } else {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          ),
+                          child: rightIcon ??
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  if (onClose != null) {
+                                    onClose!();
+                                  } else {
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+                              ),
                         ),
                       ],
                     ),

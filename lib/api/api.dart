@@ -35,4 +35,6 @@ const servicePath = {
   'updateModel': '/service/chat/updateModel', // 更新模型
   'addModel': '/service/chat/addModel',       // 新增模型
 
+  'getPromptList':'/service/prompt/getPromptList'
+
 };

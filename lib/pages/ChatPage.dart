@@ -36,6 +36,7 @@ import '../common/constant.dart';
 import '../utils/LocalStorageUtils.dart';
 import '../utils/common.dart';
 import '../router/index.dart';
+import '../component/PromptListComponent.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -86,6 +87,10 @@ class ChatPageState extends State<ChatPage> {
   bool _isDocumentModeActive = false; // 文档查询模式是否激活
   List<String> _selectedDocNames = []; // 选中的文档名称列表
   List<String> _tempSelectedDocIds = []; // 弹窗中临时选中的文档ID
+
+  // ✅ 提示词相关状态
+  bool _isPromptModeActive = false; // 提示词模式是否激活
+  String? _selectedPromptContent; // 选中的提示词内容（用于角标提示）
 
   @override
   void initState() {
@@ -301,13 +306,14 @@ class ChatPageState extends State<ChatPage> {
     chatId = chatId.isNotEmpty ? chatId : generateSecureID();
     Map<String, dynamic> payload = {
       "modelName": activeModelName,
-      "token": token, // 替换为实际用户ID
-      "chatId": chatId, // 替换为实际聊天ID
+      "token": token,
+      "chatId": chatId,
       "docIds": _docIds,
       "prompt": prompt,
       "type": type,
       "showThink": showThink,
-      "language": language
+      "language": language,
+      "promptId": chatProvider.promptId ?? "", // ✅ 新增：使用的提示词ID
     };
     controller.text = "";
 
@@ -1046,6 +1052,39 @@ class ChatPageState extends State<ChatPage> {
                   ],
                 ),
               ),
+              const SizedBox(width: ThemeSize.middleGap),
+              // ✅ 提示词按钮
+              OutlinedButton(
+                onPressed: () {
+                  showPromptSettingDialog(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: ThemeColors.white,
+                  foregroundColor: ThemeColors.white,
+                  side: BorderSide(
+                    color: _isPromptModeActive
+                        ? ThemeColors.primary
+                        : ThemeColors.subTitle,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(ThemeSize.bigRadius),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '提示词',
+                      style: TextStyle(
+                        fontSize: ThemeSize.middleFont,
+                        color: _isPromptModeActive
+                            ? ThemeColors.primary
+                            : ThemeColors.subTitle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(width: ThemeSize.middleGap),
               OutlinedButton(
                   onPressed: () {
@@ -1407,6 +1446,70 @@ class ChatPageState extends State<ChatPage> {
             title: "我的文档", content: DocListComponent());
       },
     );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 提示词设置弹窗
+  /// @date: 2026-09-11
+  Future<void> showPromptSettingDialog(BuildContext context) async {
+    // 显示弹窗并等待结果
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return DialogComponent(
+          showDivider: true,
+          title: "提示词",
+          // 标题栏左侧：刷新图标
+          leftIcon: IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              // 通过 GlobalKey 或直接刷新：这里采用重新构建弹窗内容的方式
+              // 由于 PromptListComponent 内部有刷新逻辑，这里通过 Navigator 重建
+              Navigator.of(context).pop();
+              showPromptSettingDialog(context);
+            },
+          ),
+          // 标题栏右侧：加号图标（DialogComponent 默认右侧是关闭按钮，
+          // 这里通过 leftIcon 放刷新，右侧需要加号，需要调整 DialogComponent）
+          // 由于 DialogComponent 右侧固定为关闭按钮，这里采用自定义方式
+          content: PromptListComponent(
+            onSelectionChanged: (String? promptId, String? promptContent) {
+              // 临时变化，不立即生效
+            },
+            onConfirm: (String? promptId, String? promptContent) {
+              Navigator.of(context).pop({
+                'promptId': promptId,
+                'promptContent': promptContent,
+              });
+            },
+            onCancel: () {
+              Navigator.of(context).pop(null);
+            },
+          ),
+        );
+      },
+    );
+
+    // 处理弹窗返回的结果
+    if (result != null && result.containsKey('promptId')) {
+      final String? promptId = result['promptId'];
+      final String? promptContent = result['promptContent'];
+      if (promptId != null && promptId.isNotEmpty) {
+        setState(() {
+          chatProvider.setPromptId(promptId);
+          _selectedPromptContent = promptContent;
+          _isPromptModeActive = true;
+        });
+      }
+    } else {
+      // 取消：清除 promptId，按钮变灰
+      setState(() {
+        chatProvider.clearPromptId();
+        _selectedPromptContent = null;
+        _isPromptModeActive = false;
+      });
+    }
   }
 
   @override
