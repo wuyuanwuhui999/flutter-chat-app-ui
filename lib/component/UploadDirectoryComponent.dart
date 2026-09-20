@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../common/constant.dart';
 import '../model/DirectoryModel.dart';
+import '../model/DocSettingModel.dart';
 import '../service/serverMethod.dart';
 import '../theme/ThemeSize.dart';
 import 'package:file_picker/file_picker.dart';
 import '../utils/HttpUtil.dart';
+import 'DocSettingDialog.dart';
 
 /// @author: wuwenqiang
 /// @description: 上传文档目录选择组件
@@ -127,6 +129,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
 
   /// @author: wuwenqiang
   /// @description: 文档上传
+  /// 流程：选择文件 -> 弹出文档设置对话框（权限/分割模式/分割大小）-> 确定后携带参数上传
   /// @date: 2025-09-13
   Future<void> _onUploadDoc() async {
     if (directoryId.isEmpty) {
@@ -158,10 +161,20 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
       return;
     }
 
-    // 关闭弹窗
-    if (mounted) {
-      Navigator.of(context).pop();
+    if (!mounted) return;
+
+    // 【修改点】选择文档之后弹出文档设置对话框，确认权限、分割模式（固定长度分割时还需确认分割大小）
+    final DocSettingModel? setting = await DocSettingDialog.show(
+      context: context,
+    );
+
+    // 用户点击了取消，不进行上传
+    if (setting == null || !mounted) {
+      return;
     }
+
+    // 关闭弹窗
+    Navigator.of(context).pop();
 
     // 显示loading对话框
     showDialog(
@@ -189,13 +202,16 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
         throw Exception('请先选择租户');
       }
 
-      // 使用HttpUtil上传文件
+      // 使用HttpUtil上传文件（tenantId、directoryId、permission、splitMethod、chunkSize统一放到body中）
       final httpUtil = HttpUtil.getInstance();
       final response = await httpUtil.uploadDoc(
         filePath: filePath,
         fileName: file.name,
         tenantId: tenantId,
         directoryId: directoryId,
+        permission: setting.permission,
+        splitMethod: setting.splitMethod,
+        chunkSize: setting.chunkSize,
       );
 
       // 关闭loading对话框

@@ -1,5 +1,7 @@
 // lib/utils/HttpUtil.dart
+import '../api/api.dart';
 import '../common/constant.dart';
+import '../model/DocSettingModel.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -133,18 +135,36 @@ class HttpUtil {
   /// 专门用于上传文档的方法
   /// [filePath] 文件路径
   /// [fileName] 文件名
-  /// [tenantId] 租户ID
-  /// [directoryId] 目录ID
+  /// [tenantId] 租户ID（【修改点】放到body中传递，不再拼接到接口地址上）
+  /// [directoryId] 目录ID（【修改点】放到body中传递，不再拼接到接口地址上）
+  /// [permission] 文档权限：private-私密、tenant-租户内公开、company-公司内公开
+  /// [splitMethod] 分割方式：recursive/paragraph/sentence/fixed
+  /// [chunkSize] 分割大小，仅 splitMethod=fixed 时生效
   Future<ResponseModel> uploadDoc({
     required String filePath,
     required String fileName,
     required String tenantId,
     required String directoryId,
+    required String permission,
+    required String splitMethod,
+    int? chunkSize,
   }) async {
+    // 【修改点】接口地址上的 {tenantId}/{directoryId} 已去掉，统一放到body中传递
+    final Map<String, dynamic> formData = {
+      'tenantId': tenantId,
+      'directoryId': directoryId,
+      'permission': permission,
+      'splitMethod': splitMethod,
+    };
+    // 分割大小仅对固定长度分割（fixed）生效，其它分割方式不下发该参数
+    if (splitMethod == DocSettingModel.splitMethodFixed && chunkSize != null) {
+      formData['chunkSize'] = chunkSize;
+    }
     return await uploadFile(
       filePath: filePath,
       fileName: fileName,
-      uploadUrl: '/service/ai/uploadDoc/$tenantId/$directoryId',
+      uploadUrl: servicePath['uploadDoc']!,
+      formData: formData,
     );
   }
 }
