@@ -208,17 +208,21 @@ Future<ResponseModel<List<dynamic>>> getDocListByDirIdService(
 ///@author: wuwenqiang
 ///@description: 修改文档权限（返回data大于0表示修改成功）
 /// @date: 2026-09-20
-/// @param docId: 文档ID
+/// @param docId: 文档ID（【修改点】不再拼接到接口地址上，放到body中传递）
 /// @param permission: 文档权限：private-私密、tenant-租户内公开、company-公司内公开
 Future<ResponseModel<dynamic>> updateDocPermissionService(
   String docId,
   String permission,
 ) async {
   try {
-    // 后端使用 @RequestParam("permission") 接收，这里以query参数传递
+    // 【修改点】接口地址上的 {docId} 已去掉，docId 和 permission 一起放到body中传递
     Response response = await dio.put(
-      "${servicePath['updateDocPermission']}$docId",
-      queryParameters: {"permission": permission},
+      servicePath['updateDocPermission']!,
+      data: {
+        "docId": docId,
+        "permission": permission,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
     return ResponseModel.fromJson(response.data);
   } catch (e) {

@@ -17,7 +17,7 @@ import 'package:flutter_chat_app/utils/HttpUtil.dart';
 class _FakeHttpClientAdapter implements HttpClientAdapter {
   _FakeHttpClientAdapter(this.requestLog);
 
-  /// 请求记录：'METHOD path?query'
+  /// 请求记录：'METHOD path?query body'
   final List<String> requestLog;
 
   /// 是否让修改权限接口返回失败
@@ -29,10 +29,17 @@ class _FakeHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    requestLog.add('${options.method} ${options.uri.path}?${options.uri.query}');
+    String body = '';
     if (requestStream != null) {
-      await requestStream.drain<void>();
+      final List<int> bytes = <int>[];
+      await for (final Uint8List chunk in requestStream) {
+        bytes.addAll(chunk);
+      }
+      body = utf8.decode(bytes, allowMalformed: true);
     }
+    requestLog.add(
+      '${options.method} ${options.uri.path}?${options.uri.query} $body',
+    );
     return ResponseBody.fromString(
       _route(options.uri.path, options.uri.query),
       200,
@@ -236,11 +243,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(inDialog('公司内公开'), findsOneWidget);
 
-    // 确定 -> PUT /service/chat/updateDocPermission/{docId}
+    // 确定 -> PUT /service/chat/updateDocPermission（docId和permission都在body中）
     await tester.tap(inDialog('确定'));
     await tester.pumpAndSettle();
     expect(requestLog.length, 3);
-    expect(requestLog[2], contains('PUT /service/chat/updateDocPermission/doc-1'));
+    expect(requestLog[2], contains('PUT /service/chat/updateDocPermission?'));
+    expect(requestLog[2], isNot(contains('/updateDocPermission/')));
+    expect(requestLog[2], contains('docId=doc-1'));
     expect(requestLog[2], contains('permission=company'));
 
     // 成功后列表已回显新权限：再次打开修改权限对话框显示"公司内公开"
@@ -268,7 +277,8 @@ void main() {
     await tester.tap(inDialog('确定'));
     await tester.pumpAndSettle();
 
-    expect(requestLog.last, contains('PUT /service/chat/updateDocPermission/doc-1'));
+    expect(requestLog.last, contains('PUT /service/chat/updateDocPermission?'));
+    expect(requestLog.last, contains('docId=doc-1'));
     // 失败时对话框保留（未返回新权限），权限未变化
     expect(inDialog('租户内公开'), findsOneWidget);
     await tester.tap(inDialog('取消'));
