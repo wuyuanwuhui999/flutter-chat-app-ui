@@ -14,6 +14,8 @@ const servicePath = {
   'chatWs': "/service/chat/ws/chat",// ai聊天
   'getModelList': "/service/chat/getModelList",// ai聊天
   'getDocList': "/service/chat/getDocList",// 查询我的文档
+  'getDocListByDirId': "/service/chat/getDocListByDirId",// 按照目录id查询文档列表
+  'updateDocPermission': "/service/chat/updateDocPermission/",// 修改文档权限
   'uploadDoc': "/service/chat/uploadDoc",// 上传文档（租户/目录/权限/分割方式放到body中）
   'deleteDoc': "/service/chat/deleteDoc/",// 查询我的文档
   'getDirectoryList':"/service/chat/getDirectoryList",// 按照租户查询文档目录列表

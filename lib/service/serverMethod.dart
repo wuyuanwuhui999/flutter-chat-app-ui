@@ -182,16 +182,63 @@ Future<ResponseModel<List<dynamic>>> getMyDocListService(String tenantId) async 
 }
 
 ///@author: wuwenqiang
-///@description: 获取文档列表
-/// @date: 2025-06-09 19:39
-Future<ResponseModel<void>> deleteMyDocumentService(String docId) async {
+///@description: 按照目录id查询该目录下的文档列表（点击目录展开箭头时按需加载）
+/// @date: 2026-09-20
+/// @param tenantId: 租户ID
+/// @param directoryId: 目录ID
+Future<ResponseModel<List<dynamic>>> getDocListByDirIdService(
+  String tenantId,
+  String directoryId,
+) async {
   try {
-    Response response =
-    await dio.delete("${servicePath['getDocList']}$docId");
+    Response response = await dio.get(
+      servicePath['getDocListByDirId']!,
+      queryParameters: {
+        "tenantId": tenantId,
+        "directoryId": directoryId,
+      },
+    );
     return ResponseModel.fromJson(response.data);
   } catch (e) {
-    print('ERROR:======>${e}');
+    print('ERROR: getDocListByDirId: $e');
     throw Error();
+  }
+}
+
+///@author: wuwenqiang
+///@description: 修改文档权限（返回data大于0表示修改成功）
+/// @date: 2026-09-20
+/// @param docId: 文档ID
+/// @param permission: 文档权限：private-私密、tenant-租户内公开、company-公司内公开
+Future<ResponseModel<dynamic>> updateDocPermissionService(
+  String docId,
+  String permission,
+) async {
+  try {
+    // 后端使用 @RequestParam("permission") 接收，这里以query参数传递
+    Response response = await dio.put(
+      "${servicePath['updateDocPermission']}$docId",
+      queryParameters: {"permission": permission},
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: updateDocPermission: $e');
+    rethrow;
+  }
+}
+
+///@author: wuwenqiang
+///@description: 删除文档（返回data大于0表示删除成功）
+/// @date: 2025-06-09 19:39
+/// @param docId: 文档ID
+Future<ResponseModel<dynamic>> deleteMyDocumentService(String docId) async {
+  try {
+    Response response =
+    await dio.delete("${servicePath['deleteDoc']}$docId");
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: deleteDoc: $e');
+    rethrow;
   }
 }
 

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:flutter_chat_app/component/DocListComponent.dart';
 import 'package:flutter_chat_app/model/DirectoryModel.dart';
 import 'package:flutter_chat_app/model/DocModel.dart';
 import 'package:flutter_chat_app/provider/ChatProvider.dart';
@@ -355,6 +354,8 @@ class ChatPageState extends State<ChatPage> {
           showDivider: false,
           title: "选择文档",
           content: DocumentListComponent(
+            showCheckbox: true,
+            showBottomButtons: true,
             initialSelectedIds: initialSelectedIds,
             onSelectionChanged: (List<String> selectedIds, List<String> selectedNames) {
               // 更新临时选中的文档ID和名称
@@ -1438,12 +1439,21 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
+  ///@author: wuwenqiang
+  ///@description: 我的文档弹窗
+  /// 与"选择文档"弹窗样式一致，只是不显示复选框和底部确定/取消按钮
+  /// @date: 2025-09-08
   onShowDocList() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return const DialogComponent(
-            title: "我的文档", content: DocListComponent());
+          title: "我的文档",
+          content: DocumentListComponent(
+            showCheckbox: false,
+            showBottomButtons: false,
+          ),
+        );
       },
     );
   }

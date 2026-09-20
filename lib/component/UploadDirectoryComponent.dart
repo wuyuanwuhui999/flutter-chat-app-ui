@@ -29,9 +29,9 @@ class UploadDirectoryComponent extends StatefulWidget {
 class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
   List<DirectoryModel> directoryList = [
     DirectoryModel(
-      id: "default",
+      id: DEFAULT_DIRECTORY_ID,
       userId: "",
-      directory: "默认文件夹",
+      directory: DEFAULT_DIRECTORY_NAME,
       isSelected: false,
     )
   ];
@@ -80,10 +80,10 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
       // 重置目录列表，保留默认文件夹
       final List<DirectoryModel> tempList = [
         DirectoryModel(
-          id: "default",
+          id: DEFAULT_DIRECTORY_ID,
           userId: "",
-          directory: "默认文件夹",
-          isSelected: directoryId == "default",
+          directory: DEFAULT_DIRECTORY_NAME,
+          isSelected: directoryId == DEFAULT_DIRECTORY_ID,
         )
       ];
 
@@ -98,7 +98,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
         isLoading = false;
         // 保存到 ChatProvider
         chatProvider.setDirectoryList(
-          tempList.where((d) => d.id != "default").toList(),
+          tempList.where((d) => d.id != DEFAULT_DIRECTORY_ID).toList(),
         );
       });
     }).catchError((error) {

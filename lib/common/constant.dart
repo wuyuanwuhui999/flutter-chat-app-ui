@@ -10,3 +10,7 @@ const PAGE_SIZE = 20; // 每页数量
 
 // 新增：公司ID存储Key
 const COMPANY_ID_STORAGE_KEY = 'COMPANY_ID_STORAGE_KEY';
+
+// 默认文件夹（未选择目录时上传的文档归属该目录）
+const DEFAULT_DIRECTORY_ID = 'default';
+const DEFAULT_DIRECTORY_NAME = '默认文件夹';

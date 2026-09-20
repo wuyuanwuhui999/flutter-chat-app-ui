@@ -70,10 +70,16 @@ class HttpUtil {
     // 添加请求后拦截器
     dio.interceptors.add(InterceptorsWrapper(
         onResponse: (Response response, ResponseInterceptorHandler handler){
-          if (response.statusCode == 200 && response.data["status"] == SUCCESS) {
+          final dynamic data = response.data;
+          // 后端统一返回 ResponseModel：status为SUCCESS表示成功
+          if (response.statusCode == 200 && data is Map && data["status"] == SUCCESS) {
             return handler.next(response); // 继续
           } else {
-            throw Exception('后端接口出现异常，请检测代码和服务器情况.........');
+            // 【修改点】把后端返回的 msg 一起抛出，方便界面直接提示后端的具体错误信息
+            final String msg = (data is Map && data["msg"] != null)
+                ? data["msg"].toString()
+                : '后端接口出现异常，请检测代码和服务器情况.........'; 
+            throw Exception(msg);
           }
         },
         onRequest: (RequestOptions options, RequestInterceptorHandler handler){
@@ -167,6 +173,24 @@ class HttpUtil {
       formData: formData,
     );
   }
+}
+
+/// 解析请求异常中后端返回的提示信息
+/// 优先取响应体中的 msg 字段（后端统一返回 ResponseModel 的 msg），
+/// 其次取异常自身的消息，最后返回通用的失败提示
+String parseResponseErrorMsg(dynamic error) {
+  if (error is DioException) {
+    final dynamic data = error.response?.data;
+    if (data is Map && data['msg'] != null) {
+      return data['msg'].toString();
+    }
+    final dynamic inner = error.error;
+    if (inner != null) {
+      return inner.toString().replaceFirst('Exception: ', '');
+    }
+    return error.message ?? '请求失败';
+  }
+  return error == null ? '请求失败' : error.toString().replaceFirst('Exception: ', '');
 }
 
 Dio dio = HttpUtil.getInstance().dio;

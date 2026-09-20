@@ -1,5 +1,12 @@
 import 'SelectOptionModel.dart';
 
+/// 文档权限下拉选项：private-私密、tenant-租户内公开、company-公司内公开
+const List<SelectOptionModel> DOC_PERMISSION_OPTIONS = [
+  SelectOptionModel(value: DocSettingModel.permissionPrivate, label: '私密'),
+  SelectOptionModel(value: DocSettingModel.permissionTenant, label: '租户内公开'),
+  SelectOptionModel(value: DocSettingModel.permissionCompany, label: '公司内公开'),
+];
+
 /// @author: wuwenqiang
 /// @description: 文档上传设置模型（权限 / 分割模式 / 分割大小）
 /// @date: 2026-09-20
@@ -29,11 +36,7 @@ class DocSettingModel {
   static const int defaultChunkSize = 1000;
 
   /// 文档权限下拉选项：private-私密、tenant-租户内公开、company-公司内公开
-  static const List<SelectOptionModel> permissionOptions = [
-    SelectOptionModel(value: permissionPrivate, label: '私密'),
-    SelectOptionModel(value: permissionTenant, label: '租户内公开'),
-    SelectOptionModel(value: permissionCompany, label: '公司内公开'),
-  ];
+  static const List<SelectOptionModel> permissionOptions = DOC_PERMISSION_OPTIONS;
 
   /// 文档分割模式下拉选项
   static const List<SelectOptionModel> splitMethodOptions = [

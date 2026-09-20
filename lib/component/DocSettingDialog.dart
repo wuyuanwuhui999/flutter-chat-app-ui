@@ -7,6 +7,8 @@ import '../theme/Dimens.dart';
 import '../theme/ThemeColors.dart';
 import '../theme/ThemeSize.dart';
 import 'BottomSelectionDialog.dart';
+import 'DialogButtonComponent.dart';
+import 'SelectRowComponent.dart';
 
 /// @author: wuwenqiang
 /// @description: 文档设置对话框（权限 / 分割模式 / 分割大小）
@@ -81,16 +83,16 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
   void _onSelectPermission() {
     BottomSelectionDialog.show(
       context: context,
-      options: DocSettingModel.permissionOptions
+      options: DOC_PERMISSION_OPTIONS
           .map((SelectOptionModel item) => item.label)
           .toList(),
       selectedOption: DocSettingModel.labelOf(
-        DocSettingModel.permissionOptions,
+        DOC_PERMISSION_OPTIONS,
         permission,
       ),
       onTap: (label, index) {
         setState(() {
-          permission = DocSettingModel.permissionOptions[index].value;
+          permission = DOC_PERMISSION_OPTIONS[index].value;
         });
       },
     );
@@ -144,52 +146,6 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
         permission: permission,
         splitMethod: splitMethod,
         chunkSize: chunkSize,
-      ),
-    );
-  }
-
-  /// @author: wuwenqiang
-  /// @description: 构建下拉选择行（左侧标题、右侧当前值、右侧下拉箭头）
-  /// @date: 2026-09-20
-  Widget _buildSelectRow({
-    required String label,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: ThemeSize.middleGap),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: ThemeSize.normalFont,
-                color: ThemeColors.mainTitle,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: ThemeSize.normalFont,
-                color: ThemeColors.subTitle,
-              ),
-            ),
-            const SizedBox(width: ThemeSize.middleGap),
-            // 下拉箭头图标（透明度0.5）
-            Opacity(
-              opacity: ThemeSize.opacity,
-              child: Image.asset(
-                'lib/assets/images/icon_arrow.png',
-                width: ThemeSize.smallIcon,
-                height: ThemeSize.smallIcon,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -264,42 +220,6 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
     );
   }
 
-  /// @author: wuwenqiang
-  /// @description: 构建对话框按钮（确定/取消）
-  /// @date: 2026-09-20
-  Widget _buildButton({
-    required String text,
-    required VoidCallback onTap,
-    required bool isPrimary,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      height: ThemeSize.btnHeight,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          // 确定按钮：主色调背景；取消按钮：背景透明 + 灰色边框
-          backgroundColor: isPrimary ? ThemeColors.primary : Colors.transparent,
-          side: BorderSide(
-            color: isPrimary ? ThemeColors.primary : ThemeColors.gray,
-          ),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
-          ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: ThemeSize.normalFont,
-            // 确定按钮文字白色，取消按钮文字灰色
-            color: isPrimary ? ThemeColors.white : ThemeColors.gray,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -328,17 +248,17 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
             ),
             const SizedBox(height: ThemeSize.middleGap),
             // 权限下拉框
-            _buildSelectRow(
+            SelectRowComponent(
               label: '权限',
               value: DocSettingModel.labelOf(
-                DocSettingModel.permissionOptions,
+                DOC_PERMISSION_OPTIONS,
                 permission,
               ),
               onTap: _onSelectPermission,
             ),
             const Divider(height: 1, color: ThemeColors.gray),
             // 分割模式下拉框
-            _buildSelectRow(
+            SelectRowComponent(
               label: '分割模式',
               value: DocSettingModel.labelOf(
                 DocSettingModel.splitMethodOptions,
@@ -356,7 +276,7 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
             Row(
               children: [
                 Expanded(
-                  child: _buildButton(
+                  child: DialogButtonComponent(
                     text: '取消',
                     isPrimary: false,
                     onTap: () {
@@ -366,9 +286,8 @@ class _DocSettingDialogWidgetState extends State<_DocSettingDialogWidget> {
                 ),
                 const SizedBox(width: ThemeSize.middleGap),
                 Expanded(
-                  child: _buildButton(
+                  child: DialogButtonComponent(
                     text: '确定',
-                    isPrimary: true,
                     onTap: _onConfirm,
                   ),
                 ),

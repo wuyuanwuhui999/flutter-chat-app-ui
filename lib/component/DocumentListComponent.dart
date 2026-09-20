@@ -7,28 +7,53 @@ import 'package:flutter_chat_app/theme/ThemeStyle.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../common/constant.dart';
 import '../model/DirectoryModel.dart';
 import '../model/DocModel.dart';
 import '../model/DocumentCheckModel.dart';
 import '../service/serverMethod.dart';
 import '../theme/ThemeSize.dart';
-import 'TriangleComponent.dart';
+import '../utils/HttpUtil.dart';
+import 'BottomSelectionDialog.dart';
+import 'CustomDialogComponent.dart';
+import 'DocPermissionDialog.dart';
 
 /// @author: wuwenqiang
-/// @description: 文档选择列表组件（支持多选，按目录分组）
+/// @description: 文档列表组件（"选择文档"和"我的文档"对话框共用）
+/// 1、先获取文档目录列表，点击目录展开箭头才加载该目录下的文档列表；
+/// 2、目录展开时箭头顺时针旋转90度朝下，再次点击收起并还原箭头；
+/// 3、文档条目右侧为三个点的操作图标，点击可选择"修改权限"或"删除"
+/// [showCheckbox] 是否显示文档复选框（"我的文档"对话框不显示）
+/// [showBottomButtons] 是否显示底部"确定/取消"按钮（"我的文档"对话框不显示）
 /// @date: 2025-09-08
 class DocumentListComponent extends StatefulWidget {
-  final List<String> initialSelectedIds; // 初始选中的文档ID列表
-  final Function(List<String> selectedIds, List<String> selectedNames) onSelectionChanged;
-  final Function(List<String> selectedIds, List<String> selectedNames) onConfirm;
-  final VoidCallback onCancel;
+  /// 是否显示文档复选框
+  final bool showCheckbox;
+
+  /// 是否显示底部确定/取消按钮
+  final bool showBottomButtons;
+
+  /// 初始选中的文档ID列表
+  final List<String> initialSelectedIds;
+
+  /// 选中文档变化回调（复选框模式使用）
+  final Function(List<String> selectedIds, List<String> selectedNames)?
+      onSelectionChanged;
+
+  /// 点击确定回调（复选框模式使用）
+  final Function(List<String> selectedIds, List<String> selectedNames)? onConfirm;
+
+  /// 点击取消回调（复选框模式使用）
+  final VoidCallback? onCancel;
 
   const DocumentListComponent({
     super.key,
+    this.showCheckbox = true,
+    this.showBottomButtons = true,
     this.initialSelectedIds = const [],
-    required this.onSelectionChanged,
-    required this.onConfirm,
-    required this.onCancel,
+    this.onSelectionChanged,
+    this.onConfirm,
+    this.onCancel,
   });
 
   @override
@@ -36,11 +61,22 @@ class DocumentListComponent extends StatefulWidget {
 }
 
 class _DocumentListComponentState extends State<DocumentListComponent> {
-  List<DocumentCheckModel> docList = [];
+  /// 目录列表（每个目录携带展开状态和按需加载的文档列表）
+  List<DocumentCheckModel> directoryList = [];
+
+  /// 目录列表是否加载中
   bool isLoading = true;
+
+  /// 加载失败提示
   String? errorMessage;
+
+  /// 当前选中的文档ID
   List<String> _selectedDocIds = [];
+
+  /// 当前选中的文档名称
   List<String> _selectedDocNames = [];
+
+  late ChatProvider chatProvider;
 
   @override
   void initState() {
@@ -48,14 +84,14 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
     // 初始化选中的文档ID列表
     _selectedDocIds = List.from(widget.initialSelectedIds);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDocList();
+      _loadDirectoryList();
     });
   }
 
   /// @author: wuwenqiang
-  /// @description: 加载文档列表
-  /// @date: 2025-09-08
-  void _loadDocList() {
+  /// @description: 获取文档目录列表（只获取目录，文档列表在目录展开时才加载）
+  /// @date: 2026-09-20
+  void _loadDirectoryList() {
     if (!mounted) return;
 
     setState(() {
@@ -63,7 +99,7 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
       errorMessage = null;
     });
 
-    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
     final tenantId = chatProvider.currentTenantId;
 
     if (tenantId.isEmpty) {
@@ -76,64 +112,167 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
       return;
     }
 
-    getMyDocListService(tenantId).then((res) {
+    getDirectoryListService(tenantId).then((res) {
       if (!mounted) return;
 
-      if (res.data.isNotEmpty) {
-        final List<DocumentCheckModel> tempList = [];
+      // 默认文件夹固定放在第一个（未选择目录上传的文档）
+      final List<DocumentCheckModel> tempList = [
+        DocumentCheckModel(
+          expand: false,
+          directoryId: DEFAULT_DIRECTORY_ID,
+          directoryName: DEFAULT_DIRECTORY_NAME,
+          docList: [],
+        )
+      ];
 
-        for (var doc in res.data) {
-          final docModel = DocModel.fromJson(doc);
-          final key = docModel.directoryId.isNotEmpty
-              ? docModel.directoryId
-              : 'default';
-
-          // 检查该文档是否在初始选中列表中
-          final isChecked = _selectedDocIds.contains(docModel.id);
-          docModel.checked = isChecked;
-
-          int index = tempList.indexWhere(
-            (dItem) => dItem.directoryId == key,
-          );
-
-          if (index == -1) {
-            final newDocItem = DocumentCheckModel(
-              expand: false,
-              directoryId: key,
-              directoryName: docModel.directoryName.isNotEmpty
-                  ? docModel.directoryName
-                  : '默认文件夹',
-              docList: [],
-            );
-            newDocItem.docList.add(docModel);
-            tempList.add(newDocItem);
-          } else {
-            tempList[index].docList.add(docModel);
-          }
-        }
-
-        setState(() {
-          docList = tempList;
-          isLoading = false;
-        });
-
-        // 通知外部选中文档的变化
-        _notifySelectionChanged();
-      } else {
-        setState(() {
-          docList = [];
-          isLoading = false;
-        });
+      for (var item in res.data) {
+        final dir = DirectoryModel.fromJson(item);
+        tempList.add(DocumentCheckModel(
+          expand: false,
+          directoryId: dir.id,
+          directoryName: dir.directory,
+          docList: [],
+        ));
       }
+
+      setState(() {
+        directoryList = tempList;
+        isLoading = false;
+      });
     }).catchError((error) {
-      debugPrint('加载文档列表失败: $error');
+      debugPrint('加载目录列表失败: $error');
       if (mounted) {
         setState(() {
           isLoading = false;
-          errorMessage = '加载失败，请重试';
+          errorMessage = '加载目录失败，请重试';
         });
       }
     });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 点击目录名称/展开箭头：首次展开时加载该目录下的文档列表，再次点击收起
+  /// @date: 2026-09-20
+  void _onToggleDirectory(int index) {
+    final DocumentCheckModel directory = directoryList[index];
+
+    // 已展开则收起，箭头还原为向右
+    if (directory.expand) {
+      setState(() {
+        directory.expand = false;
+      });
+      return;
+    }
+
+    setState(() {
+      directory.expand = true;
+    });
+
+    // 已加载过该目录的文档列表，不重复请求
+    if (directory.loaded || directory.loading) {
+      return;
+    }
+
+    final tenantId = chatProvider.currentTenantId;
+    setState(() {
+      directory.loading = true;
+    });
+
+    getDocListByDirIdService(tenantId, directory.directoryId).then((res) {
+      if (!mounted) return;
+
+      final List<DocModel> docs = [];
+      for (var doc in res.data) {
+        final docModel = DocModel.fromJson(doc);
+        // 回显勾选状态
+        docModel.checked = _selectedDocIds.contains(docModel.id);
+        docs.add(docModel);
+      }
+
+      setState(() {
+        directory.docList = docs;
+        directory.loading = false;
+        directory.loaded = true;
+      });
+    }).catchError((error) {
+      debugPrint('加载文档列表失败: $error');
+      if (!mounted) return;
+      setState(() {
+        directory.loading = false;
+      });
+      _showToast('加载文档列表失败');
+    });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 点击文档条目上的三个点图标：弹出"修改权限/删除"操作选项
+  /// @date: 2026-09-20
+  void _onDocOperation(int directoryIndex, int docIndex) {
+    BottomSelectionDialog.show(
+      context: context,
+      options: const ['修改权限', '删除'],
+      onTap: (option, index) {
+        if (index == 0) {
+          _onUpdateDocPermission(directoryIndex, docIndex);
+        } else if (index == 1) {
+          _onDeleteDoc(directoryIndex, docIndex);
+        }
+      },
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 修改文档权限（弹出修改权限对话框，成功后回显新权限）
+  /// @date: 2026-09-20
+  Future<void> _onUpdateDocPermission(int directoryIndex, int docIndex) async {
+    final DocModel doc = directoryList[directoryIndex].docList[docIndex];
+    final String? newPermission = await DocPermissionDialog.show(
+      context: context,
+      doc: doc,
+    );
+
+    if (newPermission == null || !mounted) return;
+    setState(() {
+      doc.permission = newPermission;
+    });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 删除文档（先弹出确认对话框）
+  /// @date: 2026-09-20
+  void _onDeleteDoc(int directoryIndex, int docIndex) {
+    final DocModel doc = directoryList[directoryIndex].docList[docIndex];
+    CustomDialogComponent(
+      context: context,
+      name: '提示',
+      builder: (BuildContext context) => Text('是否删除文档：${doc.name}'),
+      okCallback: () => _deleteDoc(directoryIndex, docIndex),
+    ).show();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 调用删除文档接口，data大于0表示删除成功，成功/失败都提示后端返回的msg
+  /// @date: 2026-09-20
+  Future<void> _deleteDoc(int directoryIndex, int docIndex) async {
+    final DocModel doc = directoryList[directoryIndex].docList[docIndex];
+    try {
+      final res = await deleteMyDocumentService(doc.id);
+      final int? rows = res.data == null ? null : int.tryParse(res.data.toString());
+      if (rows != null && rows > 0) {
+        if (mounted) {
+          setState(() {
+            directoryList[directoryIndex].docList.removeAt(docIndex);
+          });
+          _notifySelectionChanged();
+        }
+        _showToast(res.msg ?? '删除文档成功');
+      } else {
+        _showToast(res.msg ?? '删除文档失败');
+      }
+    } catch (e) {
+      // 失败时提示后端返回的msg
+      _showToast(parseResponseErrorMsg(e));
+    }
   }
 
   /// @author: wuwenqiang
@@ -142,8 +281,8 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
   void _notifySelectionChanged() {
     final List<String> selectedIds = [];
     final List<String> selectedNames = [];
-    for (var group in docList) {
-      for (var doc in group.docList) {
+    for (var directory in directoryList) {
+      for (var doc in directory.docList) {
         if (doc.checked) {
           selectedIds.add(doc.id);
           selectedNames.add(doc.name);
@@ -152,115 +291,375 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
     }
     _selectedDocIds = selectedIds;
     _selectedDocNames = selectedNames;
-    widget.onSelectionChanged(selectedIds, selectedNames);
-  }
-
-  /// @author: wuwenqiang
-  /// @description: 获取所有选中的文档ID
-  /// @date: 2025-09-08
-  void _getCheckedIds() {
-    _notifySelectionChanged();
-  }
-
-  /// @author: wuwenqiang
-  /// @description: 切换目录展开/收起
-  /// @date: 2025-09-08
-  void _toggleExpand(int index) {
-    setState(() {
-      docList[index].expand = !docList[index].expand;
-    });
+    if (widget.onSelectionChanged != null) {
+      widget.onSelectionChanged!(selectedIds, selectedNames);
+    }
   }
 
   /// @author: wuwenqiang
   /// @description: 切换文档选中状态
   /// @date: 2025-09-08
-  void _toggleDocCheck(int groupIndex, int docIndex) {
+  void _toggleDocCheck(int directoryIndex, int docIndex) {
     setState(() {
-      docList[groupIndex].docList[docIndex].checked =
-          !docList[groupIndex].docList[docIndex].checked;
+      final DocModel doc = directoryList[directoryIndex].docList[docIndex];
+      doc.checked = !doc.checked;
       _notifySelectionChanged();
     });
   }
 
   /// @author: wuwenqiang
-  /// @description: 全选/取消全选某个目录下的所有文档
+  /// @description: 全选/取消全选某个目录下已加载的所有文档
   /// @date: 2025-09-08
-  void _toggleGroupAll(int groupIndex) {
-    final group = docList[groupIndex];
-    final allChecked = group.docList.every((doc) => doc.checked);
-    final newChecked = !allChecked;
+  void _toggleGroupAll(int directoryIndex) {
+    final DocumentCheckModel directory = directoryList[directoryIndex];
+    final bool allChecked = directory.docList.every((doc) => doc.checked);
 
     setState(() {
-      for (var doc in group.docList) {
-        doc.checked = newChecked;
+      for (var doc in directory.docList) {
+        doc.checked = !allChecked;
       }
       _notifySelectionChanged();
     });
   }
 
   /// @author: wuwenqiang
-  /// @description: 获取选中文档数量
-  /// @date: 2026-09-05
-  int get selectedCount => _selectedDocIds.length;
-
-  /// @author: wuwenqiang
   /// @description: 确认选择
   /// @date: 2026-09-05
   void _onConfirm() {
     if (_selectedDocIds.isEmpty) {
-      Fluttertoast.showToast(
-        msg: "请至少选择一篇文档",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.orange,
-        textColor: Colors.white,
-        fontSize: ThemeSize.middleFont,
-      );
+      _showToast('请至少选择一篇文档');
       return;
     }
-    widget.onConfirm(_selectedDocIds, _selectedDocNames);
+    if (widget.onConfirm != null) {
+      widget.onConfirm!(_selectedDocIds, _selectedDocNames);
+    }
   }
 
   /// @author: wuwenqiang
-  /// @description: 取消选择
-  /// @date: 2026-09-05
-  void _onCancel() {
-    widget.onCancel();
-  }
-
-  /// @author: wuwenqiang
-  /// @description: 刷新文档列表
-  /// @date: 2025-09-08
-  void _refreshDocs() {
-    docList.clear();
-    _loadDocList();
+  /// @description: 统一提示
+  /// @date: 2026-09-20
+  void _showToast(String msg) {
+    Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      fontSize: ThemeSize.middleFont,
+    );
   }
 
   /// @author: wuwenqiang
   /// @description: 根据文件扩展名获取对应的图标
-  /// @date: 2025-09-08
-  String _getDocIcon(String ext) {
+  /// 【修复】原实现引用的 icon_pdf.png 等资源文件在项目中不存在（也未在pubspec声明），
+  /// 会导致文档图标加载失败，这里改用内置Material图标
+  /// @date: 2026-09-20
+  IconData _getDocIcon(String ext) {
     switch (ext.toLowerCase()) {
       case 'pdf':
-        return 'lib/assets/images/icon_pdf.png';
+        return Icons.picture_as_pdf;
       case 'txt':
-        return 'lib/assets/images/icon_txt.png';
+        return Icons.description;
       case 'doc':
       case 'docx':
-        return 'lib/assets/images/icon_doc.png';
+        return Icons.article;
       case 'xls':
       case 'xlsx':
-        return 'lib/assets/images/icon_excel.png';
+        return Icons.table_chart;
       case 'ppt':
       case 'pptx':
-        return 'lib/assets/images/icon_ppt.png';
+        return Icons.slideshow;
       default:
-        return 'lib/assets/images/icon_file.png';
+        return Icons.insert_drive_file;
     }
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 构建目录条目（目录名称 + 展开箭头 + 展开后的文档列表）
+  /// @date: 2026-09-20
+  Widget _buildDirectoryItem(int index, DocumentCheckModel directory) {
+    final bool isLast = index == directoryList.length - 1;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        top: index == 0 ? 0 : ThemeSize.middleGap,
+        bottom: isLast ? 0 : ThemeSize.middleGap,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            width: 1,
+            color: isLast ? Colors.transparent : ThemeColors.gray,
+            style: BorderStyle.solid,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 目录名称 + 展开箭头（整行可点击展开/收起）
+          GestureDetector(
+            onTap: () => _onToggleDirectory(index),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    directory.directoryName,
+                    style: const TextStyle(
+                      fontSize: ThemeSize.normalFont,
+                      fontWeight: FontWeight.w500,
+                      color: ThemeColors.mainTitle,
+                    ),
+                  ),
+                ),
+                // 全选/取消全选按钮（仅复选框模式且该目录文档已加载时显示）
+                if (widget.showCheckbox &&
+                    directory.loaded &&
+                    directory.docList.isNotEmpty) ...[
+                  GestureDetector(
+                    onTap: () => _toggleGroupAll(index),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ThemeSize.smallMargin,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ThemeColors.primary,
+                        borderRadius: BorderRadius.circular(
+                          ThemeSize.minBtnRadius,
+                        ),
+                      ),
+                      child: Text(
+                        directory.docList.every((doc) => doc.checked)
+                            ? '取消全选'
+                            : '全选',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: ThemeSize.smallFont,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: ThemeSize.smallMargin),
+                ],
+                // 展开箭头：折叠时向右，展开时顺时针旋转90度朝下
+                Transform.rotate(
+                  key: ValueKey('dir-arrow-${directory.directoryId}'),
+                  angle: directory.expand ? pi / 2 : 0,
+                  child: Opacity(
+                    opacity: ThemeSize.opacity,
+                    child: Image.asset(
+                      'lib/assets/images/icon_arrow.png',
+                      width: ThemeSize.smallIcon,
+                      height: ThemeSize.smallIcon,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 文档列表（目录展开后才显示，文档列表在展开时按需加载）
+          if (directory.expand) ...[
+            if (directory.loading)
+              const Padding(
+                padding: EdgeInsets.only(top: ThemeSize.smallMargin),
+                child: Center(
+                  child: SizedBox(
+                    width: ThemeSize.smallIcon,
+                    height: ThemeSize.smallIcon,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (directory.docList.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(top: ThemeSize.smallMargin),
+                child: Text(
+                  '暂无文档',
+                  style: TextStyle(
+                    color: ThemeColors.subTitle,
+                    fontSize: ThemeSize.smallFont,
+                  ),
+                ),
+              )
+            else
+              ...directory.docList.asMap().entries.map((entry) {
+                return _buildDocItem(index, entry.key, entry.value);
+              }),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 构建文档条目（文档图标 + 文档名称 + 三个点操作图标 + 可选复选框）
+  /// @date: 2026-09-20
+  Widget _buildDocItem(int directoryIndex, int docIndex, DocModel doc) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: ThemeSize.smallMargin,
+        left: ThemeSize.smallMargin,
+      ),
+      child: Row(
+        children: [
+          // 文档图标
+          Icon(
+            _getDocIcon(doc.ext),
+            size: ThemeSize.smallIcon,
+            color: ThemeColors.primary,
+          ),
+          const SizedBox(width: ThemeSize.smallMargin),
+          Expanded(
+            child: Text(
+              doc.name,
+              style: const TextStyle(
+                color: ThemeColors.mainTitle,
+                fontSize: ThemeSize.normalFont,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: ThemeSize.smallMargin),
+          // 操作图标（三个点）：修改权限 / 删除
+          GestureDetector(
+            key: ValueKey('doc-more-${doc.id}'),
+            onTap: () => _onDocOperation(directoryIndex, docIndex),
+            behavior: HitTestBehavior.opaque,
+            child: const Opacity(
+              opacity: ThemeSize.opacity,
+              child: Icon(
+                Icons.more_horiz,
+                size: ThemeSize.middleIcon,
+                color: ThemeColors.mainTitle,
+              ),
+            ),
+          ),
+          // 复选框
+          if (widget.showCheckbox) ...[
+            const SizedBox(width: ThemeSize.smallMargin),
+            GestureDetector(
+              key: ValueKey('doc-check-${doc.id}'),
+              onTap: () => _toggleDocCheck(directoryIndex, docIndex),
+              child: Container(
+                width: ThemeSize.radioSize,
+                height: ThemeSize.radioSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: doc.checked ? ThemeColors.primary : ThemeColors.gray,
+                    width: 2,
+                  ),
+                  color: doc.checked ? ThemeColors.primary : Colors.transparent,
+                ),
+                child: doc.checked
+                    ? const Icon(
+                        Icons.check,
+                        size: ThemeSize.middleFont,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 构建底部"确定/取消"按钮（"我的文档"对话框不显示）
+  /// @date: 2026-09-20
+  Widget _buildBottomButtons() {
+    return Container(
+      padding: const EdgeInsets.all(ThemeSize.middleGap),
+      decoration: const BoxDecoration(color: ThemeColors.background),
+      child: Row(
+        children: [
+          // 取消按钮
+          Expanded(
+            flex: 1,
+            child: OutlinedButton(
+              onPressed: () {
+                if (widget.onCancel != null) {
+                  widget.onCancel!();
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: ThemeColors.subTitle),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
+                ),
+              ),
+              child: const Text(
+                '取消',
+                style: TextStyle(
+                  color: ThemeColors.subTitle,
+                  fontSize: ThemeSize.normalFont,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: ThemeSize.middleGap),
+          // 确定按钮
+          Expanded(
+            flex: 1,
+            child: ElevatedButton(
+              onPressed: _selectedDocIds.isEmpty ? null : _onConfirm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    _selectedDocIds.isEmpty ? ThemeColors.gray : ThemeColors.primary,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: ThemeColors.gray,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '确定',
+                    style: TextStyle(
+                      fontSize: ThemeSize.normalFont,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (_selectedDocIds.isNotEmpty) ...[
+                    const SizedBox(width: ThemeSize.miniMargin),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ThemeSize.miniMargin,
+                        vertical: 1,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        _selectedDocIds.length.toString(),
+                        style: const TextStyle(
+                          color: ThemeColors.primary,
+                          fontSize: ThemeSize.smallFont - 2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    chatProvider = Provider.of<ChatProvider>(context, listen: true);
+
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -281,7 +680,7 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
             ),
             const SizedBox(height: ThemeSize.middleGap),
             ElevatedButton(
-              onPressed: _refreshDocs,
+              onPressed: _loadDirectoryList,
               style: ElevatedButton.styleFrom(
                 backgroundColor: ThemeColors.primary,
                 foregroundColor: Colors.white,
@@ -293,7 +692,7 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
       );
     }
 
-    if (docList.isEmpty) {
+    if (directoryList.isEmpty) {
       return const Center(
         child: Text(
           '暂无文档',
@@ -307,7 +706,6 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
 
     return Column(
       children: [
-        // 文档列表
         Expanded(
           child: Container(
             decoration: const BoxDecoration(color: ThemeColors.background),
@@ -317,240 +715,19 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
                 padding: ThemeStyle.padding,
                 margin: ThemeStyle.padding,
                 child: Column(
-                  children: docList.asMap().entries.map((entry) {
-                    final groupIndex = entry.key;
-                    final group = entry.value;
-                    final isLastGroup = groupIndex == docList.length - 1;
-
-                    return Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(
-                        top: groupIndex == 0 ? 0 : ThemeSize.middleGap,
-                        bottom: isLastGroup ? 0 : ThemeSize.middleGap,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            width: 1,
-                            color: isLastGroup
-                                ? Colors.transparent
-                                : ThemeColors.gray,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 目录标题（可点击展开/收起）
-                          GestureDetector(
-                            onTap: () => _toggleExpand(groupIndex),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    group.directoryName,
-                                    style: const TextStyle(
-                                      fontSize: ThemeSize.normalFont,
-                                      fontWeight: FontWeight.w500,
-                                      color: ThemeColors.mainTitle,
-                                    ),
-                                  ),
-                                ),
-                                // 全选/取消全选按钮
-                                GestureDetector(
-                                  onTap: () => _toggleGroupAll(groupIndex),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: ThemeSize.smallMargin,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: ThemeColors.primary,
-                                      borderRadius: BorderRadius.circular(
-                                        ThemeSize.minBtnRadius,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      group.docList.every((doc) => doc.checked)
-                                          ? '取消全选'
-                                          : '全选',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: ThemeSize.smallFont,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: ThemeSize.smallMargin),
-                                // 展开/收起箭头
-                                Transform.rotate(
-                                  angle: group.expand ? 0 : -pi / 2,
-                                  child: Opacity(
-                                    opacity: 0.3,
-                                    child: Image.asset(
-                                      "lib/assets/images/icon_down.png",
-                                      width: ThemeSize.miniIcon,
-                                      height: ThemeSize.miniIcon,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 文档列表（展开时显示）
-                          if (group.expand)
-                            Column(
-                              children: group.docList.asMap().entries.map((docEntry) {
-                                final docIndex = docEntry.key;
-                                final doc = docEntry.value;
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: ThemeSize.smallMargin,
-                                    left: ThemeSize.smallMargin,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // 文档图标
-                                      Image.asset(
-                                        _getDocIcon(doc.ext),
-                                        width: ThemeSize.smallIcon,
-                                        height: ThemeSize.smallIcon,
-                                      ),
-                                      const SizedBox(width: ThemeSize.smallMargin),
-                                      Expanded(
-                                        child: Text(
-                                          doc.name,
-                                          style: const TextStyle(
-                                            color: ThemeColors.mainTitle,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: ThemeSize.smallMargin),
-                                      // 单选按钮
-                                      GestureDetector(
-                                        onTap: () => _toggleDocCheck(groupIndex, docIndex),
-                                        child: Container(
-                                          width: ThemeSize.radioSize,
-                                          height: ThemeSize.radioSize,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: doc.checked
-                                                  ? ThemeColors.primary
-                                                  : ThemeColors.gray,
-                                              width: 2,
-                                            ),
-                                            color: doc.checked
-                                                ? ThemeColors.primary
-                                                : Colors.transparent,
-                                          ),
-                                          child: doc.checked
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  size: ThemeSize.middleFont,
-                                                  color: Colors.white,
-                                                )
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                  children: directoryList
+                      .asMap()
+                      .entries
+                      .map((entry) =>
+                          _buildDirectoryItem(entry.key, entry.value))
+                      .toList(),
                 ),
               ),
             ),
           ),
         ),
-        // 底部按钮
-        Container(
-          padding: const EdgeInsets.all(ThemeSize.middleGap),
-          decoration: const BoxDecoration(
-            color: ThemeColors.background,
-          ),
-          child: Row(
-            children: [
-              // 取消按钮
-              Expanded(
-                flex: 1,
-                child: OutlinedButton(
-                  onPressed: _onCancel,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ThemeColors.subTitle),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
-                    ),
-                  ),
-                  child: const Text(
-                    '取消',
-                    style: TextStyle(
-                      color: ThemeColors.subTitle,
-                      fontSize: ThemeSize.normalFont,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: ThemeSize.middleGap),
-              // 确定按钮
-              Expanded(
-                flex: 1,
-                child: ElevatedButton(
-                  onPressed: _selectedDocIds.isEmpty ? null : _onConfirm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _selectedDocIds.isEmpty ? ThemeColors.gray : ThemeColors.primary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: ThemeColors.gray,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        '确定',
-                        style: TextStyle(
-                          fontSize: ThemeSize.normalFont,
-                          color: Colors.white,
-                        ),
-                      ),
-                      if (_selectedDocIds.isNotEmpty) ...[
-                        const SizedBox(width: ThemeSize.miniMargin),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: ThemeSize.miniMargin,
-                            vertical: 1,
-                          ),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            _selectedDocIds.length.toString(),
-                            style: const TextStyle(
-                              color: ThemeColors.primary,
-                              fontSize: ThemeSize.smallFont - 2,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // 底部按钮（"我的文档"对话框不显示）
+        if (widget.showBottomButtons) _buildBottomButtons(),
       ],
     );
   }
