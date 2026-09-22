@@ -26,7 +26,7 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     userInfoProvider = Provider.of<UserInfoProvider>(context,listen: true);
-    String userAccount = userInfoProvider.userInfo?.userAccount ?? "吴怨吴悔";
+    String userAccount = userInfoProvider.userInfo?.userAccount ?? "吴时吴刻";
     String email = "";
     String code = "";
     TextEditingController userController = TextEditingController(text: userAccount);

@@ -91,9 +91,30 @@ class _FakeHttpClientAdapter implements HttpClientAdapter {
           ],
         });
       }
+      if (query.contains('directoryId=dir-2')) {
+        // 复现后端 getDocListByDirId（SELECT * FROM chat_doc）不返回 directory_name 的场景：
+        // directoryName / permission / createTime / userId 均为 null，解析时不能崩
+        return jsonEncode({
+          'status': 'SUCCESS',
+          'data': [
+            {
+              'id': 'doc-3',
+              'tenantId': 't1',
+              'directoryId': 'dir-2',
+              'directoryName': null,
+              'name': '学习笔记.txt',
+              'ext': 'txt',
+              'userId': null,
+              'createTime': null,
+              'updateTime': null,
+              'permission': null,
+            },
+          ],
+        });
+      }
       return jsonEncode({'status': 'SUCCESS', 'data': []});
     }
-    if (path.startsWith('/service/chat/updateDocPermission/')) {
+    if (path == '/service/chat/updateDocPermission') {
       return failUpdatePermission
           ? jsonEncode({'status': 'FAIL', 'msg': '文档不存在或无权修改', 'data': null})
           : jsonEncode({'status': 'SUCCESS', 'data': 1, 'msg': '文档权限更新成功'});
@@ -212,6 +233,26 @@ void main() {
     expect(arrowAngle(tester, 'dir-2'), closeTo(0, 0.0001));
   });
 
+  testWidgets('回归：后端不返回 directoryName/permission 等字段时不能抛异常', (tester) async {
+    await tester.pumpWidget(buildWidget());
+    await tester.pumpAndSettle();
+
+    // 目录下文档的 directoryName/permission/createTime/userId 均为 null
+    await tapDirectory(tester, '学习资料');
+    expect(find.text('学习笔记.txt'), findsOneWidget);
+    // 解析失败时列表会走"暂无文档"分支，这里不允许出现
+    expect(find.text('暂无文档'), findsNothing);
+
+    // 权限为 null 时默认私密
+    await tester.tap(find.byKey(const ValueKey('doc-more-doc-3')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('修改权限'));
+    await tester.pumpAndSettle();
+    expect(inDialog('私密'), findsOneWidget);
+    await tester.tap(inDialog('取消'));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('需求3+4：三个点 -> 修改权限，权限默认回显permission，确定调用updateDocPermission', (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -251,6 +292,8 @@ void main() {
     expect(requestLog[2], isNot(contains('/updateDocPermission/')));
     expect(requestLog[2], contains('docId=doc-1'));
     expect(requestLog[2], contains('permission=company'));
+    // 修改成功：对话框已关闭（失败时会保留对话框）
+    expect(find.byType(Dialog), findsNothing);
 
     // 成功后列表已回显新权限：再次打开修改权限对话框显示"公司内公开"
     await tester.tap(find.byKey(const ValueKey('doc-more-doc-1')));
@@ -279,7 +322,9 @@ void main() {
 
     expect(requestLog.last, contains('PUT /service/chat/updateDocPermission?'));
     expect(requestLog.last, contains('docId=doc-1'));
+    expect(requestLog.last, contains('permission=tenant'));
     // 失败时对话框保留（未返回新权限），权限未变化
+    expect(find.byType(Dialog), findsOneWidget);
     expect(inDialog('租户内公开'), findsOneWidget);
     await tester.tap(inDialog('取消'));
     await tester.pumpAndSettle();
