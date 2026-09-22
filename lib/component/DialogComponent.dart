@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/theme/ThemeSize.dart';
 
 class DialogComponent extends StatelessWidget {
-  final String title;
+  final String? title;
   final Widget content;
   final Widget? leftIcon;
   final Widget? rightIcon; // ✅ 新增：右侧图标
@@ -10,16 +10,22 @@ class DialogComponent extends StatelessWidget {
   final double topMarginRatio;
   final bool showDivider;
 
+  /// 【新增】标题栏自定义内容（如"我的文档 | 公共文档"页签），
+  /// 传入后替代 title 文本展示在标题栏正中间（居中对齐）
+  final Widget? titleWidget;
+
   const DialogComponent({
     super.key,
-    required this.title,
+    this.title,
     required this.content,
     this.leftIcon,
     this.rightIcon, // ✅ 新增
     this.onClose,
     this.topMarginRatio = 0.2,
-    this.showDivider = true
-  });
+    this.showDivider = true,
+    this.titleWidget,
+  }) : assert(title != null || titleWidget != null,
+            'title 与 titleWidget 至少要传一个');
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +80,16 @@ class DialogComponent extends StatelessWidget {
                           child: leftIcon,
                         )
                             : const SizedBox(),
-                        // 标题
+                        // 标题（titleWidget 优先：如"我的文档 | 公共文档"页签），整体居中对齐
                         Center(
-                          child: Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: ThemeSize.middleFont,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: titleWidget ??
+                              Text(
+                                title ?? '',
+                                style: const TextStyle(
+                                  fontSize: ThemeSize.middleFont,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                         ),
                         // 关闭按钮 / 自定义右侧图标
                         Align(

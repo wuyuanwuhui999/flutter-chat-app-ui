@@ -7,6 +7,7 @@ import 'package:flutter_chat_app/theme/ThemeStyle.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../common/constant.dart';
 import '../model/DirectoryModel.dart';
 import '../model/DocModel.dart';
 import '../model/DocumentCheckModel.dart';
@@ -16,6 +17,7 @@ import '../utils/HttpUtil.dart';
 import 'BottomSelectionDialog.dart';
 import 'CustomDialogComponent.dart';
 import 'DocPermissionDialog.dart';
+import 'DocSelectBottomBar.dart';
 
 /// @author: wuwenqiang
 /// @description: 文档列表组件（"选择文档"和"我的文档"对话框共用）
@@ -24,6 +26,12 @@ import 'DocPermissionDialog.dart';
 /// 3、文档条目右侧为三个点的操作图标，点击可选择"修改权限"或"删除"
 /// [showCheckbox] 是否显示文档复选框（"我的文档"对话框不显示）
 /// [showBottomButtons] 是否显示底部"确定/取消"按钮（"我的文档"对话框不显示）
+/// [publicMode] 公共文档模式：一次性调用 getPublicDocList 拿到全部公开文档，
+///   按 directoryName（文档目录名称）分组显示目录卡片，目录展开时直接显示文档列表（不再请求接口）；
+///   该模式下的文档可能属于他人，"三个点"（修改权限/删除）操作入口不显示
+/// [checkedIds] 受控勾选集合：由父级（"选择文档"弹窗）统一下发，用于跨页签合并勾选；
+///   不传则组件自管理勾选状态（保持原有行为）
+/// [onDocChecked] 受控模式下单篇文档的勾选变化回调
 /// @date: 2025-09-08
 class DocumentListComponent extends StatefulWidget {
   /// 是否显示文档复选框
@@ -34,6 +42,15 @@ class DocumentListComponent extends StatefulWidget {
 
   /// 初始选中的文档ID列表
   final List<String> initialSelectedIds;
+
+  /// 是否为公共文档模式（按目录名称分组、文档随接口一次返回）
+  final bool publicMode;
+
+  /// 受控勾选集合（传 null 表示组件自管理勾选）
+  final List<String>? checkedIds;
+
+  /// 受控模式下单篇文档勾选变化回调：doc 文档对象，checked 变化后的勾选状态
+  final void Function(DocModel doc, bool checked)? onDocChecked;
 
   /// 选中文档变化回调（复选框模式使用）
   final Function(List<String> selectedIds, List<String> selectedNames)?
@@ -50,6 +67,9 @@ class DocumentListComponent extends StatefulWidget {
     this.showCheckbox = true,
     this.showBottomButtons = true,
     this.initialSelectedIds = const [],
+    this.publicMode = false,
+    this.checkedIds,
+    this.onDocChecked,
     this.onSelectionChanged,
     this.onConfirm,
     this.onCancel,
@@ -80,11 +100,45 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
   @override
   void initState() {
     super.initState();
-    // 初始化选中的文档ID列表
-    _selectedDocIds = List.from(widget.initialSelectedIds);
+    // 初始化选中的文档ID列表：受控模式下以父级下发的勾选集合为准
+    _selectedDocIds = widget.checkedIds != null
+        ? List.from(widget.checkedIds!)
+        : List.from(widget.initialSelectedIds);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDirectoryList();
     });
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 受控模式下跟随父级下发的勾选集合（另一个页签的勾选变化也会同步过来）
+  /// @date: 2026-09-22
+  @override
+  void didUpdateWidget(covariant DocumentListComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.checkedIds == null) return;
+    if (_sameIds(widget.checkedIds!, _selectedDocIds)) return;
+    _selectedDocIds = List.from(widget.checkedIds!);
+    _applyCheckedState();
+  }
+
+  /// @author: wuwenqiang
+  /// @description: 按当前勾选集合回显所有已加载文档的复选框状态
+  /// @date: 2026-09-22
+  void _applyCheckedState() {
+    for (var directory in directoryList) {
+      for (var doc in directory.docList) {
+        doc.checked = _selectedDocIds.contains(doc.id);
+      }
+    }
+  }
+
+  /// 比较两组文档ID是否完全一致（顺序忽略）
+  bool _sameIds(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (final String id in a) {
+      if (!b.contains(id)) return false;
+    }
+    return true;
   }
 
   /// @author: wuwenqiang
@@ -108,6 +162,12 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
           errorMessage = '请先选择租户';
         });
       }
+      return;
+    }
+
+    // 公共文档模式：一次性拉取全部公开文档后按目录名称分组，不需要目录列表接口
+    if (widget.publicMode) {
+      _loadPublicDocList(tenantId);
       return;
     }
 
@@ -142,7 +202,65 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
   }
 
   /// @author: wuwenqiang
+  /// @description: 公共文档模式：调用 getPublicDocList 一次性拿到全部公开文档（租户内公开+公司内公开），
+  /// 按 directoryName（文档目录名称）分组，每个分组直接带上文档列表（loaded=true），
+  /// 点击目录名称展开时直接显示对应文档，不再请求接口
+  /// @date: 2026-09-22
+  void _loadPublicDocList(String tenantId) {
+    final String companyId = chatProvider.currentCompanyId;
+
+    getPublicDocListService(tenantId, companyId).then((res) {
+      if (!mounted) return;
+
+      final List<DocumentCheckModel> tempList = [];
+      // 按目录名称分组，key 为目录名称
+      final Map<String, DocumentCheckModel> groupMap = {};
+
+      for (var item in res.data) {
+        final DocModel docModel = DocModel.fromJson(item);
+        // 回显勾选状态
+        docModel.checked = _selectedDocIds.contains(docModel.id);
+
+        // 后端未返回目录名称的文档归入"默认文件夹"分组
+        final String directoryName = docModel.directoryName.isEmpty
+            ? DEFAULT_DIRECTORY_NAME
+            : docModel.directoryName;
+
+        DocumentCheckModel? group = groupMap[directoryName];
+        if (group == null) {
+          group = DocumentCheckModel(
+            expand: false,
+            // 公共文档按目录名称分组，没有目录id，用目录名称作为分组标识
+            directoryId: directoryName,
+            directoryName: directoryName,
+            docList: [],
+            // 文档随接口一起返回，展开时直接显示，不再请求接口
+            loaded: true,
+          );
+          groupMap[directoryName] = group;
+          tempList.add(group);
+        }
+        group.docList.add(docModel);
+      }
+
+      setState(() {
+        directoryList = tempList;
+        isLoading = false;
+      });
+    }).catchError((error) {
+      debugPrint('加载公共文档列表失败: $error');
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        // 后端会返回"无权查询：当前用户不在该租户/公司内"等提示
+        errorMessage = parseResponseErrorMsg(error);
+      });
+    });
+  }
+
+  /// @author: wuwenqiang
   /// @description: 点击目录名称/展开箭头：首次展开时加载该目录下的文档列表，再次点击收起
+  /// 公共文档模式下文档已随接口返回（loaded=true），展开时直接显示不再请求接口
   /// @date: 2026-09-20
   void _onToggleDirectory(int index) {
     final DocumentCheckModel directory = directoryList[index];
@@ -254,7 +372,12 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
           setState(() {
             directoryList[directoryIndex].docList.removeAt(docIndex);
           });
-          _notifySelectionChanged();
+          if (widget.checkedIds != null) {
+            // 受控模式：文档已删除，把它从父级的勾选集合里摘掉
+            widget.onDocChecked?.call(doc, false);
+          } else {
+            _notifySelectionChanged();
+          }
         }
         _showToast(res.msg ?? '删除文档成功');
       } else {
@@ -294,7 +417,12 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
     setState(() {
       final DocModel doc = directoryList[directoryIndex].docList[docIndex];
       doc.checked = !doc.checked;
-      _notifySelectionChanged();
+      if (widget.checkedIds != null) {
+        // 受控模式：把单篇的勾选变化抛给父级，由父级统一下发新的勾选集合（跨页签合并）
+        widget.onDocChecked?.call(doc, doc.checked);
+      } else {
+        _notifySelectionChanged();
+      }
     });
   }
 
@@ -308,8 +436,14 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
     setState(() {
       for (var doc in directory.docList) {
         doc.checked = !allChecked;
+        if (widget.checkedIds != null) {
+          // 受控模式：逐篇抛给父级，由父级统一下发新的勾选集合
+          widget.onDocChecked?.call(doc, doc.checked);
+        }
       }
-      _notifySelectionChanged();
+      if (widget.checkedIds == null) {
+        _notifySelectionChanged();
+      }
     });
   }
 
@@ -514,19 +648,21 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
           ),
           const SizedBox(width: ThemeSize.smallMargin),
           // 操作图标（三个点）：修改权限 / 删除
-          GestureDetector(
-            key: ValueKey('doc-more-${doc.id}'),
-            onTap: () => _onDocOperation(directoryIndex, docIndex),
-            behavior: HitTestBehavior.opaque,
-            child: const Opacity(
-              opacity: ThemeSize.opacity,
-              child: Icon(
-                Icons.more_horiz,
-                size: ThemeSize.middleIcon,
-                color: ThemeColors.mainTitle,
+          // 公共文档页签里的文档可能属于他人（后端只允许修改/删除本人文档），因此不显示该操作入口
+          if (!widget.publicMode)
+            GestureDetector(
+              key: ValueKey('doc-more-${doc.id}'),
+              onTap: () => _onDocOperation(directoryIndex, docIndex),
+              behavior: HitTestBehavior.opaque,
+              child: const Opacity(
+                opacity: ThemeSize.opacity,
+                child: Icon(
+                  Icons.more_horiz,
+                  size: ThemeSize.middleIcon,
+                  color: ThemeColors.mainTitle,
+                ),
               ),
             ),
-          ),
           // 复选框
           if (widget.showCheckbox) ...[
             const SizedBox(width: ThemeSize.smallMargin),
@@ -561,89 +697,17 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
 
   /// @author: wuwenqiang
   /// @description: 构建底部"确定/取消"按钮（"我的文档"对话框不显示）
+  /// 按钮条已抽到 DocSelectBottomBar，"选择文档"弹窗的两个页签共用同一条按钮
   /// @date: 2026-09-20
   Widget _buildBottomButtons() {
-    return Container(
-      padding: const EdgeInsets.all(ThemeSize.middleGap),
-      decoration: const BoxDecoration(color: ThemeColors.background),
-      child: Row(
-        children: [
-          // 取消按钮
-          Expanded(
-            flex: 1,
-            child: OutlinedButton(
-              onPressed: () {
-                if (widget.onCancel != null) {
-                  widget.onCancel!();
-                }
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ThemeColors.subTitle),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
-                ),
-              ),
-              child: const Text(
-                '取消',
-                style: TextStyle(
-                  color: ThemeColors.subTitle,
-                  fontSize: ThemeSize.normalFont,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: ThemeSize.middleGap),
-          // 确定按钮
-          Expanded(
-            flex: 1,
-            child: ElevatedButton(
-              onPressed: _selectedDocIds.isEmpty ? null : _onConfirm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    _selectedDocIds.isEmpty ? ThemeColors.gray : ThemeColors.primary,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: ThemeColors.gray,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(ThemeSize.btnHeight / 2),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '确定',
-                    style: TextStyle(
-                      fontSize: ThemeSize.normalFont,
-                      color: Colors.white,
-                    ),
-                  ),
-                  if (_selectedDocIds.isNotEmpty) ...[
-                    const SizedBox(width: ThemeSize.miniMargin),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ThemeSize.miniMargin,
-                        vertical: 1,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        _selectedDocIds.length.toString(),
-                        style: const TextStyle(
-                          color: ThemeColors.primary,
-                          fontSize: ThemeSize.smallFont - 2,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+    return DocSelectBottomBar(
+      selectedCount: _selectedDocIds.length,
+      onConfirm: _onConfirm,
+      onCancel: () {
+        if (widget.onCancel != null) {
+          widget.onCancel!();
+        }
+      },
     );
   }
 

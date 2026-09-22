@@ -49,6 +49,23 @@ void main() {
             },
           ],
         });
+      } else if (path == '/service/chat/getPublicDocList') {
+        body = jsonEncode({
+          'status': 'SUCCESS',
+          'data': [
+            {
+              'id': 'doc-p1',
+              'tenantId': 't1',
+              'companyId': 'c1',
+              'directoryId': 'dir-9',
+              'directoryName': '公司共享',
+              'name': '公开制度.pdf',
+              'ext': 'pdf',
+              'userId': 'other-user',
+              'permission': 'company',
+            },
+          ],
+        });
       } else {
         body = jsonEncode({'status': 'FAIL', 'msg': '未知接口', 'data': null});
       }
@@ -107,5 +124,15 @@ void main() {
     expect(res.data.length, 1);
     // 文档权限字段已解析
     expect(res.data.first['permission'], 'private');
+  });
+
+  test('查询公开文档：GET /service/chat/getPublicDocList?tenantId=&companyId=，返回带 directoryName',
+      () async {
+    final res = await getPublicDocListService('t1', 'c1');
+    expect(requestLines.single,
+        'GET /service/chat/getPublicDocList?tenantId=t1&companyId=c1');
+    expect(res.data.length, 1);
+    // 文档带目录名称字段，供前端按目录名称分组
+    expect(res.data.first['directoryName'], '公司共享');
   });
 }

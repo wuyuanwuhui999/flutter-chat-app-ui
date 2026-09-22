@@ -146,6 +146,8 @@ class HttpUtil {
   /// [permission] 文档权限：private-私密、tenant-租户内公开、company-公司内公开
   /// [splitMethod] 分割方式：recursive/paragraph/sentence/fixed
   /// [chunkSize] 分割大小，仅 splitMethod=fixed 时生效
+  /// [companyId] 公司ID（【修改点】新增），非空时下发，用于「公司内公开」文档的向量检索过滤；
+  ///            为空时不下发，由后端按 tenantId 回查所属公司
   Future<ResponseModel> uploadDoc({
     required String filePath,
     required String fileName,
@@ -154,6 +156,7 @@ class HttpUtil {
     required String permission,
     required String splitMethod,
     int? chunkSize,
+    String companyId = '',
   }) async {
     // 【修改点】接口地址上的 {tenantId}/{directoryId} 已去掉，统一放到body中传递
     final Map<String, dynamic> formData = {
@@ -162,6 +165,10 @@ class HttpUtil {
       'permission': permission,
       'splitMethod': splitMethod,
     };
+    // 【修改点】公司ID放到body中传递，仅非空时下发（保持与后端 companyId 可选参数一致）
+    if (companyId.isNotEmpty) {
+      formData['companyId'] = companyId;
+    }
     // 分割大小仅对固定长度分割（fixed）生效，其它分割方式不下发该参数
     if (splitMethod == DocSettingModel.splitMethodFixed && chunkSize != null) {
       formData['chunkSize'] = chunkSize;

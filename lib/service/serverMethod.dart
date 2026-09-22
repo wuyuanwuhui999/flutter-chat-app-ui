@@ -206,6 +206,33 @@ Future<ResponseModel<List<dynamic>>> getDocListByDirIdService(
 }
 
 ///@author: wuwenqiang
+///@description: 查询公开文档列表（租户内公开 + 公司内公开）
+/// 后端一次性返回全部公开文档，且带有 directoryName（文档目录名称）字段，
+/// 前端按 directoryName 分组展示即可，不需要再按目录id查询
+/// @date: 2026-09-22
+/// @param tenantId: 租户ID（租户内公开文档按租户过滤）
+/// @param companyId: 公司ID（公司内公开文档按公司过滤）
+Future<ResponseModel<List<dynamic>>> getPublicDocListService(
+  String tenantId,
+  String companyId,
+) async {
+  try {
+    Response response = await dio.get(
+      servicePath['getPublicDocList']!,
+      queryParameters: {
+        "tenantId": tenantId,
+        "companyId": companyId,
+      },
+    );
+    return ResponseModel.fromJson(response.data);
+  } catch (e) {
+    print('ERROR: getPublicDocList: $e');
+    // 后端会返回"无权查询：当前用户不在该租户/公司内"等提示，这里保留原异常以便展示 msg
+    rethrow;
+  }
+}
+
+///@author: wuwenqiang
 ///@description: 修改文档权限（返回data大于0表示修改成功）
 /// @date: 2026-09-20
 /// @param docId: 文档ID（【修改点】不再拼接到接口地址上，放到body中传递）

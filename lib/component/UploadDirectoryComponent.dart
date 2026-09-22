@@ -202,7 +202,7 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
         throw Exception('请先选择租户');
       }
 
-      // 使用HttpUtil上传文件（tenantId、directoryId、permission、splitMethod、chunkSize统一放到body中）
+      // 使用HttpUtil上传文件（tenantId、directoryId、permission、splitMethod、chunkSize、companyId统一放到body中）
       final httpUtil = HttpUtil.getInstance();
       final response = await httpUtil.uploadDoc(
         filePath: filePath,
@@ -212,6 +212,8 @@ class _UploadDirectoryComponentState extends State<UploadDirectoryComponent> {
         permission: setting.permission,
         splitMethod: setting.splitMethod,
         chunkSize: setting.chunkSize,
+        // 【修改点】携带当前公司ID，供后端标记「公司内公开」文档的所属公司（为空时后端按租户回查）
+        companyId: chatProvider.currentCompanyId,
       );
 
       // 关闭loading对话框

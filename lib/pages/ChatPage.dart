@@ -14,6 +14,7 @@ import '../api/api.dart';
 import '../model/TenantModel.dart';
 import '../component/CustomDialogComponent.dart';
 import '../component/DialogComponent.dart';
+import '../component/DocSelectDialog.dart';
 import '../component/DocumentListComponent.dart';
 import '../component/BottomSelectionDialog.dart';
 import '../component/TriangleComponent.dart';
@@ -346,34 +347,21 @@ class ChatPageState extends State<ChatPage> {
     final List<String> initialSelectedIds = _isDocumentModeActive ? List.from(_docIds) : [];
 
     // 显示弹窗并等待结果
+    // 【修改点】弹窗内标题栏为"我的文档 ｜ 公共文档"两个页签，公共文档页签首次点击时才调用公开文档接口
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return DialogComponent(
-          showDivider: false,
-          title: "选择文档",
-          content: DocumentListComponent(
-            showCheckbox: true,
-            showBottomButtons: true,
-            initialSelectedIds: initialSelectedIds,
-            onSelectionChanged: (List<String> selectedIds, List<String> selectedNames) {
-              // 更新临时选中的文档ID和名称
-              _tempSelectedDocIds = selectedIds;
-              _selectedDocNames = selectedNames;
-            },
-            onConfirm: (List<String> selectedIds, List<String> selectedNames) {
-              // 确认选择，关闭弹窗并返回结果
-              Navigator.of(context).pop({
-                'docIds': selectedIds,
-                'docNames': selectedNames,
-              });
-            },
-            onCancel: () {
-              // 取消选择，关闭弹窗并返回null
-              Navigator.of(context).pop(null);
-            },
-          ),
+        return DocSelectDialog(
+          initialSelectedIds: initialSelectedIds,
+          // 回显已选中文档的名称（与 initialSelectedIds 一一对应）
+          initialSelectedNames:
+              _isDocumentModeActive ? List.from(_selectedDocNames) : <String>[],
+          onSelectionChanged: (List<String> selectedIds, List<String> selectedNames) {
+            // 更新临时选中的文档ID和名称
+            _tempSelectedDocIds = selectedIds;
+            _selectedDocNames = selectedNames;
+          },
         );
       },
     );

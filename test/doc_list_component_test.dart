@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_chat_app/component/DocumentListComponent.dart';
+import 'package:flutter_chat_app/model/CompanyModel.dart';
 import 'package:flutter_chat_app/model/TenantModel.dart';
 import 'package:flutter_chat_app/provider/ChatProvider.dart';
 import 'package:flutter_chat_app/utils/HttpUtil.dart';
@@ -114,6 +115,36 @@ class _FakeHttpClientAdapter implements HttpClientAdapter {
       }
       return jsonEncode({'status': 'SUCCESS', 'data': []});
     }
+    if (path == '/service/chat/getPublicDocList') {
+      // 公开文档接口一次性返回全部文档，带 directoryName 目录名称字段
+      return jsonEncode({
+        'status': 'SUCCESS',
+        'data': [
+          {
+            'id': 'pub-1',
+            'tenantId': 't1',
+            'companyId': 'c1',
+            'directoryId': 'dir-9',
+            'directoryName': '公司共享',
+            'name': '公开制度.pdf',
+            'ext': 'pdf',
+            'userId': 'other-user',
+            'permission': 'company',
+          },
+          {
+            'id': 'pub-2',
+            'tenantId': 't1',
+            'companyId': 'c1',
+            'directoryId': 'dir-8',
+            'directoryName': '培训资料',
+            'name': '培训资料.txt',
+            'ext': 'txt',
+            'userId': 'other-user',
+            'permission': 'tenant',
+          },
+        ],
+      });
+    }
     if (path == '/service/chat/updateDocPermission') {
       return failUpdatePermission
           ? jsonEncode({'status': 'FAIL', 'msg': '文档不存在或无权修改', 'data': null})
@@ -148,12 +179,23 @@ void main() {
   Widget buildWidget({
     bool showCheckbox = true,
     bool showBottomButtons = true,
+    bool publicMode = false,
     Function(List<String>, List<String>)? onConfirm,
   }) {
     final chatProvider = ChatProvider();
     chatProvider.setCurrentTenant(
       TenantModel(id: 't1', name: '测试租户', code: 'T1', status: 1, role: 1),
     );
+    chatProvider.setCurrentCompany(CompanyModel(
+      id: 'c1',
+      name: '测试公司',
+      code: 'C1',
+      role: 1,
+      status: 1,
+      createDate: '2026-09-01',
+      updateDate: '2026-09-01',
+      createdBy: 'u1',
+    ));
     return ChangeNotifierProvider<ChatProvider>.value(
       value: chatProvider,
       child: MaterialApp(
@@ -161,6 +203,7 @@ void main() {
           body: DocumentListComponent(
             showCheckbox: showCheckbox,
             showBottomButtons: showBottomButtons,
+            publicMode: publicMode,
             onConfirm: onConfirm,
           ),
         ),
@@ -389,5 +432,46 @@ void main() {
     await tester.pumpAndSettle();
     expect(confirmed.length, 1);
     expect(confirmed.first, ['doc-1']);
+  });
+
+  testWidgets('公共文档模式：一次请求 getPublicDocList，按 directoryName 分组，展开不再请求，无操作图标', (tester) async {
+    await tester.pumpWidget(buildWidget(publicMode: true));
+    await tester.pumpAndSettle();
+
+    // 只调用一次公开文档接口（带 tenantId 与 companyId），不请求目录列表
+    expect(requestLog.length, 1);
+    expect(requestLog.first, contains('GET /service/chat/getPublicDocList'));
+    expect(requestLog.first, contains('tenantId=t1'));
+    expect(requestLog.first, contains('companyId=c1'));
+    expect(find.text('工作资料'), findsNothing);
+
+    // 按 directoryName 分组显示目录卡片，未展开不显示文档
+    expect(find.text('公司共享'), findsOneWidget);
+    expect(find.text('培训资料'), findsOneWidget);
+    expect(find.text('公开制度.pdf'), findsNothing);
+
+    // 展开分组：直接显示该分组的文档，不再请求接口，箭头转90度
+    await tapDirectory(tester, '公司共享');
+    expect(find.text('公开制度.pdf'), findsOneWidget);
+    expect(requestLog.length, 1);
+    expect(arrowAngle(tester, '公司共享'), closeTo(0, 0.0001));
+
+    // 收起后再展开同样不请求接口
+    await tapDirectory(tester, '公司共享');
+    expect(find.text('公开制度.pdf'), findsNothing);
+    expect(arrowAngle(tester, '公司共享'), closeTo(1, 0.0001));
+    await tapDirectory(tester, '公司共享');
+    expect(find.text('公开制度.pdf'), findsOneWidget);
+    expect(requestLog.length, 1);
+
+    // 另一个分组也能展开，同样不请求
+    await tapDirectory(tester, '培训资料');
+    expect(find.text('培训资料.txt'), findsOneWidget);
+    expect(requestLog.length, 1);
+
+    // 公共文档可能属于他人：不显示"三个点"（修改权限/删除）入口，复选框与全选仍在
+    expect(find.byIcon(Icons.more_horiz), findsNothing);
+    expect(find.text('全选'), findsNWidgets(2));
+    expect(find.byKey(const ValueKey('doc-check-pub-1')), findsOneWidget);
   });
 }

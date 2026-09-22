@@ -38,7 +38,7 @@ void main() {
     return file;
   }
 
-  test('uploadDoc：地址不带 tenantId/directoryId，参数放在body中（fixed带chunkSize）', () async {
+  test('uploadDoc：地址不带 tenantId/directoryId，参数放在body中（fixed带chunkSize，带companyId）', () async {
     final res = await HttpUtil.getInstance().uploadDoc(
       filePath: buildTempFile().path,
       fileName: 'flutter_upload_test.txt',
@@ -47,6 +47,7 @@ void main() {
       permission: 'tenant',
       splitMethod: 'fixed',
       chunkSize: 800,
+      companyId: 'company-1',
     );
 
     expect(res.status, 'SUCCESS');
@@ -63,6 +64,9 @@ void main() {
     expect(body.contains('name="permission"'), isTrue);
     expect(body.contains('name="splitMethod"'), isTrue);
     expect(body.contains('name="chunkSize"'), isTrue);
+    // companyId 非空时下发
+    expect(body.contains('name="companyId"'), isTrue);
+    expect(body.contains('company-1'), isTrue);
     expect(body.contains('tenant-1'), isTrue);
     expect(body.contains('dir-1'), isTrue);
     expect(body.contains('tenant'), isTrue);
@@ -70,7 +74,7 @@ void main() {
     expect(body.contains('800'), isTrue);
   });
 
-  test('uploadDoc：非fixed分割方式不下发chunkSize', () async {
+  test('uploadDoc：非fixed分割方式不下发chunkSize，companyId为空时不下发', () async {
     await HttpUtil.getInstance().uploadDoc(
       filePath: buildTempFile().path,
       fileName: 'flutter_upload_test.txt',
@@ -84,6 +88,7 @@ void main() {
     expect(requestPaths.single, '/service/chat/uploadDoc');
     final body = requestBodies.single;
     expect(body.contains('name="chunkSize"'), isFalse);
+    expect(body.contains('name="companyId"'), isFalse);
     expect(body.contains('name="splitMethod"'), isTrue);
     expect(body.contains('recursive'), isTrue);
     expect(body.contains('name="permission"'), isTrue);
