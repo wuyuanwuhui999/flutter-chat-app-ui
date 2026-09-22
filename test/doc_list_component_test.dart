@@ -284,14 +284,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(inDialog('公司内公开'), findsOneWidget);
 
-    // 确定 -> PUT /service/chat/updateDocPermission（docId和permission都在body中）
+    // 确定 -> PUT /service/chat/updateDocPermission（docId和permission以JSON放body中）
     await tester.tap(inDialog('确定'));
     await tester.pumpAndSettle();
     expect(requestLog.length, 3);
     expect(requestLog[2], contains('PUT /service/chat/updateDocPermission?'));
     expect(requestLog[2], isNot(contains('/updateDocPermission/')));
-    expect(requestLog[2], contains('docId=doc-1'));
-    expect(requestLog[2], contains('permission=company'));
+    expect(requestLog[2], contains('"docId":"doc-1"'));
+    expect(requestLog[2], contains('"permission":"company"'));
     // 修改成功：对话框已关闭（失败时会保留对话框）
     expect(find.byType(Dialog), findsNothing);
 
@@ -321,8 +321,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(requestLog.last, contains('PUT /service/chat/updateDocPermission?'));
-    expect(requestLog.last, contains('docId=doc-1'));
-    expect(requestLog.last, contains('permission=tenant'));
+    expect(requestLog.last, contains('"docId":"doc-1"'));
+    expect(requestLog.last, contains('"permission":"tenant"'));
     // 失败时对话框保留（未返回新权限），权限未变化
     expect(find.byType(Dialog), findsOneWidget);
     expect(inDialog('租户内公开'), findsOneWidget);

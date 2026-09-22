@@ -69,15 +69,15 @@ void main() {
     await server.close(force: true);
   });
 
-  test('修改文档权限：地址不带docId，docId和permission放到body中', () async {
+  test('修改文档权限：地址不带docId，docId和permission以JSON放到body中', () async {
     final res = await updateDocPermissionService('doc-1', 'company');
 
     // 接口地址上已经没有 /{docId}
     expect(requestLines.single, 'PUT /service/chat/updateDocPermission?');
-    // 请求体为表单，Spring 的 @RequestParam 才能绑定
-    expect(requestContentTypes.single, 'application/x-www-form-urlencoded');
-    expect(requestBodies.single, contains('docId=doc-1'));
-    expect(requestBodies.single, contains('permission=company'));
+    // 后端是 @RequestBody Map<String,String>，必须是JSON body
+    expect(requestContentTypes.single, 'application/json');
+    expect(requestBodies.single, contains('"docId":"doc-1"'));
+    expect(requestBodies.single, contains('"permission":"company"'));
     // data大于0表示修改成功
     expect(int.parse(res.data.toString()) > 0, isTrue);
     expect(res.msg, '文档权限更新成功');

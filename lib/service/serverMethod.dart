@@ -215,14 +215,14 @@ Future<ResponseModel<dynamic>> updateDocPermissionService(
   String permission,
 ) async {
   try {
-    // 【修改点】接口地址上的 {docId} 已去掉，docId 和 permission 一起放到body中传递
+    // 【修改点】接口地址上的 {docId} 已去掉；
+    // 后端是 @RequestBody Map<String,String> 接收，这里以JSON body传递docId和permission
     Response response = await dio.put(
       servicePath['updateDocPermission']!,
       data: {
         "docId": docId,
         "permission": permission,
       },
-      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
     return ResponseModel.fromJson(response.data);
   } catch (e) {
