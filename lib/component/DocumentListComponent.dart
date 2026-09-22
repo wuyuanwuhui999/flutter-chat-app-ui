@@ -7,7 +7,6 @@ import 'package:flutter_chat_app/theme/ThemeStyle.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../common/constant.dart';
 import '../model/DirectoryModel.dart';
 import '../model/DocModel.dart';
 import '../model/DocumentCheckModel.dart';
@@ -115,16 +114,8 @@ class _DocumentListComponentState extends State<DocumentListComponent> {
     getDirectoryListService(tenantId).then((res) {
       if (!mounted) return;
 
-      // 默认文件夹固定放在第一个（未选择目录上传的文档）
-      final List<DocumentCheckModel> tempList = [
-        DocumentCheckModel(
-          expand: false,
-          directoryId: DEFAULT_DIRECTORY_ID,
-          directoryName: DEFAULT_DIRECTORY_NAME,
-          docList: [],
-        )
-      ];
-
+      // 目录列表完全以后端返回的为准（不再拼装"默认文件夹"）
+      final List<DocumentCheckModel> tempList = [];
       for (var item in res.data) {
         final dir = DirectoryModel.fromJson(item);
         tempList.add(DocumentCheckModel(

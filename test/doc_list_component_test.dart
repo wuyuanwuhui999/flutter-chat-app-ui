@@ -196,8 +196,8 @@ void main() {
     expect(requestLog.length, 1);
     expect(requestLog.first, contains('GET /service/chat/getDirectoryList'));
     expect(requestLog.first, contains('tenantId=t1'));
-    // 默认文件夹 + 后端返回的目录
-    expect(find.text('默认文件夹'), findsOneWidget);
+    // 只显示后端返回的目录，不再有本地拼装的"默认文件夹"
+    expect(find.text('默认文件夹'), findsNothing);
     expect(find.text('工作资料'), findsOneWidget);
     expect(find.text('学习资料'), findsOneWidget);
     // 未展开：不显示文档，箭头向右（0度）
